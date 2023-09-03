@@ -39,16 +39,88 @@ type
 
   TRegExLib = class
   public
+    /// <summary>
+    ///   Determines whether the specified input string matches the specified regular expression pattern.
+    /// </summary>
+    /// <param name="AInput">The input string to match.</param>
+    /// <param name="APattern">The regular expression pattern to match against.</param>
+    /// <returns>True if the input string matches the pattern; otherwise, False.</returns>
     class function IsMatch(const AInput: string; const APattern: string): boolean; overload; static;
+
+    /// <summary>
+    ///   Determines whether the specified input string matches the specified regular expression pattern with the specified options.
+    /// </summary>
+    /// <param name="AInput">The input string to match.</param>
+    /// <param name="APattern">The regular expression pattern to match against.</param>
+    /// <param name="AOptions">Additional options for matching.</param>
+    /// <returns>True if the input string matches the pattern; otherwise, False.</returns>
     class function IsMatch(const AInput: string; const APattern: string; const AOptions: TOptionsLib): boolean; overload; static;
+
+    /// <summary>
+    ///   Searches the specified input string for a match to the specified regular expression pattern and returns a match result.
+    /// </summary>
+    /// <param name="AValue">The input string to search.</param>
+    /// <param name="AExpression">The regular expression pattern to search for.</param>
+    /// <returns>A match result object containing information about the match.</returns>
     class function MatchExpression(const AValue: string; const AExpression: string): TMatchLib; static;
+
+    /// <summary>
+    ///   Replaces all occurrences of the specified pattern in the input string with the result of a specified evaluator function.
+    /// </summary>
+    /// <param name="AInput">The input string to search.</param>
+    /// <param name="APattern">The regular expression pattern to search for.</param>
+    /// <param name="AEvaluator">A function that provides replacement values for matched patterns.</param>
+    /// <returns>The input string with all matched patterns replaced by the values provided by the evaluator function.</returns>
     class function Replace(const AInput, APattern: string; AEvaluator: TMatchEvaluator): string; overload; static;
+
+    /// <summary>
+    ///   Replaces all occurrences of the specified pattern in the input string with a specified replacement string using the specified options.
+    /// </summary>
+    /// <param name="AInput">The input string to search.</param>
+    /// <param name="APattern">The regular expression pattern to search for.</param>
+    /// <param name="AReplacement">The replacement string to use for matched patterns.</param>
+    /// <param name="AOptions">Additional options for the replacement operation.</param>
+    /// <returns>The input string with all matched patterns replaced by the specified replacement string.</returns>
     class function Replace(const AInput, APattern, AReplacement: string; AOptions: TOptionsLib): string; overload; static;
+
+    /// <summary>
+    ///   Replaces all occurrences of the specified pattern in the input string with the result of a specified evaluator function using the specified options.
+    /// </summary>
+    /// <param name="AInput">The input string to search.</param>
+    /// <param name="APattern">The regular expression pattern to search for.</param>
+    /// <param name="AEvaluator">A function that provides replacement values for matched patterns.</param>
+    /// <param name="AOptions">Additional options for the replacement operation.</param>
+    /// <returns>The input string with all matched patterns replaced by the values provided by the evaluator function.</returns>
     class function Replace(const AInput, APattern: string; AEvaluator: TMatchEvaluator; AOptions: TOptionsLib): string; overload; static;
+
+    /// <summary>
+    ///   Replaces all occurrences of the specified pattern in the input string with a specified replacement string.
+    /// </summary>
+    /// <param name="AInput">The input string to search.</param>
+    /// <param name="APattern">The regular expression pattern to search for.</param>
+    /// <param name="AReplacement">The replacement string to use for matched patterns.</param>
+    /// <returns>The input string with all matched patterns replaced by the specified replacement string.</returns>
     class function Replace(const AInput, APattern, AReplacement: string): string; overload; static;
-    //
+
+    /// <summary>
+    ///   Determines whether the specified string is a valid email address.
+    /// </summary>
+    /// <param name="AEmail">The string to check for valid email format.</param>
+    /// <returns>True if the string is a valid email address; otherwise, False.</returns>
     class function IsValidEmail(const AEmail: string): boolean;
+
+    /// <summary>
+    ///   Determines whether the specified string is a valid UUID (Universally Unique Identifier).
+    /// </summary>
+    /// <param name="AUUID">The string to check for valid UUID format.</param>
+    /// <returns>True if the string is a valid UUID; otherwise, False.</returns>
     class function IsUUID(const AUUID: string): boolean;
+
+    /// <summary>
+    ///   Determines whether the specified string is a valid IPv4 address.
+    /// </summary>
+    /// <param name="AIPV4">The string to check for valid IPv4 format.</param>
+    /// <returns>True if the string is a valid IPv4 address; otherwise, False.</returns>
     class function IsIPV4(const AIPV4: string): boolean;
   end;
 
