@@ -1,4 +1,4 @@
-program PTestSysMap;
+program PTestSysDictionary;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -28,7 +28,7 @@ uses
   eclbr.result.pair.exception in '..\..\Source\resultpair\eclbr.result.pair.exception.pas',
   eclbr.result.pair in '..\..\Source\resultpair\eclbr.result.pair.pas',
   eclbr.result.pair.value in '..\..\Source\resultpair\eclbr.result.pair.value.pas',
-  UTestEclbr.SysMap in 'UTestEclbr.SysMap.pas';
+  UTestEclbr.SysList in 'UTestEclbr.SysList.pas';
 
 var
   runner : ITestRunner;
