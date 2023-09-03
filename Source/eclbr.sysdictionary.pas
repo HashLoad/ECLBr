@@ -39,13 +39,12 @@ type
   TDictionaryHelper<K,V> = class(TDictionary<K,V>)
   private
     function _ComparePairs(const Left, Right: TPair<K, V>): Integer;
-    procedure SortByKey(const ASelector: TFunc<K, V, TValue>);
   public
     /// <summary>
     ///   Adds the key-value pairs from another dictionary to this dictionary.
     /// </summary>
     /// <param name="ASource">The source dictionary containing key-value pairs to add.</param>
-    procedure AddDictionary(const ASource: TDictionary<K,V>);
+    procedure AddRange(const ASource: TDictionary<K,V>);
 
     /// <summary>
     ///   Iterates through each key-value pair in the dictionary and performs an action on them.
@@ -63,12 +62,14 @@ type
     ///   Rotates the dictionary by a specified number of positions.
     /// </summary>
     /// <param name="ACount">The number of positions to rotate the dictionary.</param>
-    procedure Rotate(const ACount: Integer);
+    function Rotate(const ACount: Integer): TArray<TPair<K, V>>;
 
     /// <summary>
     ///   Removes duplicate values from the dictionary, keeping only the first occurrence of each value.
     /// </summary>
     procedure Unique;
+
+    procedure FreeValues;
 
     /// <summary>
     ///   Returns the sorted keys of the dictionary.
@@ -287,8 +288,7 @@ begin
   end;
 end;
 
-procedure TDictionaryHelper<K, V>.AddDictionary(
-  const ASource: TDictionary<K, V>);
+procedure TDictionaryHelper<K, V>.AddRange(const ASource: TDictionary<K, V>);
 var
   LPair: TPair<K, V>;
 begin
@@ -360,13 +360,27 @@ procedure TDictionaryHelper<K, V>.ForEachIndexed(
   const AAction: TProc<Integer, K, V>);
 var
   LIndex: Integer;
-  LPair: TPair<K, V>;
+  LSortedKeys: TArray<K>;
+  LKey: K;
 begin
-  LIndex := 0;
-  for LPair in Self do
+  LSortedKeys := SortedKeys;
+  for LIndex := 0 to Length(LSortedKeys) - 1 do
   begin
-    AAction(LIndex, LPair.Key, LPair.Value);
-    Inc(LIndex);
+    LKey := LSortedKeys[LIndex];
+    AAction(LIndex, LKey, Self[LKey]);
+  end;
+end;
+
+procedure TDictionaryHelper<K, V>.FreeValues;
+var
+  LItem: V;
+  LValue: TValue;
+begin
+  for LItem in Values do
+  begin
+    LValue := TValue.From<V>(LItem);
+    if LValue.IsObject then
+      TObject(LValue.AsObject).Free;
   end;
 end;
 
@@ -555,32 +569,22 @@ begin
   Result := LAccumulatedValue;
 end;
 
-procedure TDictionaryHelper<K, V>.Rotate(const ACount: Integer);
+function TDictionaryHelper<K, V>.Rotate(const ACount: Integer): TArray<TPair<K, V>>;
 var
+  LSortedKeysArray: TArray<K>;
   LList: TList<TPair<K, V>>;
   LIndex, LNewIndex: Integer;
-  LPair: TPair<K, V>;
 begin
-  LList := TList<TPair<K, V>>.Create;
-  try
-    LList.AddRange(Self);
-    LList.Count := Self.Count;
+  LSortedKeysArray := SortedKeys;
+  SetLength(Result, Length(LSortedKeysArray));
 
-    for LIndex := 0 to LList.Count - 1 do
-    begin
-      LNewIndex := (LIndex + Count) mod LList.Count;
-      LPair := LList[LNewIndex];
-      LList[LNewIndex] := LList[LIndex];
-      LList[LIndex] := LPair;
-    end;
-
-    Self.Clear;
-    for LPair in LList do
-      Self.Add(LPair.Key, LPair.Value);
-  finally
-    LList.Free;
+  for LIndex := 0 to High(LSortedKeysArray) do
+  begin
+    LNewIndex := (LIndex + (ACount + Length(LSortedKeysArray))) mod Length(LSortedKeysArray);
+    Result[LNewIndex] := TPair<K, V>.Create(LSortedKeysArray[LIndex], Self[LSortedKeysArray[LIndex]]);
   end;
 end;
+
 
 function TDictionaryHelper<K, V>.ShuffleKeys: TArray<K>;
 var
@@ -651,12 +655,6 @@ begin
 
     Inc(LIndex);
   end;
-end;
-
-procedure TDictionaryHelper<K, V>.SortByKey(
-  const ASelector: TFunc<K, V, TValue>);
-begin
-
 end;
 
 function TDictionaryHelper<K, V>.SortedKeys: TArray<K>;
@@ -737,20 +735,23 @@ end;
 
 procedure TDictionaryHelper<K, V>.Unique;
 var
-  LUnique: TDictionary<K, V>;
+  LUniqueValues: TDictionary<V, boolean>;
   LPair: TPair<K, V>;
 begin
-  LUnique := TDictionary<K, V>.Create;
+  LUniqueValues := TDictionary<V, boolean>.Create;
   try
     for LPair in Self do
-      LUnique.AddOrSetValue(LPair.Key, LPair.Value);
-    Self.Clear;
-    for LPair in LUnique do
-      Self.AddOrSetValue(LPair.Key, LPair.Value);
+    begin
+      if not LUniqueValues.ContainsKey(LPair.Value) then
+        LUniqueValues.AddOrSetValue(LPair.Value, true)
+      else
+        Self.Remove(LPair.Key);
+    end;
   finally
-    LUnique.Free;
+    LUniqueValues.Free;
   end;
 end;
+
 
 function TDictionaryHelper<K, V>.Zip<T1, T2, TResult>(
   const AList1: TDictionaryHelper<K, T1>;

@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{78BE7824-9A33-4AB7-8880-B6FFD7652DE1}</ProjectGuid>
+        <ProjectGuid>{F912E5A6-3975-4997-8C5B-02ED53658C57}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
@@ -8,7 +8,7 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
-        <MainSource>PTestSysDictionary.dpr</MainSource>
+        <MainSource>PTestSysIfTuple.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -57,7 +57,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>PTestSysDictionary</SanitizedProjectName>
+        <SanitizedProjectName>PTestSysIfTuple</SanitizedProjectName>
         <VerInfo_Locale>1046</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_Define>FullDebugMode; EnableMemoryLeakReporting;$(DCC_Define)</DCC_Define>
@@ -115,7 +115,7 @@
         <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.exception.pas"/>
         <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.pas"/>
         <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.value.pas"/>
-        <DCCReference Include="UTestEclbr.SysDictionary.pas"/>
+        <DCCReference Include="UTestEclbr.SysIfTuple.pas"/>
         <DCCReference Include="..\..\Source\eclbr.systuple.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -135,7 +135,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">PTestSysDictionary.dpr</Source>
+                    <Source Name="MainSource">PTestSysIfTuple.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\gitide280.bpl">Embarcadero Git Integration</Excluded_Packages>
@@ -163,9 +163,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\PTestSysDictionary.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\PTestSysIfTuple.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>PTestSysDictionary.exe</RemoteName>
+                        <RemoteName>PTestSysIfTuple.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

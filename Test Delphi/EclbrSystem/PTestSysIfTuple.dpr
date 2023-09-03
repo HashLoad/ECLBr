@@ -1,4 +1,4 @@
-program PTestSysDictionary;
+program PTestSysIfTuple;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -28,7 +28,7 @@ uses
   eclbr.result.pair.exception in '..\..\Source\resultpair\eclbr.result.pair.exception.pas',
   eclbr.result.pair in '..\..\Source\resultpair\eclbr.result.pair.pas',
   eclbr.result.pair.value in '..\..\Source\resultpair\eclbr.result.pair.value.pas',
-  UTestEclbr.SysDictionary in 'UTestEclbr.SysDictionary.pas',
+  UTestEclbr.SysIfTuple in 'UTestEclbr.SysIfTuple.pas',
   eclbr.systuple in '..\..\Source\eclbr.systuple.pas';
 
 var

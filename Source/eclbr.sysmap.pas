@@ -243,6 +243,17 @@ type
     function Length: integer;
 
     /// <summary>
+    ///   Returns an array containing all key-value pairs in the map.
+    /// </summary>
+    /// <remarks>
+    ///   The returned array contains all key-value pairs in the map, preserving
+    ///   their order. Each element of the array is a pair of type TItemPair, where
+    ///   the first item is the key and the second item is the value.
+    /// </remarks>
+    /// <returns>An array containing all key-value pairs in the map.</returns>
+    function ToArray: TArray<TItemPair>;
+
+    /// <summary>
     ///   Provides access to key-value pairs in the map using array indexing.
     /// </summary>
     /// <param name="AKey">The key used for accessing the corresponding value.</param>
@@ -556,6 +567,20 @@ begin
   end;
 end;
 
+function TMap<K, V>.ToArray: TArray<TItemPair>;
+var
+  LPair: TItemPair;
+begin
+  SetLength(Result, 0);
+  for LPair in FItems do
+  begin
+    if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
+      continue;
+    SetLength(Result, System.Length(Result) + 1);
+    Result[System.Length(Result) -1] := LPair;
+  end;
+end;
+
 function TMap<K, V>.ToJson: string;
 var
   LPair: TItemPair;
@@ -569,15 +594,15 @@ begin
   try
     for LPair in FItems do
     begin
-      if not TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
-      begin
-        LKey := TValue.From<K>(LPair.Key);
-        LValue := TValue.From<V>(LPair.Value);
-        if not LFirstPair then
-          LJsonPairs.Append(', ');
-        LJsonPairs.Append(Format('"%s": "%s"', [LKey.ToString, LValue.ToString]));
-        LFirstPair := False;
-      end;
+      if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
+        continue;
+
+      LKey := TValue.From<K>(LPair.Key);
+      LValue := TValue.From<V>(LPair.Value);
+      if not LFirstPair then
+        LJsonPairs.Append(', ');
+      LJsonPairs.Append(Format('"%s": "%s"', [LKey.ToString, LValue.ToString]));
+      LFirstPair := False;
     end;
     Result := '{' + LJsonPairs.ToString + '}';
   finally

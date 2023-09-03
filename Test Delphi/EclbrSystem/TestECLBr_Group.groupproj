@@ -9,7 +9,7 @@
         <Projects Include="PTestSysMatch.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysIfThen.dproj">
+        <Projects Include="PTestSysIfTuple.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="..\EclbrResultPair\PTestResultPair.dproj">
@@ -22,6 +22,9 @@
             <Dependencies/>
         </Projects>
         <Projects Include="PTestSysList.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="PTestSysIfThen.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -50,14 +53,14 @@
     <Target Name="PTestSysMatch:Make">
         <MSBuild Projects="PTestSysMatch.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysIfThen">
-        <MSBuild Projects="PTestSysIfThen.dproj"/>
+    <Target Name="PTestSysIfTuple">
+        <MSBuild Projects="PTestSysIfTuple.dproj"/>
     </Target>
-    <Target Name="PTestSysIfThen:Clean">
-        <MSBuild Projects="PTestSysIfThen.dproj" Targets="Clean"/>
+    <Target Name="PTestSysIfTuple:Clean">
+        <MSBuild Projects="PTestSysIfTuple.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysIfThen:Make">
-        <MSBuild Projects="PTestSysIfThen.dproj" Targets="Make"/>
+    <Target Name="PTestSysIfTuple:Make">
+        <MSBuild Projects="PTestSysIfTuple.dproj" Targets="Make"/>
     </Target>
     <Target Name="PTestResultPair">
         <MSBuild Projects="..\EclbrResultPair\PTestResultPair.dproj"/>
@@ -95,14 +98,23 @@
     <Target Name="PTestSysList:Make">
         <MSBuild Projects="PTestSysList.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PTestSysIfThen">
+        <MSBuild Projects="PTestSysIfThen.dproj"/>
+    </Target>
+    <Target Name="PTestSysIfThen:Clean">
+        <MSBuild Projects="PTestSysIfThen.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestSysIfThen:Make">
+        <MSBuild Projects="PTestSysIfThen.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysIfThen;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList"/>
+        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysIfTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysIfThen:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean"/>
+        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysIfTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysIfThen:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make"/>
+        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysIfTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
