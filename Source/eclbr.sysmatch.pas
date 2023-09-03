@@ -1207,7 +1207,8 @@ procedure TMatch<T>._ExecuteProcMatchingIn(const ProcValue: TValue);
 begin
   if ProcValue.IsType<TProc> then
     ProcValue.AsType<TProc>()()
-  else if ProcValue.IsType<TProc<T>> then
+  else
+  if ProcValue.IsType<TProc<T>> then
     ProcValue.AsType<TProc<T>>()(FValue.AsType<T>);
 end;
 
