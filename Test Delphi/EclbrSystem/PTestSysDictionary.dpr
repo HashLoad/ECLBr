@@ -28,7 +28,7 @@ uses
   eclbr.result.pair.exception in '..\..\Source\resultpair\eclbr.result.pair.exception.pas',
   eclbr.result.pair in '..\..\Source\resultpair\eclbr.result.pair.pas',
   eclbr.result.pair.value in '..\..\Source\resultpair\eclbr.result.pair.value.pas',
-  UTestEclbr.SysList in 'UTestEclbr.SysList.pas';
+  UTestEclbr.SysDictionary in 'UTestEclbr.SysDictionary.pas';
 
 var
   runner : ITestRunner;

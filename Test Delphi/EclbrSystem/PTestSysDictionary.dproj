@@ -115,7 +115,7 @@
         <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.exception.pas"/>
         <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.pas"/>
         <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.value.pas"/>
-        <DCCReference Include="UTestEclbr.SysList.pas"/>
+        <DCCReference Include="UTestEclbr.SysDictionary.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

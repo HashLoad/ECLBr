@@ -3,10 +3,7 @@
         <ProjectGuid>{EF844C65-F513-421D-B3D0-B4D5EABA97EC}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="..\PTestSysMap.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="PTestSysList.dproj">
+        <Projects Include="PTestSysDictionary.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="PTestSysMatch.dproj">
@@ -21,6 +18,12 @@
         <Projects Include="PTestSysVector.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="PTestSysMap.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="PTestSysList.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -29,23 +32,14 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="PTestSysMap">
-        <MSBuild Projects="..\PTestSysMap.dproj"/>
+    <Target Name="PTestSysDictionary">
+        <MSBuild Projects="PTestSysDictionary.dproj"/>
     </Target>
-    <Target Name="PTestSysMap:Clean">
-        <MSBuild Projects="..\PTestSysMap.dproj" Targets="Clean"/>
+    <Target Name="PTestSysDictionary:Clean">
+        <MSBuild Projects="PTestSysDictionary.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysMap:Make">
-        <MSBuild Projects="..\PTestSysMap.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="PTestSysList">
-        <MSBuild Projects="PTestSysList.dproj"/>
-    </Target>
-    <Target Name="PTestSysList:Clean">
-        <MSBuild Projects="PTestSysList.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="PTestSysList:Make">
-        <MSBuild Projects="PTestSysList.dproj" Targets="Make"/>
+    <Target Name="PTestSysDictionary:Make">
+        <MSBuild Projects="PTestSysDictionary.dproj" Targets="Make"/>
     </Target>
     <Target Name="PTestSysMatch">
         <MSBuild Projects="PTestSysMatch.dproj"/>
@@ -83,14 +77,32 @@
     <Target Name="PTestSysVector:Make">
         <MSBuild Projects="PTestSysVector.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PTestSysMap">
+        <MSBuild Projects="PTestSysMap.dproj"/>
+    </Target>
+    <Target Name="PTestSysMap:Clean">
+        <MSBuild Projects="PTestSysMap.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestSysMap:Make">
+        <MSBuild Projects="PTestSysMap.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PTestSysList">
+        <MSBuild Projects="PTestSysList.dproj"/>
+    </Target>
+    <Target Name="PTestSysList:Clean">
+        <MSBuild Projects="PTestSysList.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestSysList:Make">
+        <MSBuild Projects="PTestSysList.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysMap;PTestSysList;PTestSysMatch;PTestSysIfThen;PTestResultPair;PTestSysVector"/>
+        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysIfThen;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysMap:Clean;PTestSysList:Clean;PTestSysMatch:Clean;PTestSysIfThen:Clean;PTestResultPair:Clean;PTestSysVector:Clean"/>
+        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysIfThen:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysMap:Make;PTestSysList:Make;PTestSysMatch:Make;PTestSysIfThen:Make;PTestResultPair:Make;PTestSysVector:Make"/>
+        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysIfThen:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
