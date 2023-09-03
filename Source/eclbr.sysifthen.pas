@@ -45,8 +45,8 @@ type
       FTrueValue: TValue<T>;
       FFalseValue: TValue<T>;
       FTrueFunc: TFunc<T>;
-      FFalseFunc: TFunc<T>;
       FFalseFuncs: TArray<TPair<boolean, TFunc<T>>>;
+    procedure _AddElseFunc(const ACondition: boolean; const AFalseFunc: TFunc<T>);
   public
     /// <summary>
     ///   Sets the condition for conditional evaluation.
@@ -134,14 +134,13 @@ end;
 
 function TIfThen<T>.ElseOf(const AFalseFunc: TFunc<T>): TIfThen<T>;
 begin
-  FFalseFunc := AFalseFunc;
+  _AddElseFunc(true, AFalseFunc);
   Result := Self;
 end;
 
 function TIfThen<T>.ElseOf(const ACondition: boolean; const AFalseFunc: TFunc<T>): TIfThen<T>;
 begin
-  SetLength(FFalseFuncs, Length(FFalseFuncs) + 1);
-  FFalseFuncs[High(FFalseFuncs)] := TPair<boolean, TFunc<T>>.Create(ACondition, AFalseFunc);
+  _AddElseFunc(ACondition, AFalseFunc);
   Result := Self;
 end;
 
@@ -168,9 +167,6 @@ begin
     end
     else
     begin
-      if Assigned(FFalseFunc) then
-        Result := FFalseFunc()
-      else
       if Length(FFalseFuncs) > 0 then
       begin
         for LFunc in FFalseFuncs do
@@ -183,15 +179,14 @@ begin
         end;
       end
       else
-      Result := FFalseValue.Value;
+        Result := FFalseValue.Value;
     end;
   finally
     FCondition := false;
     FTrueValue.Value := Default(T);
     FFalseValue.Value := Default(T);
     FTrueFunc := nil;
-    FFalseFunc := nil;
-    FFalseFuncs := nil;
+    FFalseFuncs := [];
   end;
 end;
 
@@ -207,8 +202,13 @@ begin
   Result.FTrueValue := Default(TValue<T>);
   Result.FFalseValue := Default(TValue<T>);
   Result.FTrueFunc := nil;
-  Result.FFalseFunc := nil;
   Result.FFalseFuncs := [];
+end;
+
+procedure TIfThen<T>._AddElseFunc(const ACondition: boolean; const AFalseFunc: TFunc<T>);
+begin
+  SetLength(FFalseFuncs, Length(FFalseFuncs) + 1);
+  FFalseFuncs[High(FFalseFuncs)] := TPair<boolean, TFunc<T>>.Create(ACondition, AFalseFunc);
 end;
 
 end.
