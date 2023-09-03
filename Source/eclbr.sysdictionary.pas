@@ -38,6 +38,9 @@ uses
 type
   TDictionaryHelper<K,V> = class(TDictionary<K,V>)
   private
+    type
+      TItemPair = TPair<K, V>;
+  private
     function _ComparePairs(const Left, Right: TPair<K, V>): Integer;
   public
     /// <summary>
@@ -86,13 +89,27 @@ type
     /// </summary>
     /// <typeparam name="TResult">The type of the mapped results.</typeparam>
     /// <param name="AMappingFunc">The mapping function to be applied to each value.</param>
-    function Map<TResult>(const AMappingFunc: TFunc<V, TResult>): TDictionaryHelper<K, TResult>;
+    function Map(const AMappingFunc: TFunc<V, V>): TDictionaryHelper<K, V>; overload;
+
+    /// <summary>
+    ///   Aplica uma função de mapeamento a cada par chave-valor no dicionário atual e cria um novo dicionário
+    ///   onde as chaves permanecem as mesmas, mas os valores são transformados usando a função de mapeamento.
+    /// </summary>
+    /// <param name="AMappingFunc">
+    ///   Uma função que define como os valores originais devem ser transformados.
+    ///   A função deve receber a chave (K) e o valor (V) originais como entrada e retornar um novo valor (TResult).
+    /// </param>
+    /// <returns>
+    ///   Um novo dicionário contendo as mesmas chaves do dicionário original, mas com os valores transformados
+    ///   de acordo com a função de mapeamento especificada.
+    /// </returns>
+    function Map(const AMappingFunc: TFunc<K, V, V>): TDictionaryHelper<K, V>; overload;
 
     /// <summary>
     ///   Filters the values of the dictionary based on a specified predicate.
     /// </summary>
     /// <param name="APredicate">The predicate used to filter the values.</param>
-    function Filter(const APredicate: TFunc<V, Boolean>): TDictionaryHelper<K, V>;
+    function Filter(const APredicate: TFunc<K, V, Boolean>): TDictionaryHelper<K, V>;
 
     /// <summary>
     ///   Reduces the values of the dictionary to a single value using an accumulator function.
@@ -100,6 +117,19 @@ type
     /// <typeparam name="TResult">The type of the reduction result.</typeparam>
     /// <param name="AAccumulator">The accumulator function used to reduce the values.</param>
     function Reduce(const AAccumulator: TFunc<V, V, V>): V;
+
+    /// <summary>
+    ///   Coleta os valores do mapa atual e cria um novo mapa onde as chaves permanecem as mesmas,
+    ///   mas os valores são convertidos para um novo tipo especificado.
+    /// </summary>
+    /// <typeparam name="TConvert">
+    ///   O tipo para o qual os valores originais devem ser convertidos.
+    /// </typeparam>
+    /// <returns>
+    ///   Um novo mapa contendo as mesmas chaves do mapa original, mas com os valores convertidos
+    ///   para o tipo especificado (<typeparamref name="TConvert"/>).
+    /// </returns>
+    function Collect<N>(const APredicate: TFunc<V, N>): TDictionaryHelper<K, N>;
 
     /// <summary>
     ///   Groups the values of the dictionary by a key selector and returns a new dictionary with grouped value lists.
@@ -257,6 +287,23 @@ implementation
 
 { TDictionaryHelper<K, V> }
 
+function TDictionaryHelper<K, V>.Collect<N>(const APredicate: TFunc<V, N>): TDictionaryHelper<K, N>;
+var
+  LPair: TPair<K, V>;
+  LResult: TDictionaryHelper<K, N>;
+begin
+  LResult := TDictionaryHelper<K, N>.Create;
+  try
+    for LPair in Self do
+      LResult.Add(LPair.Key, APredicate(LPair.Value));
+
+    Result := LResult;
+  except
+    LResult.Free;
+    raise;
+  end;
+end;
+
 function TDictionaryHelper<K, V>.DistinctBy<TKey>(
   const AKeySelector: TFunc<K, TKey>): TDictionary<TKey, V>;
 var
@@ -297,21 +344,25 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.Filter(
-  const APredicate: TFunc<V, Boolean>): TDictionaryHelper<K, V>;
+  const APredicate: TFunc<K, V, boolean>): TDictionaryHelper<K, V>;
 var
   LPair: TPair<K, V>;
+  LToDelete: TArray<K>;
+  LPairKey: K;
 begin
-  Result := TDictionaryHelper<K, V>.Create;
-  try
-    for LPair in Self do
+  LToDelete := [];
+  for LPair in Self do
+  begin
+    if not APredicate(LPair.Key, LPair.Value) then
     begin
-      if APredicate(LPair.Value) then
-        Result.Add(LPair.Key, LPair.Value);
+      SetLength(LToDelete, Length(LToDelete) + 1);
+      LToDelete[High(LToDelete)] := LPair.Key;
     end;
-  except
-    Result.Free;
-    raise;
   end;
+  for LPairKey in LToDelete do
+    Self.Remove(LPairKey);
+
+  Result := Self;
 end;
 
 function TDictionaryHelper<K, V>.FindAll(
@@ -455,19 +506,23 @@ begin
     Result := LValue;
 end;
 
-function TDictionaryHelper<K, V>.Map<TResult>(
-  const AMappingFunc: TFunc<V, TResult>): TDictionaryHelper<K, TResult>;
+function TDictionaryHelper<K, V>.Map(
+  const AMappingFunc: TFunc<V, V>): TDictionaryHelper<K, V>;
 var
   LPair: TPair<K, V>;
 begin
-  Result := TDictionaryHelper<K, TResult>.Create;
-  try
-    for LPair in Self do
-      Result.Add(LPair.Key, AMappingFunc(LPair.Value));
-  except
-    Result.Free;
-    raise;
-  end;
+  for LPair in Self do
+    Self[LPair.Key] := AMappingFunc(LPair.Value);
+  Result := Self;
+end;
+
+function TDictionaryHelper<K, V>.Map(
+  const AMappingFunc: TFunc<K, V, V>): TDictionaryHelper<K, V>;
+var
+  LPair: TPair<K, V>;
+begin
+  for LPair in Self do
+    Self[LPair.Key] := AMappingFunc(LPair.Key, LPair.Value);
 end;
 
 function TDictionaryHelper<K, V>.Max: K;
@@ -707,24 +762,24 @@ end;
 function TDictionaryHelper<K, V>.ToString: string;
 var
   LPair: TPair<K, V>;
-  ResultBuilder: TStringBuilder;
+  LResultBuilder: TStringBuilder;
   LKey: TValue;
   LValue: TValue;
 begin
-  ResultBuilder := TStringBuilder.Create;
+  LResultBuilder := TStringBuilder.Create;
   try
     for LPair in Self do
     begin
       LKey := TValue.From<K>(LPair.Key);
       LValue := TValue.From<V>(LPair.Value);
       if LKey.IsObject then
-        ResultBuilder.AppendLine(Format('%s: %s', [LKey.AsObject.ToString, LValue.ToString]))
+        LResultBuilder.AppendLine(Format('%s: %s', [LKey.AsObject.ToString, LValue.ToString]))
       else
-        ResultBuilder.AppendLine(Format('%s: %s', [LKey.ToString, LValue.ToString]));
+        LResultBuilder.AppendLine(Format('%s: %s', [LKey.ToString, LValue.ToString]));
     end;
-    Result := ResultBuilder.ToString;
+    Result := TrimRight(LResultBuilder.ToString);
   finally
-    ResultBuilder.Free;
+    LResultBuilder.Free;
   end;
 end;
 

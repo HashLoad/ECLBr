@@ -43,6 +43,8 @@ type
     procedure TestMapAddRange;
     [Test]
     procedure TestEnumerator;
+    [Test]
+    procedure TestMapFilterMap;
   end;
 
 implementation
@@ -188,14 +190,36 @@ begin
   FMap.Add(3, 'Three');
 
   LilteredMap := FMap.Filter(
-    function(Pair: TPair<Integer, String>): boolean
+    function(Key: Integer; Value: String): boolean
     begin
-      Result := Pair.Key mod 2 = 0;
+      Result := Key mod 2 = 0;
     end);
 
   Assert.IsTrue(LilteredMap.Contains(2));
   Assert.IsFalse(LilteredMap.Contains(1));
   Assert.IsFalse(LilteredMap.Contains(3));
+end;
+
+procedure TMapTest.TestMapFilterMap;
+var
+  LIlteredMap: TMap<integer, string>;
+begin
+  FMap.Add(3, 'Pling');
+  FMap.Add(5, 'Plang');
+  FMap.Add(7, 'Plong');
+
+  LIlteredMap := FMap.Filter(
+                          function(Key: Integer; Value: String): boolean
+                          begin
+                            Result := 28 mod Key = 0;
+                          end)
+                     .Map(function(Value: string): String
+                          begin
+                            Result := Value;
+                          end);
+
+  Assert.IsTrue(LIlteredMap.Length = 1);
+  Assert.AreEqual(LIlteredMap.ToString, '7: Plong');
 end;
 
 procedure TMapTest.TestLastItemEqualsLastAdded;
@@ -241,7 +265,7 @@ begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
 
-  Assert.AreEqual('1: One'#13#10'2: Two'#13#10, FMap.ToString);
+  Assert.AreEqual('1: One'#13#10'2: Two', FMap.ToString);
 end;
 
 initialization

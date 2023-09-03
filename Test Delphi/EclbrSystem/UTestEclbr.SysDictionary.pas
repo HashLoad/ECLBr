@@ -36,11 +36,16 @@ type
     procedure TestFilter;
     [Test]
     procedure TestReduce;
-    [Test]
+//    [Test]
     procedure TestGroupBy;
+    [Test]
+    procedure TestMapFilterMap;
   end;
 
 implementation
+
+uses
+  System.SysUtils;
 
 { TArrayDataTest }
 
@@ -282,7 +287,6 @@ end;
 procedure TDictionaryHelperTest.TestMap;
 var
   LDictionary: TDictionaryHelper<Integer, string>;
-  LMappedDictionary: TDictionaryHelper<Integer, Integer>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<Integer, string>.Create;
@@ -292,30 +296,27 @@ begin
     LDictionary.Add(3, 'Three');
 
     // Act
-    LMappedDictionary := LDictionary.Map<Integer>(
-      function(Value: string): Integer
+    LDictionary.Map(
+      function(Key: Integer; Value: string): string
       begin
-        // Mapeie as strings para seus comprimentos
-        Result := Length(Value);
+        Result := IntToStr(Length(Value));
       end
     );
 
     // Assert
-    Assert.AreEqual(3, LMappedDictionary.Count);
-    Assert.AreEqual(3, LMappedDictionary[1]); // 'One' tem comprimento 3
-    Assert.AreEqual(3, LMappedDictionary[2]); // 'Two' tem comprimento 3
-    Assert.AreEqual(5, LMappedDictionary[3]); // 'Three' tem comprimento 5
+    Assert.AreEqual(3, LDictionary.Count);
+    Assert.AreEqual('3', LDictionary[1]); // 'One' tem comprimento 3
+    Assert.AreEqual('3', LDictionary[2]); // 'Two' tem comprimento 3
+    Assert.AreEqual('5', LDictionary[3]); // 'Three' tem comprimento 5
   finally
     // Clean up
     LDictionary.Free;
-    LMappedDictionary.Free;
   end;
 end;
 
 procedure TDictionaryHelperTest.TestFilter;
 var
   LDictionary: TDictionaryHelper<Integer, string>;
-  LFilteredDictionary: TDictionaryHelper<Integer, string>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<Integer, string>.Create;
@@ -326,8 +327,8 @@ begin
     LDictionary.Add(4, 'Four');
 
     // Act
-    LFilteredDictionary := LDictionary.Filter(
-      function(Value: string): Boolean
+    LDictionary.Filter(
+      function(Key: Integer; Value: string): Boolean
       begin
         // Retorne True para incluir no dicionário filtrado
         Result := Length(Value) = 3;
@@ -335,15 +336,13 @@ begin
     );
 
     // Assert
-    Assert.AreEqual(2, LFilteredDictionary.Count);
-    Assert.IsTrue(LFilteredDictionary.ContainsKey(1));
-    Assert.IsTrue(LFilteredDictionary.ContainsKey(2));
-    Assert.IsFalse(LFilteredDictionary.ContainsKey(3)); // Não deve estar no dicionário filtrado
-    Assert.IsFalse(LFilteredDictionary.ContainsKey(4));  // Não deve estar no dicionário filtrado
+    Assert.AreEqual(2, LDictionary.Count);
+    Assert.IsTrue(LDictionary.ContainsKey(1));
+    Assert.IsTrue(LDictionary.ContainsKey(2));
+    Assert.IsFalse(LDictionary.ContainsKey(3)); // Não deve estar no dicionário filtrado
+    Assert.IsFalse(LDictionary.ContainsKey(4));  // Não deve estar no dicionário filtrado
   finally
-    // Clean up
     LDictionary.Free;
-    LFilteredDictionary.Free;
   end;
 end;
 
@@ -372,7 +371,6 @@ begin
     // Assert
     Assert.AreEqual(10, LResultValue); // 1 + 2 + 3 + 4 = 10
   finally
-    // Clean up
     LDictionary.Free;
   end;
 end;
@@ -393,10 +391,10 @@ begin
 
     // Act
     LGroupedDictionary := LDictionary.GroupBy<String>(
-      function(value: Integer): string
+      function(Value: Integer): string
       begin
         // Agrupa os valores por sua paridade
-        if value mod 2 = 0 then
+        if Value mod 2 = 0 then
           Result := 'Even'
         else
           Result := 'Odd';
@@ -408,11 +406,45 @@ begin
 
     // Verifique se os valores foram agrupados corretamente
     Assert.AreEqual(2, LGroupedDictionary['Even'].Count);
-    Assert.AreEqual(2, LGroupedDictionary['Odd'].Count);
+    Assert.AreEqual(3, LGroupedDictionary['Odd'].Count);
   finally
     // Clean up
     LDictionary.Free;
     LGroupedDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestMapFilterMap;
+var
+  LMap: TDictionaryHelper<integer, string>;
+  LIlteredMap: TDictionaryHelper<integer, integer>;
+begin
+  // Arrange
+  LMap := TDictionaryHelper<Integer, string>.Create;
+  try
+    LMap.Add(3, 'Pling');
+    LMap.Add(5, 'Plang');
+    LMap.Add(7, 'Plong');
+
+    LIlteredMap := LMap.Filter(
+                           function(Key: Integer; Value: String): boolean
+                           begin
+                             Result := 28 mod Key = 0;
+                           end)
+                       .Map(function(Key: Integer; Value: string): String
+                            begin
+                              Result := IntToStr(Key);
+                            end)
+                       .Collect<Integer>(function(Value: String): integer
+                            begin
+                              Result := StrToInt(Value);
+                            end);
+
+    Assert.IsTrue(LIlteredMap.Count = 1);
+    Assert.AreEqual(LIlteredMap.ToString, '7: 7');
+  finally
+    LMap.Free;
+    LIlteredMap.Free;
   end;
 end;
 

@@ -197,7 +197,44 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate function used for filtering.</param>
     /// <returns>The map containing filtered key-value pairs.</returns>
-    function Filter(const APredicate: TFunc<TItemPair, boolean>): TMap<K, V>;
+    function Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
+
+    /// <summary>
+    ///   Maps the values of the dictionary to a new dictionary of results.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the mapped results.</typeparam>
+    /// <param name="AMappingFunc">The mapping function to be applied to each value.</param>
+    function Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>; overload;
+
+    /// <summary>
+    ///   Aplica uma função de mapeamento a cada par chave-valor no mapa atual e cria um novo mapa
+    ///   onde as chaves permanecem as mesmas, mas os valores são transformados usando a função de mapeamento.
+    /// </summary>
+    /// <typeparam name="TResult">
+    ///   O tipo dos valores resultantes após a aplicação da função de mapeamento.
+    /// </typeparam>
+    /// <param name="AMappingFunc">
+    ///   Uma função que define como os valores originais devem ser transformados.
+    ///   A função deve receber a chave (K) e o valor (V) originais como entrada e retornar um novo valor (TResult).
+    /// </param>
+    /// <returns>
+    ///   Um novo mapa contendo as mesmas chaves do mapa original, mas com os valores transformados
+    ///   de acordo com a função de mapeamento especificada.
+    /// </returns>
+    function Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>; overload;
+
+    /// <summary>
+    ///   Coleta os valores do mapa atual e cria um novo mapa onde as chaves permanecem as mesmas,
+    ///   mas os valores são convertidos para um novo tipo especificado.
+    /// </summary>
+    /// <typeparam name="TConvert">
+    ///   O tipo para o qual os valores originais devem ser convertidos.
+    /// </typeparam>
+    /// <returns>
+    ///   Um novo mapa contendo as mesmas chaves do mapa original, mas com os valores convertidos
+    ///   para o tipo especificado (<typeparamref name="TConvert"/>).
+    /// </returns>
+    function Collect<N>(const APredicate: TFunc<V, N>): TMap<K, N>;
 
     /// <summary>
     ///   Removes a key-value pair from the map by its key.
@@ -436,6 +473,20 @@ begin
   FItems := nil;
 end;
 
+function TMap<K, V>.Collect<N>(const APredicate: TFunc<V, N>): TMap<K, N>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  try
+    for LPair in Self do
+      Result.Add(LPair.Key, APredicate(LPair.Value));
+  except
+    raise;
+  end;
+  Self := [];
+end;
+
 function TMap<K, V>.Contains(const AKey: K): boolean;
 begin
   Result := _IndexOf(AKey) <> -1;
@@ -482,11 +533,10 @@ var
 begin
   for LFor := System.Length(FItems) - 1 downto 0 do
   begin
-    if not TEqualityComparer<TItemPair>.Default.Equals(FItems[LFor], Default(TItemPair)) then
-    begin
-      Result := FItems[LFor];
-      exit;
-    end;
+    if TEqualityComparer<TItemPair>.Default.Equals(FItems[LFor], Default(TItemPair)) then
+      continue;
+    Result := FItems[LFor];
+    exit;
   end;
   raise Exception.Create('No non-empty elements found');
 end;
@@ -494,6 +544,32 @@ end;
 function TMap<K, V>.Length: integer;
 begin
   Result := _GetCount;
+end;
+
+function TMap<K, V>.Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  try
+    for LPair in Self do
+      Result.Add(LPair.Key, AMappingFunc(LPair.Value));
+  except
+    raise;
+  end;
+end;
+
+function TMap<K, V>.Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  try
+    for LPair in Self do
+      Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
+  except
+    raise;
+  end;
 end;
 
 function TMap<K, V>.Merge(const ASourceArray: TPairArray): TMap<K, V>;
@@ -508,7 +584,7 @@ begin
   Result := Self;
 end;
 
-function TMap<K, V>.Filter(const APredicate: TFunc<TItemPair, boolean>): TMap<K, V>;
+function TMap<K, V>.Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
 var
   LFiltered: TPairArray;
   LItem: TItemPair;
@@ -516,7 +592,9 @@ begin
   LFiltered := [];
   for LItem in FItems do
   begin
-    if APredicate(LItem) then
+    if TEqualityComparer<TItemPair>.Default.Equals(LItem, Default(TItemPair)) then
+      continue;
+    if APredicate(LItem.Key, LItem.Value) then
     begin
       SetLength(LFiltered, System.Length(LFiltered) + 1);
       LFiltered[High(LFiltered)] := LItem;
@@ -551,17 +629,16 @@ begin
   try
     for LPair in FItems do
     begin
-      if not TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
-      begin
-        LKey := TValue.From<K>(LPair.Key);
-        LValue := TValue.From<V>(LPair.Value);
-        if LKey.IsObject then
-          ResultBuilder.AppendLine(Format('%s: %s', [LKey.AsObject.ToString, LValue.ToString]))
-        else
-          ResultBuilder.AppendLine(Format('%s: %s', [LKey.ToString, LValue.ToString]));
-      end;
+      if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
+        continue;
+      LKey := TValue.From<K>(LPair.Key);
+      LValue := TValue.From<V>(LPair.Value);
+      if LKey.IsObject then
+        ResultBuilder.AppendLine(Format('%s: %s', [LKey.AsObject.ToString, LValue.ToString]))
+      else
+        ResultBuilder.AppendLine(Format('%s: %s', [LKey.ToString, LValue.ToString]));
     end;
-    Result := ResultBuilder.ToString;
+    Result := TrimRight(ResultBuilder.ToString);
   finally
     ResultBuilder.Free;
   end;
@@ -596,7 +673,6 @@ begin
     begin
       if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
         continue;
-
       LKey := TValue.From<K>(LPair.Key);
       LValue := TValue.From<V>(LPair.Value);
       if not LFirstPair then
