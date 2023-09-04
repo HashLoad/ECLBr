@@ -36,7 +36,7 @@ type
     procedure TestFilter;
     [Test]
     procedure TestReduce;
-//    [Test]
+    [Test]
     procedure TestGroupBy;
     [Test]
     procedure TestMapFilterMap;
@@ -377,7 +377,7 @@ end;
 procedure TDictionaryHelperTest.TestGroupBy;
 var
   LDictionary: TDictionaryHelper<string, Integer>;
-  LGroupedDictionary: TDictionary<string, TList<Integer>>;
+  LGroupedDictionary: TDictionary<string, TVector<Integer>>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<string, Integer>.Create;
@@ -404,8 +404,8 @@ begin
     Assert.AreEqual(2, LGroupedDictionary.Count); // Deve haver 2 grupos: Par e Ímpar
 
     // Verifique se os valores foram agrupados corretamente
-    Assert.AreEqual(2, LGroupedDictionary['Even'].Count);
-    Assert.AreEqual(3, LGroupedDictionary['Odd'].Count);
+    Assert.AreEqual(2, LGroupedDictionary['Even'].Length);
+    Assert.AreEqual(3, LGroupedDictionary['Odd'].Length);
   finally
     // Clean up
     LDictionary.Free;
@@ -434,6 +434,8 @@ begin
                             begin
                               Result := IntToStr(Key);
                             end)
+                       { TODO -oDictionary -cFEATURE :
+                       "I tried to convert everything internally, but I had a problem. I will reanalyze it in the future and implement an overload of the Collect<T> method without passing the anonymous method." }
                        .Collect<Integer>(function(Value: String): integer
                             begin
                               Result := StrToInt(Value);
