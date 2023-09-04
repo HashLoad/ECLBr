@@ -6,6 +6,7 @@ uses
   DUnitX.TestFramework,
   Generics.Collections,
   eclbr.sysvector,
+  eclbr.sysmap,
   eclbr.sysdictionary;
 
 type
@@ -40,12 +41,26 @@ type
     procedure TestGroupBy;
     [Test]
     procedure TestMapFilterMap;
+    [Test]
+    procedure TestJoin;
+    [Test]
+    procedure TestPartition;
+    [Test]
+    procedure TestTake;
+    [Test]
+    procedure TestSkip;
+    [Test]
+    procedure TestSlice;
+    [Test]
+    procedure TestZip;
+//    [Test]
+    procedure TestFlatMap;
   end;
 
 implementation
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 { TArrayDataTest }
 
@@ -413,6 +428,30 @@ begin
   end;
 end;
 
+procedure TDictionaryHelperTest.TestJoin;
+var
+  LDictionary: TDictionaryHelper<Integer, string>;
+  LSeparator: string;
+  LResultStr: string;
+begin
+  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  try
+    // Arrange
+    LSeparator := ', ';
+    LDictionary.Add(1, 'One');
+    LDictionary.Add(2, 'Two');
+    LDictionary.Add(3, 'Three');
+
+    // Act
+    LResultStr := LDictionary.Join(LSeparator);
+
+    // Assert
+    Assert.AreEqual('1: One, 2: Two, 3: Three', LResultStr);
+  finally
+    LDictionary.Free;
+  end;
+end;
+
 procedure TDictionaryHelperTest.TestMapFilterMap;
 var
   LMap: TDictionaryHelper<integer, string>;
@@ -446,6 +485,259 @@ begin
   finally
     LMap.Free;
     LIlteredMap.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestPartition;
+var
+  LDictionary: TDictionaryHelper<Integer, string>;
+  LPartitions: TPair<TMap<Integer, string>, TMap<Integer, string>>;
+begin
+  // Arrange
+  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  try
+    LDictionary.Add(1, 'One');
+    LDictionary.Add(2, 'Two');
+    LDictionary.Add(3, 'Three');
+    LDictionary.Add(4, 'Four');
+    LDictionary.Add(5, 'Five');
+
+    // Act
+    LPartitions := LDictionary.Partition(
+      function(Value: string): Boolean
+      begin
+        // Predicate: Keep strings with even length
+        Result := Length(Value) mod 2 = 0;
+      end
+    );
+
+    // Assert
+    Assert.AreEqual(2, LPartitions.Key.Length); // Two items with even-length values
+    Assert.AreEqual(3, LPartitions.Value.Length); // Three items with odd-length values
+
+    Assert.IsTrue(LPartitions.Key.Contains(4));
+    Assert.IsTrue(LPartitions.Key.Contains(5));
+
+    Assert.IsTrue(LPartitions.Value.Contains(1));
+    Assert.IsTrue(LPartitions.Value.Contains(3));
+
+    Assert.AreEqual('Four', LPartitions.Key[4]);
+    Assert.AreEqual('Five', LPartitions.Key[5]);
+
+    Assert.AreEqual('One', LPartitions.Value[1]);
+    Assert.AreEqual('Two', LPartitions.Value[2]);
+    Assert.AreEqual('Three', LPartitions.Value[3]);
+  finally
+    // Clean up
+    LDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestTake;
+var
+  LDictionary: TDictionaryHelper<Integer, string>;
+  LTakenDictionary: TDictionaryHelper<Integer, string>;
+begin
+  // Arrange
+  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  try
+    LDictionary.Add(1, 'One');
+    LDictionary.Add(2, 'Two');
+    LDictionary.Add(3, 'Three');
+    LDictionary.Add(4, 'Four');
+    LDictionary.Add(5, 'Five');
+
+    // Act
+    LTakenDictionary := LDictionary.Take(3);
+
+    // Assert
+    Assert.AreEqual(3, LTakenDictionary.Count);
+
+    Assert.IsTrue(LTakenDictionary.ContainsKey(1));
+    Assert.IsTrue(LTakenDictionary.ContainsKey(2));
+    Assert.IsTrue(LTakenDictionary.ContainsKey(3));
+
+    Assert.IsFalse(LTakenDictionary.ContainsKey(4));
+    Assert.IsFalse(LTakenDictionary.ContainsKey(5));
+
+    Assert.AreEqual('One', LTakenDictionary[1]);
+    Assert.AreEqual('Two', LTakenDictionary[2]);
+    Assert.AreEqual('Three', LTakenDictionary[3]);
+  finally
+    // Clean up
+    LDictionary.Free;
+    LTakenDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestSkip;
+var
+  LDictionary: TDictionaryHelper<Integer, string>;
+  LSkippedDictionary: TDictionaryHelper<Integer, string>;
+begin
+  // Arrange
+  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  try
+    LDictionary.Add(1, 'One');
+    LDictionary.Add(2, 'Two');
+    LDictionary.Add(3, 'Three');
+    LDictionary.Add(4, 'Four');
+    LDictionary.Add(5, 'Five');
+
+    // Act
+    LSkippedDictionary := LDictionary.Skip(2);
+
+    // Assert
+    Assert.AreEqual(3, LSkippedDictionary.Count);
+
+    Assert.IsTrue(LSkippedDictionary.ContainsKey(3));
+    Assert.IsTrue(LSkippedDictionary.ContainsKey(4));
+    Assert.IsTrue(LSkippedDictionary.ContainsKey(5));
+
+    Assert.IsFalse(LSkippedDictionary.ContainsKey(1));
+    Assert.IsFalse(LSkippedDictionary.ContainsKey(2));
+
+    Assert.AreEqual('Three', LSkippedDictionary[3]);
+    Assert.AreEqual('Four', LSkippedDictionary[4]);
+    Assert.AreEqual('Five', LSkippedDictionary[5]);
+  finally
+    // Clean up
+    LDictionary.Free;
+    LSkippedDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestSlice;
+var
+  LDictionary: TDictionaryHelper<Integer, string>;
+  LSlicedDictionary: TDictionaryHelper<Integer, string>;
+begin
+  // Arrange
+  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  try
+    LDictionary.Add(1, 'One');
+    LDictionary.Add(2, 'Two');
+    LDictionary.Add(3, 'Three');
+    LDictionary.Add(4, 'Four');
+    LDictionary.Add(5, 'Five');
+
+    // Act
+    LSlicedDictionary := LDictionary.Slice(1, 3); // Slice from index 1 to 3
+
+    // Assert
+    Assert.AreEqual(3, LSlicedDictionary.Count);
+
+    Assert.IsTrue(LSlicedDictionary.ContainsKey(2));
+    Assert.IsTrue(LSlicedDictionary.ContainsKey(3));
+    Assert.IsTrue(LSlicedDictionary.ContainsKey(4));
+
+    Assert.IsFalse(LSlicedDictionary.ContainsKey(1));
+    Assert.IsFalse(LSlicedDictionary.ContainsKey(5));
+
+    Assert.AreEqual('Two', LSlicedDictionary[2]);
+    Assert.AreEqual('Three', LSlicedDictionary[3]);
+    Assert.AreEqual('Four', LSlicedDictionary[4]);
+  finally
+    // Clean up
+    LDictionary.Free;
+    LSlicedDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestZip;
+var
+  LDictionary1, LDictionary2: TDictionaryHelper<Integer, string>;
+  LZippedDictionary: TDictionaryHelper<Integer, string>;
+begin
+  // Arrange
+  LDictionary1 := TDictionaryHelper<Integer, string>.Create;
+  LDictionary2 := TDictionaryHelper<Integer, string>.Create;
+  try
+    LDictionary1.Add(1, 'One');
+    LDictionary1.Add(2, 'Two');
+    LDictionary1.Add(3, 'Three');
+
+    LDictionary2.Add(1, 'Uno');
+    LDictionary2.Add(2, 'Dos');
+    LDictionary2.Add(3, 'Tres');
+
+    // Act
+    LZippedDictionary := LDictionary1.Zip<string, string>(LDictionary2,
+      function(Value1: string; Value2: string): string
+      begin
+        Result := Value1 + ' | ' + Value2;
+      end
+    );
+
+    // Assert
+    Assert.AreEqual(3, LZippedDictionary.Count);
+
+    Assert.IsTrue(LZippedDictionary.ContainsKey(1));
+    Assert.IsTrue(LZippedDictionary.ContainsKey(2));
+    Assert.IsTrue(LZippedDictionary.ContainsKey(3));
+
+    Assert.AreEqual('One | Uno', LZippedDictionary[1]);
+    Assert.AreEqual('Two | Dos', LZippedDictionary[2]);
+    Assert.AreEqual('Three | Tres', LZippedDictionary[3]);
+  finally
+    // Clean up
+    LDictionary1.Free;
+    LDictionary2.Free;
+    LZippedDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestFlatMap;
+var
+  LDictionary: TDictionaryHelper<Integer, string>;
+  LFlatMappedDictionary: TDictionaryHelper<Integer, Integer>;
+  LFlatMappedValues: TList<Integer>;
+begin
+  // Arrange
+  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  try
+    LDictionary.Add(1, '1,2,3');
+    LDictionary.Add(2, '4,5');
+    LDictionary.Add(3, '6');
+
+    // Act
+    LFlatMappedDictionary := LDictionary.FlatMap<Integer>(
+      function(Value: System.Rtti.TValue): TArray<Integer>
+      var
+        LValues: TArray<string>;
+        LItem: string;
+      begin
+        LValues := Value.ToString.Split([',']);
+        LFlatMappedValues := TList<Integer>.Create;
+        try
+          for LItem in LValues do
+          begin
+            LFlatMappedValues.Add(StrToInt(LItem));
+          end;
+          Result := LFlatMappedValues.ToArray;
+        finally
+        end;
+      end
+    );
+
+    // Assert
+    Assert.AreEqual(6, LFlatMappedDictionary.Count);
+
+    Assert.IsTrue(LFlatMappedDictionary.ContainsKey(1));
+    Assert.IsTrue(LFlatMappedDictionary.ContainsKey(2));
+    Assert.IsTrue(LFlatMappedDictionary.ContainsKey(3));
+
+    Assert.AreEqual(1, LFlatMappedDictionary[1]);
+    Assert.AreEqual(2, LFlatMappedDictionary[2]);
+    Assert.AreEqual(3, LFlatMappedDictionary[3]);
+    Assert.AreEqual(4, LFlatMappedDictionary[4]);
+    Assert.AreEqual(5, LFlatMappedDictionary[5]);
+    Assert.AreEqual(6, LFlatMappedDictionary[6]);
+  finally
+    // Clean up
+    LDictionary.Free;
+    LFlatMappedDictionary.Free;
+    LFlatMappedValues.Free;
   end;
 end;
 

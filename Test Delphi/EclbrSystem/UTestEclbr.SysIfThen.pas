@@ -36,25 +36,23 @@ var
   LValue: Integer;
 begin
 // ECLBr lib
-
 // ==========================Option 1
-// LValue := TIfThen<Integer>.When(-1 > 0).ThenOf(42).ElseOf(0 > 1, 45).ElseOf(1 > 0, 42).Return;
+  LValue := TIfThen<Integer>.When(-1 > 0).ThenOf(42).ElseOf(0 > 1, 45).ElseOf(1 > 0, 35).Return;
 
-// ==========================Option 1
- LValue := TIfThen<Integer>.When(-1 > 0)
-                           .ThenOf(42).ElseOf(0 > 1, 45)
-                           .ElseOf(1 > 0, 42)
-                           .Return;
+// ==========================Option 2
+//  LValue := TIfThen<Integer>.When(-1 > 0)
+//                            .ThenOf(42).ElseOf(0 > 1, 45)
+//                            .ElseOf(1 > 0, 35)
+//                            .Return;
 
 // NATIVE
-
 // =========================Option 1
-//if (-1 > 0) then LValue := 42 else if (0 > 1) then LValue := 45 else if (1 > 0) then LValue := 42;
+//if (-1 > 0) then LValue := 42 else if (0 > 1) then LValue := 45 else if (1 > 0) then LValue := 35;
 
 // =========================Option 2
 //if     (-1 > 0) then LValue := 42
 //else if (0 > 1) then LValue := 45
-//else if (1 > 0) then LValue := 42;
+//else if (1 > 0) then LValue := 35;
 
 // =========================Option 3
 //   if (-1 > 0) then
@@ -62,12 +60,9 @@ begin
 //   else if 0 > 1 then
 //     LValue := 45
 //   else if 1 > 0 then
-//     LValue := 42;
+//     LValue := 35;
 
-  Assert.AreEqual(42, LValue);
-
-  if not False then if 1 > 0 then LValue := 42 else if 0 > 1 then LValue := 45;
-
+  Assert.AreEqual(35, LValue);
 end;
 
 procedure TestTIfThen.TestIfThenWithMultipleElseOf;
