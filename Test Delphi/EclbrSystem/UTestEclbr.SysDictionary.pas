@@ -330,7 +330,6 @@ begin
     LDictionary.Filter(
       function(Key: Integer; Value: string): Boolean
       begin
-        // Retorne True para incluir no dicionário filtrado
         Result := Length(Value) = 3;
       end
     );
@@ -339,8 +338,8 @@ begin
     Assert.AreEqual(2, LDictionary.Count);
     Assert.IsTrue(LDictionary.ContainsKey(1));
     Assert.IsTrue(LDictionary.ContainsKey(2));
-    Assert.IsFalse(LDictionary.ContainsKey(3)); // Não deve estar no dicionário filtrado
-    Assert.IsFalse(LDictionary.ContainsKey(4));  // Não deve estar no dicionário filtrado
+    Assert.IsFalse(LDictionary.ContainsKey(3));
+    Assert.IsFalse(LDictionary.ContainsKey(4));
   finally
     LDictionary.Free;
   end;

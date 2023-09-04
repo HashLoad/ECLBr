@@ -167,19 +167,15 @@ begin
     end
     else
     begin
-      if Length(FFalseFuncs) > 0 then
+      for LFunc in FFalseFuncs do
       begin
-        for LFunc in FFalseFuncs do
+        if Assigned(LFunc.Value) and (LFunc.Key) then
         begin
-          if Assigned(LFunc.Value) and (LFunc.Key) then
-          begin
-            Result := LFunc.Value();
-            exit;
-          end;
+          Result := LFunc.Value();
+          exit;
         end;
-      end
-      else
-        Result := FFalseValue.Value;
+      end;
+      Result := FFalseValue.Value;
     end;
   finally
     FCondition := false;
