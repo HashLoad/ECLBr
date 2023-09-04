@@ -32,6 +32,7 @@ uses
   Rtti,
   SysUtils,
   eclbr.syslist,
+  eclbr.sysvector,
   Generics.Defaults,
   Generics.Collections;
 
@@ -136,7 +137,7 @@ type
     /// </summary>
     /// <typeparam name="TKey">The type of the grouping key.</typeparam>
     /// <param name="AKeySelector">The key selector function.</param>
-    function GroupBy<TKey>(const AKeySelector: TFunc<V, TKey>): TDictionary<TKey, TList<V>>;
+    function GroupBy<TKey>(const AKeySelector: TFunc<V, TKey>): TDictionary<TKey, TVector<V>>;
 
     /// <summary>
     ///   Joins the values of the dictionary into a single string, separated by the specified separator.
@@ -436,24 +437,24 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.GroupBy<TKey>(
-  const AKeySelector: TFunc<V, TKey>): TDictionary<TKey, TList<V>>;
+  const AKeySelector: TFunc<V, TKey>): TDictionary<TKey, TVector<V>>;
 var
   LPair: TPair<K, V>;
   LKey: TKey;
-  LGroupedDict: TDictionary<TKey, TList<V>>;
-  LList: TList<V>;
+  LGroupedDict: TDictionary<TKey, TVector<V>>;
+  LList: TVector<V>;
 begin
-  LGroupedDict := TDictionary<TKey, TList<V>>.Create;
-
+  LGroupedDict := TDictionary<TKey, TVector<V>>.Create;
   for LPair in Self do
   begin
     LKey := AKeySelector(LPair.Value);
     if not LGroupedDict.TryGetValue(LKey, LList) then
     begin
-      LList := TList<V>.Create;
+      LList := [];
       LGroupedDict.Add(LKey, LList);
     end;
     LList.Add(LPair.Value);
+    LGroupedDict[LKey] := LList;
   end;
   Result := LGroupedDict;
 end;

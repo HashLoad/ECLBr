@@ -46,6 +46,7 @@ type
       FFalseValue: TValue<T>;
       FTrueFunc: TFunc<T>;
       FFalseFuncs: TArray<TPair<boolean, TFunc<T>>>;
+  private
     procedure _AddElseFunc(const ACondition: boolean; const AFalseFunc: TFunc<T>);
   public
     /// <summary>
