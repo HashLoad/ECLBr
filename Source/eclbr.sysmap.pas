@@ -53,7 +53,9 @@ type
   TMap<K, V> = record
   private
     type
+      PItemPair = ^TItemPair;
       TItemPair = TPair<K, V>;
+
       PPairArray = ^TPairArray;
       TPairArray = TArray<TItemPair>;
 
@@ -78,10 +80,23 @@ type
     procedure _SetLength(const AValue: integer);
     function _GetCount: integer;
     function _GetDefaultCapacity: integer;
+    function _GetBucketIndex(const AKey: K): integer;
   public
     class operator Implicit(const V: TMap<K, V>): TPairArray;
     class operator Implicit(const V: TPairArray): TMap<K, V>;
+
+    /// <summary>
+    ///   Creates and returns a new empty dictionary of type TMap<K, V>.
+    /// </summary>
+    /// <returns>
+    ///   A new empty dictionary of type TMap<K, V>.
+    /// </returns>
+    /// <remarks>
+    ///   This static function creates and returns a new empty dictionary of type TMap<K, V>.
+    ///   The dictionary is ready for use and contains no key-value pairs.
+    /// </remarks>
     class function Empty: TMap<K, V>; static;
+
     /// <summary>
     ///   Creates a new map instance initialized with the key-value pairs provided in AValue.
     /// </summary>
@@ -155,6 +170,25 @@ type
     /// <param name="AKey">The key to retrieve the value for.</param>
     /// <returns>The value associated with the specified key.</returns>
     function GetValue(const AKey: K): V;
+
+    /// <summary>
+    ///   Attempts to retrieve the value associated with the specified key in the dictionary.
+    /// </summary>
+    /// <param name="AKey">
+    ///   The key whose associated value will be retrieved.
+    /// </param>
+    /// <param name="AValue">
+    ///   [out] The value associated with the key if found.
+    /// </param>
+    /// <returns>
+    ///   Returns True if the key was found in the dictionary, and the associated value
+    ///   was successfully retrieved. Returns False if the key was not found in the dictionary.
+    /// </returns>
+    /// <remarks>
+    ///   This function allows you to check if a key is present in the dictionary and, if it is,
+    ///   retrieve the value associated with that key.
+    /// </remarks>
+    function TryGetValue(const AKey: K; var AValue: V): boolean;
 
     /// <summary>
     ///   Retrieves the key-value pair associated with the specified key.
@@ -302,6 +336,20 @@ implementation
 
 { TMap<TKey, TValue> }
 
+function TMap<K, V>._GetBucketIndex(const AKey: K): integer;
+var
+  LFor: integer;
+begin
+  Result := -1;
+  for LFor := Low(Self.FItems) to High(Self.FItems) do
+  begin
+    if not TEqualityComparer<K>.Default.Equals(Self.FItems[LFor].Key, AKey) then
+      continue;
+    Result := LFor;
+    break;
+  end;
+end;
+
 function TMap<K, V>._GetCount: integer;
 var
   LFor: Integer;
@@ -435,23 +483,23 @@ end;
 
 function TMap<K, V>.Add(const APair: TItemPair): integer;
 var
-  LIndex: Integer;
-  LLength: Integer;
+  LIndex: integer;
+  LLength: integer;
 begin
   LIndex := -1;
-  LLength := -1;
-  if System.Length(FItems) > 0 then
+  for LIndex := Low(FItems) to High(FItems) do
   begin
-    for LIndex := 0 to FCapacity do
+    if TEqualityComparer<TItemPair>.Default.Equals(FItems[LIndex], Default(TItemPair)) then
     begin
-      if TEqualityComparer<TItemPair>.Default.Equals(FItems[LIndex], Default(TItemPair)) then
-        break;
+      FItems[LIndex] := APair;
+      Result := LIndex;
+      exit;
     end;
   end;
-  if LIndex = -1 then
+  if (LIndex = -1) or (LIndex = System.Length(FItems)) then
   begin
     LIndex := _GetCount;
-    LLength := (LIndex + LIndex shr 3) + FDefaultCapacity.DefaultCapacity;
+    LLength := LIndex + FDefaultCapacity.DefaultCapacity;
     SetCapacity(LLength);
   end;
   FItems[LIndex] := APair;
@@ -644,6 +692,18 @@ begin
   end;
 end;
 
+function TMap<K, V>.TryGetValue(const AKey: K; var AValue: V): boolean;
+var
+  LIndex: integer;
+begin
+  LIndex := _GetBucketIndex(AKey);
+  Result := LIndex >= 0;
+  if Result then
+    AValue := FItems[LIndex].Value
+  else
+    AValue := Default(V);
+end;
+
 function TMap<K, V>.ToArray: TArray<TItemPair>;
 var
   LPair: TItemPair;
@@ -714,6 +774,6 @@ begin
 end;
 
 initialization
-  TDefaultCapacity.DefaultCapacity := 32;
+  TDefaultCapacity.DefaultCapacity := 16;
 
 end.

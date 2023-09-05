@@ -95,10 +95,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="UTestResultPair.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.exception.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.value.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.container.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.result.pair.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

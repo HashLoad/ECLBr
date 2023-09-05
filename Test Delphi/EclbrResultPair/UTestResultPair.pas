@@ -3,7 +3,7 @@ unit UTestResultPair;
 interface
 
 uses
-  DUnitX.TestFramework, System.SysUtils, eclbr.result.pair, eclbr.result.pair.container;
+  DUnitX.TestFramework, System.SysUtils, eclbr.result.pair;
 
 type
   TTestTResultPair = class
@@ -59,6 +59,10 @@ type
     procedure TestGetFailureOrDefaultNoDefault;
     [Test]
     procedure TestGetFailureOrDefaultWithDefault;
+    [Test]
+    procedure TestCalculateTotalPrice;
+    [Test]
+    procedure TestCheckoutWithOutOfStockItem;
   end;
 
 implementation
@@ -78,11 +82,84 @@ begin
 
 end;
 
+procedure TTestTResultPair.TestCalculateTotalPrice;
+var
+  LTotalPrice: Double;
+  LResultPair: TResultPair<Double, string>;
+begin
+  // Comece com OK() porque o carrinho está vazio no início
+  try
+    LResultPair := TResultPair<Double, string>.New
+      .Ok(0.0)
+      .ThenOf(
+        function (const ASubtotal: Double): TResultPair<Double, string>
+        begin
+          // Adicione um item ao carrinho
+          Result := TResultPair<Double, string>.New.Ok(ASubtotal + 29.99);
+        end
+      )
+      .ThenOf(
+        function (const ASubtotal: Double): TResultPair<Double, string>
+        begin
+          // Adicione outro item ao carrinho
+          Result := TResultPair<Double, string>.New.Ok(ASubtotal + 19.99);
+        end
+      ).Return;
+
+    // Verifique se o resultado é sucesso e obtenha o preço total
+    if LResultPair.IsSuccess then
+      LTotalPrice := LResultPair.GetSuccessOrDefault(0.0)
+    else
+      LTotalPrice := 0.0;
+
+    Assert.AreEqual(49.98, LTotalPrice, 0.001); // Verifica se o preço total está correto
+  finally
+    LResultPair.Dispose;
+  end;
+end;
+
+procedure TTestTResultPair.TestCheckoutWithOutOfStockItem;
+var
+  LResultPair: TResultPair<Boolean, string>;
+begin
+  try
+    // Comece com OK() porque o carrinho não está vazio no início
+    LResultPair := TResultPair<Boolean, string>.New
+      .Ok(True)
+      .ThenOf(
+        function (const CartNotEmpty: Boolean): TResultPair<Boolean, string>
+        begin
+          // Verifique se o item do carrinho está em estoque (simulação de falha)
+          if not CartNotEmpty then
+            Result := TResultPair<Boolean, string>.New.Fail('Carrinho vazio!')
+          else
+            Result := TResultPair<Boolean, string>.New.Ok(True);
+        end)
+      .ThenOf(
+        function (const ItemInStock: Boolean): TResultPair<Boolean, string>
+        begin
+          // Tente prosseguir com o pagamento se o item estiver em estoque
+          if ItemInStock then
+            Result := TResultPair<Boolean, string>.New.Ok(True)
+          else
+            Result := TResultPair<Boolean, string>.New.Fail('Item fora de estoque!');
+        end
+      ).Return;
+    // Verifique se o resultado é sucesso ou falha
+    if LResultPair.IsSuccess then
+      Assert.IsTrue(LResultPair.GetSuccessOrDefault(False))
+    else
+      Assert.AreEqual('Item fora de estoque!', LResultPair.GetFailureOrDefault('Erro desconhecido'));
+  finally
+    LResultPair.Dispose;
+  end;
+end;
+
 procedure TTestTResultPair.TestFailure;
 var
   LResultPair: TResultPair<Integer, string>;
 begin
-  LResultPair.Failure('Error');
+  LResultPair := TResultPair<Integer, string>.New.Failure('Error');
   try
     Assert.IsFalse(LResultPair.isSuccess);
     Assert.IsTrue(LResultPair.isFailure);
@@ -95,19 +172,17 @@ end;
 procedure TTestTResultPair.TestFlatMap;
 var
   LResultPair: TResultPair<Integer, string>;
-//  LResultPair: ICrp<integer, string>;
 begin
-//  LResultPair := TCrp<integer, string>.New;
   try
-    LResultPair.Success(FSuccessValue)
-//    LResultPair.Grp.Success(FSuccessValue)
+    LResultPair := TResultPair<Integer, string>.New.Success(FSuccessValue)
       .FlatMap<Integer>(
         function(Value: Integer): Integer
         var
           LResult: TResultPair<Integer, String>;
         begin
           try
-            Result := LResult.Success(Value * 2).ValueSuccess;
+            LResult := TResultPair<Integer, String>.New.Success(Value * 2);
+            Result := LResult.ValueSuccess;
           finally
             LResult.Dispose;
           end;
@@ -115,8 +190,6 @@ begin
 
     Assert.IsTrue(LResultPair.isSuccess);
     Assert.AreEqual(FSuccessValue * 2, LResultPair.ValueSuccess);
-//    Assert.IsTrue(LResultPair.Grp.isSuccess);
-//    Assert.AreEqual(FSuccessValue * 2, LResultPair.Grp.ValueSuccess);
   finally
     LResultPair.Dispose;
   end;
@@ -127,14 +200,15 @@ var
   LResultPair: TResultPair<Integer, string>;
 begin
   try
-    LResultPair.Failure(FFailureValue)
+    LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue)
                .FlatMapFailure<String>(
                   function(Error: string): string
                   var
                     LResult: TResultPair<Integer, string>;
                   begin
                     try
-                      Result := LResult.Failure(Error + 'Handled').ValueFailure;
+                      LResult := TResultPair<Integer, string>.New.Failure(Error + 'Handled');
+                      Result := LResult.ValueFailure;
                     finally
                       LResult.Dispose;
                     end;
@@ -153,7 +227,7 @@ var
   LResult: Double;
 begin
   try
-    LResultPair.Success(FDividend div FDivisor)
+    LResultPair := TResultPair<Double, string>.New.Success(FDividend div FDivisor)
                .Map<Double>(function(Value: Double): Double
                             begin
                               Result := Value * 2.5;
@@ -166,13 +240,13 @@ begin
   end;
 end;
 
-procedure TTestTResultPair.testMapTryException;
+procedure TTestTResultPair.TestMapTryException;
 var
   LResultPair: TResultPair<Double, string>;
   LResult: Double;
 begin
   try
-    LResultPair.Success(42)
+    LResultPair := TResultPair<Double, string>.New.Success(42)
                .Map<Double>(
                   function(Value: Double): Double
                   begin
@@ -191,7 +265,7 @@ var
   LResultPair: TResultPair<Integer, string>;
 begin
   try
-    LResultPair.Pure(FSuccessValue);
+    LResultPair := TResultPair<Integer, string>.New.Pure(FSuccessValue);
 
     Assert.IsTrue(LResultPair.isSuccess);
     Assert.AreEqual(FSuccessValue, LResultPair.ValueSuccess);
@@ -205,7 +279,7 @@ var
   LResultPair: TResultPair<Integer, string>;
 begin
   try
-    LResultPair.PureFailure(FFailureValue);
+    LResultPair := TResultPair<Integer, string>.New.PureFailure(FFailureValue);
 
     Assert.IsTrue(LResultPair.isFailure);
     Assert.AreEqual(FFailureValue, LResultPair.ValueFailure);
@@ -221,7 +295,7 @@ var
   LLength: Double;
 begin
   try
-    LResultPair.Failure(FFailureValue);
+    LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue);
     LRecoveredPair := LResultPair.Recover<Double>(
       function(Error: string): Double
       begin
@@ -241,7 +315,7 @@ procedure TTestTResultPair.TestSuccess;
 var
   LResultPair: TResultPair<Integer, string>;
 begin
-  LResultPair.Success(42);
+  LResultPair := TResultPair<Integer, string>.New.Success(42);
   try
     Assert.IsTrue(LResultPair.isSuccess);
     Assert.IsFalse(LResultPair.isFailure);
@@ -257,7 +331,7 @@ var
   LSwappedPair: TResultPair<string, Integer>;
 begin
   try
-    LResultPair.Failure(FFailureValue);
+    LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue);
     LSwappedPair := LResultPair.Swap;
 
     Assert.IsTrue(LSwappedPair.isSuccess);
@@ -278,7 +352,7 @@ begin
   LFailureCalled := False;
 
   try
-    LResultPair.Success(42).TryException(
+    LResultPair := TResultPair<Integer, string>.New.Success(42).TryException(
       procedure (Value: Integer)
       begin
         LSuccessCalled := True;
@@ -301,7 +375,7 @@ var
   LResultPair: TResultPair<Integer, string>;
   LSum: Integer;
 begin
-  LResultPair.Success(FSuccessValue);
+  LResultPair := TResultPair<Integer, string>.New.Success(FSuccessValue);
   try
     LSum := LResultPair.Fold<Integer>(
       function(Value: Integer; Error: string): Integer
@@ -317,25 +391,25 @@ end;
 
 procedure TTestTResultPair.TestGetFailureOrDefaultNoDefault;
 var
-  ResultPair: TResultPair<string, Integer>;
+  LResultPair: TResultPair<string, Integer>;
 begin
-  ResultPair.Failure(42);
+  LResultPair := TResultPair<string, Integer>.New.Failure(42);
   try
-    Assert.AreEqual(ResultPair.GetFailureOrDefault, 42);
+    Assert.AreEqual(LResultPair.GetFailureOrDefault, 42);
   finally
-    ResultPair.Dispose;
+    LResultPair.Dispose;
   end;
 end;
 
 procedure TTestTResultPair.TestGetFailureOrDefaultWithDefault;
 var
-  ResultPair: TResultPair<string, Integer>;
+  LResultPair: TResultPair<string, Integer>;
 begin
-  ResultPair.Failure(42);
+  LResultPair := TResultPair<string, Integer>.New.Failure(42);
   try
-    Assert.AreEqual(ResultPair.GetFailureOrDefault(100), 42);
+    Assert.AreEqual(LResultPair.GetFailureOrDefault(100), 42);
   finally
-    ResultPair.Dispose;
+    LResultPair.Dispose;
   end;
 end;
 
@@ -343,7 +417,7 @@ procedure TTestTResultPair.TestGetFailureOrElse;
 var
   ResultPair: TResultPair<string, Integer>;
 begin
-  ResultPair.Failure(42);
+  ResultPair := TResultPair<string, Integer>.New.Failure(42);
   try
     Assert.AreEqual(ResultPair.GetFailureOrElse(
       function(Value: Integer): Integer
@@ -358,42 +432,42 @@ end;
 
 procedure TTestTResultPair.TestGetFailureOrException;
 var
-  ResultPair: TResultPair<Integer, string>;
+  LResultPair: TResultPair<Integer, string>;
 begin
-  ResultPair.Success(42);
+  LResultPair := TResultPair<Integer, string>.New.Success(42);
   try
     Assert.WillRaise(
       procedure
       begin
-        ResultPair.GetFailureOrException;
+        LResultPair.GetFailureOrException;
       end
     );
   finally
-    ResultPair.Dispose;
+    LResultPair.Dispose;
   end;
 end;
 
 procedure TTestTResultPair.TestGetSuccessOrDefaultNoDefault;
 var
-  ResultPair: TResultPair<Integer, string>;
+  LResultPair: TResultPair<Integer, string>;
 begin
-  ResultPair.Success(42);
+  LResultPair := TResultPair<Integer, string>.New.Success(42);
   try
-    Assert.AreEqual(ResultPair.GetSuccessOrDefault, 42);
+    Assert.AreEqual(LResultPair.GetSuccessOrDefault, 42);
   finally
-    ResultPair.Dispose;
+    LResultPair.Dispose;
   end;
 end;
 
 procedure TTestTResultPair.TestGetSuccessOrDefaultWithDefault;
 var
-  ResultPair: TResultPair<Integer, string>;
+  LResultPair: TResultPair<Integer, string>;
 begin
-  ResultPair.Success(42);
+  LResultPair := TResultPair<Integer, string>.New.Success(42);
   try
-    Assert.AreEqual(ResultPair.GetSuccessOrDefault(100), 42);
+    Assert.AreEqual(LResultPair.GetSuccessOrDefault(100), 42);
   finally
-    ResultPair.Dispose;
+    LResultPair.Dispose;
   end;
 end;
 
@@ -401,7 +475,7 @@ procedure TTestTResultPair.TestGetSuccessOrElse;
 var
   LResultPair: TResultPair<Integer, String>;
 begin
-  LResultPair.Success(42);
+  LResultPair := TResultPair<Integer, String>.New.Success(42);
   try
     Assert.AreEqual(LResultPair.GetSuccessOrElse(
       function(Value: Integer): Integer
@@ -417,16 +491,12 @@ end;
 procedure TTestTResultPair.TestGetSuccessOrException;
 var
   LResultPair: TResultPair<Integer, string>;
-//  LResultPair: ICrp<Integer, String>;
 begin
-//  LResultPair := TCrp<Integer, String>.New;
-//  LResultPair.Grp.Failure('42');
-  LResultPair.Failure('42');
+  LResultPair := TResultPair<Integer, string>.New.Failure('42');
   try
     Assert.WillRaise(
       procedure
       begin
-//        LResultPair.Grp.GetSuccessOrException;
         LResultPair.GetSuccessOrException;
       end
     );
@@ -440,7 +510,7 @@ var
   LResultPair: TResultPair<Integer, string>;
   LDefaultValue: Integer;
 begin
-  LResultPair.Failure(FFailureValue);
+  LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue);
   try
     LDefaultValue := LResultPair.Fold<Integer>(
       function(Value: Integer; Error: string): Integer

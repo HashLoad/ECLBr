@@ -74,6 +74,14 @@ type
     /// </summary>
     procedure Unique;
 
+    /// <summary>
+    ///   Releases the memory occupied by the values stored in the dictionary.
+    /// </summary>
+    /// <remarks>
+    ///   This procedure iterates through the dictionary and releases the memory occupied by all
+    ///   the values stored in the dictionary. The key-value pairs will still be present in the
+    ///   dictionary, but the associated values will be removed from memory.
+    /// </remarks>
     procedure FreeValues;
 
     /// <summary>
@@ -125,7 +133,7 @@ type
     /// </summary>
     /// <typeparam name="TKey">The type of the grouping key.</typeparam>
     /// <param name="AKeySelector">The key selector function.</param>
-    function GroupBy<TKey>(const AKeySelector: TFunc<V, TKey>): TDictionary<TKey, TVector<V>>;
+    function GroupBy<TKey>(const AKeySelector: TFunc<V, TKey>): TMap<TKey, TVector<V>>;
 
     /// <summary>
     ///   Joins the values of the dictionary into a single string, separated by the specified separator.
@@ -148,14 +156,14 @@ type
     /// </summary>
     /// <param name="ACount">The number of key-value pairs to take.</param>
     /// <returns>A new dictionary with the specified number of key-value pairs from the start.</returns>
-    function Take(const ACount: Integer): TDictionaryHelper<K, V>;
+    function Take(const ACount: Integer): TMap<K, V>;
 
     /// <summary>
     ///   Skips a specified number of key-value pairs from the beginning of the dictionary and returns the remaining pairs.
     /// </summary>
     /// <param name="ACount">The number of key-value pairs to skip.</param>
     /// <returns>A new dictionary with key-value pairs after skipping the specified number of pairs.</returns>
-    function Skip(const ACount: Integer): TDictionaryHelper<K, V>;
+    function Skip(const ACount: Integer): TMap<K, V>;
 
     /// <summary>
     ///   Creates a new dictionary containing key-value pairs from the specified start index to the end index.
@@ -163,7 +171,7 @@ type
     /// <param name="AStartIndex">The starting index for slicing.</param>
     /// <param name="AEndIndex">The ending index for slicing.</param>
     /// <returns>A new dictionary with the sliced key-value pairs.</returns>
-    function Slice(const AStartIndex: integer; const AEndIndex: integer): TDictionaryHelper<K, V>;
+    function Slice(const AStartIndex: integer; const AEndIndex: integer): TMap<K, V>;
 
     /// <summary>
     ///   Combines two dictionaries with a specified function to create a new dictionary.
@@ -176,7 +184,7 @@ type
     /// <param name="AFunc">The function to apply to each pair of values.</param>
     /// <returns>A new dictionary with values resulting from applying the function to corresponding pairs.</returns>
     function Zip<T, TResult>(const AList: TDictionaryHelper<K, T>;
-      const AFunc: TFunc<V, T, TResult>): TDictionaryHelper<K, TResult>;
+      const AFunc: TFunc<V, T, TResult>): TMap<K, TResult>;
 
     /// <summary>
     ///   Maps each value in the dictionary to an array of results and flattens the results into a single dictionary.
@@ -184,21 +192,21 @@ type
     /// <typeparam name="TResult">The value type of the result dictionary.</typeparam>
     /// <param name="AFunc">The function to map each value to an array of results.</param>
     /// <returns>A new dictionary containing flattened results.</returns>
-    function FlatMap<TResult>(const AFunc: TFunc<TValue, TArray<TResult>>): TDictionaryHelper<K, TResult>;
+    function FlatMap<TResult>(const AFunc: TFunc<TValue, TArray<TResult>>): TMap<K, TResult>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs that are common between two dictionaries.
     /// </summary>
     /// <param name="AOtherDict">The other dictionary to intersect with.</param>
     /// <returns>A new dictionary containing common key-value pairs.</returns>
-    function Intersect(const AOtherDict: TDictionaryHelper<K, V>): TDictionaryHelper<K, V>;
+    function Intersect(const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs that exist in the current dictionary but not in another dictionary.
     /// </summary>
     /// <param name="AOtherDict">The other dictionary to compare.</param>
     /// <returns>A new dictionary containing key-value pairs not present in the other dictionary.</returns>
-    function &Except(const AOtherDict: TDictionaryHelper<K, V>): TDictionaryHelper<K, V>;
+    function &Except(const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns the maximum key in the dictionary.
@@ -218,14 +226,14 @@ type
     /// <typeparam name="TKey">The type of the key used for distinct selection.</typeparam>
     /// <param name="AKeySelector">The function used to select keys for distinct values.</param>
     /// <returns>A new dictionary with distinct keys.</returns>
-    function DistinctBy<TKey>(const AKeySelector: TFunc<K, TKey>): TDictionary<TKey, V>;
+    function DistinctBy<TKey>(const AKeySelector: TFunc<K, TKey>): TMap<TKey, V>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs that satisfy the given predicate.
     /// </summary>
     /// <param name="APredicate">The predicate used to filter key-value pairs.</param>
     /// <returns>A new dictionary containing filtered key-value pairs.</returns>
-    function FindAll(const APredicate: TFunc<V, boolean>): TDictionary<K, V>;
+    function FindAll(const APredicate: TFunc<V, boolean>): TMap<K, V>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs from the beginning of the dictionary
@@ -233,7 +241,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate used to take key-value pairs.</param>
     /// <returns>A new dictionary containing key-value pairs that match the predicate.</returns>
-    function TakeWhile(const APredicate: TFunc<K, boolean>): TDictionary<K, V>;
+    function TakeWhile(const APredicate: TFunc<K, boolean>): TMap<K, V>;
 
     /// <summary>
     ///   Skips key-value pairs from the beginning of the dictionary while the specified predicate is true
@@ -241,7 +249,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate used to skip key-value pairs.</param>
     /// <returns>A new dictionary containing key-value pairs after skipping while the predicate is true.</returns>
-    function SkipWhile(const APredicate: TFunc<K, boolean>): TDictionary<K, V>;
+    function SkipWhile(const APredicate: TFunc<K, boolean>): TMap<K, V>;
 
     /// <summary>
     ///   Partitions the dictionary into two groups based on the given predicate.
@@ -251,7 +259,7 @@ type
     /// <returns>
     ///   A new dictionary with two entries: one entry for keys that satisfy the predicate (true) and another for keys that do not (false).
     /// </returns>
-    function PartitionBy(const APredicate: TFunc<V, boolean>): TDictionary<boolean, TList<V>>;
+    function PartitionBy(const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
 
     /// <summary>
     ///   Returns the last key in the dictionary.
@@ -310,15 +318,15 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.DistinctBy<TKey>(
-  const AKeySelector: TFunc<K, TKey>): TDictionary<TKey, V>;
+  const AKeySelector: TFunc<K, TKey>): TMap<TKey, V>;
 var
   LPair: TPair<K, V>;
   LKey: TValue;
 begin
-  Result := TDictionary<TKey, V>.Create;
+  Result := [];
   for LPair in Self do
   begin
-    if not Result.ContainsKey(AKeySelector(LPair.Key)) then
+    if not Result.Contains(AKeySelector(LPair.Key)) then
     begin
       LKey := TValue.From<K>(LPair.Key);
       Result.Add(LKey.AsType<TKey>, LPair.Value);
@@ -327,12 +335,11 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.&Except(
-  const AOtherDict: TDictionaryHelper<K, V>): TDictionaryHelper<K, V>;
+  const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
-  Result := TDictionaryHelper<K, V>.Create;
-
+  Result := [];
   for LPair in Self do
   begin
     if not AOtherDict.ContainsKey(LPair.Key) then
@@ -366,17 +373,15 @@ begin
   end;
   for LPairKey in LToDelete do
     Self.Remove(LPairKey);
-
   Result := Self;
 end;
 
 function TDictionaryHelper<K, V>.FindAll(
-  const APredicate: TFunc<V, boolean>): TDictionary<K, V>;
+  const APredicate: TFunc<V, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
-  Result := TDictionary<K, V>.Create;
-
+  Result := [];
   for LPair in Self do
   begin
     if APredicate(LPair.Value) then
@@ -385,19 +390,18 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.FlatMap<TResult>(
-  const AFunc: TFunc<TValue, TArray<TResult>>): TDictionaryHelper<K, TResult>;
+  const AFunc: TFunc<TValue, TArray<TResult>>): TMap<K, TResult>;
 var
   LPair: TPair<K, V>;
   LValue: TValue;
   LResultArray: TArray<TResult>;
   LResult: TResult;
 begin
-  Result := TDictionaryHelper<K, TResult>.Create;
+  Result := [];
   for LPair in Self do
   begin
     LValue := TValue.From<V>(LPair.Value);
     LResultArray := AFunc(LValue);
-
     for LResult in LResultArray do
       Result.Add(LPair.Key, LResult);
   end;
@@ -440,14 +444,14 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.GroupBy<TKey>(
-  const AKeySelector: TFunc<V, TKey>): TDictionary<TKey, TVector<V>>;
+  const AKeySelector: TFunc<V, TKey>): TMap<TKey, TVector<V>>;
 var
   LPair: TPair<K, V>;
   LKey: TKey;
-  LGroupedDict: TDictionary<TKey, TVector<V>>;
+  LGroupedDict: TMap<TKey, TVector<V>>;
   LList: TVector<V>;
 begin
-  LGroupedDict := TDictionary<TKey, TVector<V>>.Create;
+  LGroupedDict := [];
   for LPair in Self do
   begin
     LKey := AKeySelector(LPair.Value);
@@ -463,11 +467,11 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.Intersect(
-  const AOtherDict: TDictionaryHelper<K, V>): TDictionaryHelper<K, V>;
+  const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
-  Result := TDictionaryHelper<K, V>.Create;
+  Result := [];
   for LPair in Self do
   begin
     if AOtherDict.ContainsKey(LPair.Key) then
@@ -591,24 +595,24 @@ begin
   Result := TPair<TMap<K, V>, TMap<K, V>>.Create(LTrueMap, LFalseMap);
 end;
 
-
 function TDictionaryHelper<K, V>.PartitionBy(
-  const APredicate: TFunc<V, boolean>): TDictionary<boolean, TList<V>>;
+  const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
 var
   LPair: TPair<K, V>;
   LValue: V;
   LKey: boolean;
+  LList: TVector<V>;
 begin
-  Result := TDictionary<boolean, TList<V>>.Create;
-
+  Result := [];
   for LPair in Self do
   begin
     LValue := LPair.Value;
     LKey := APredicate(LValue);
-
-    if not Result.ContainsKey(LKey) then
-      Result[LKey] := TList<V>.Create;
-
+    if not Result.Contains(LKey) then
+    begin
+      LList := [];
+      Result[LKey] := LList;
+    end;
     Result[LKey].Add(LValue);
   end;
 end;
@@ -656,44 +660,41 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Skip(const ACount: Integer): TDictionaryHelper<K, V>;
+function TDictionaryHelper<K, V>.Skip(const ACount: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LIndex: Integer;
 begin
-  Result := TDictionaryHelper<K, V>.Create;
+  Result := [];
   LSortedKeys := Self.SortedKeys;
-
   for LIndex := ACount to Length(LSortedKeys) - 1 do
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
 end;
 
 function TDictionaryHelper<K, V>.SkipWhile(
-  const APredicate: TFunc<K, boolean>): TDictionary<K, V>;
+  const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
   LFound: boolean;
 begin
-  Result := TDictionary<K, V>.Create;
+  Result := [];
   LFound := False;
-
   for LPair in Self do
   begin
     if not LFound and not APredicate(LPair.Key) then
       LFound := True;
-
     if LFound then
       Result.Add(LPair.Key, LPair.Value);
   end;
 end;
 
 function TDictionaryHelper<K, V>.Slice(const AStartIndex: integer;
-  const AEndIndex: integer): TDictionaryHelper<K, V>;
+  const AEndIndex: integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LIndex: Integer;
 begin
-  Result := TDictionaryHelper<K, V>.Create;
+  Result := [];
   LSortedKeys := Self.SortedKeys;
   for LIndex := AStartIndex to TUtils.Min(AEndIndex, High(LSortedKeys)) do
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
@@ -712,16 +713,16 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Take(const ACount: Integer): TDictionaryHelper<K, V>;
+function TDictionaryHelper<K, V>.Take(const ACount: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LKey: K;
 begin
-  Result := TDictionaryHelper<K, V>.Create;
+  Result := [];
   LSortedKeys := Self.SortedKeys;
   for LKey in LSortedKeys do
   begin
-    if Result.Count >= ACount then
+    if Result.Length >= ACount then
       break;
     if Self.ContainsKey(LKey) then
       Result.Add(LKey, Self[LKey]);
@@ -730,12 +731,11 @@ end;
 
 
 function TDictionaryHelper<K, V>.TakeWhile(
-  const APredicate: TFunc<K, boolean>): TDictionary<K, V>;
+  const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
-  Result := TDictionary<K, V>.Create;
-
+  Result := [];
   for LPair in Self do
   begin
     if APredicate(LPair.Key) then
@@ -794,13 +794,13 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.Zip<T, TResult>(const AList: TDictionaryHelper<K, T>;
-  const AFunc: TFunc<V, T, TResult>): TDictionaryHelper<K, TResult>;
+  const AFunc: TFunc<V, T, TResult>): TMap<K, TResult>;
 var
   LKey: K;
   LValue1: V;
   LValue2: T;
 begin
-  Result := TDictionaryHelper<K, TResult>.Create;
+  Result := [];
   for LKey in Self.Keys do
   begin
     if AList.TryGetValue(LKey, LValue2) then

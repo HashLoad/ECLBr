@@ -4,6 +4,8 @@ interface
 
 uses
   DUnitX.TestFramework,
+  Rtti,
+  SysUtils,
   Generics.Collections,
   eclbr.sysvector,
   eclbr.sysmap,
@@ -55,12 +57,11 @@ type
     procedure TestZip;
 //    [Test]
     procedure TestFlatMap;
+    [Test]
+    procedure TestSkipMemoryLeak;
   end;
 
 implementation
-
-uses
-  SysUtils;
 
 { TArrayDataTest }
 
@@ -392,7 +393,7 @@ end;
 procedure TDictionaryHelperTest.TestGroupBy;
 var
   LDictionary: TDictionaryHelper<string, Integer>;
-  LGroupedDictionary: TDictionary<string, TVector<Integer>>;
+  LGroupedDictionary: TMap<string, TVector<Integer>>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<string, Integer>.Create;
@@ -416,7 +417,7 @@ begin
     );
 
     // Assert
-    Assert.AreEqual(2, LGroupedDictionary.Count); // Deve haver 2 grupos: Par e Ímpar
+    Assert.AreEqual(2, LGroupedDictionary.Length); // Deve haver 2 grupos: Par e Ímpar
 
     // Verifique se os valores foram agrupados corretamente
     Assert.AreEqual(2, LGroupedDictionary['Even'].Length);
@@ -424,7 +425,6 @@ begin
   finally
     // Clean up
     LDictionary.Free;
-    LGroupedDictionary.Free;
   end;
 end;
 
@@ -536,7 +536,7 @@ end;
 procedure TDictionaryHelperTest.TestTake;
 var
   LDictionary: TDictionaryHelper<Integer, string>;
-  LTakenDictionary: TDictionaryHelper<Integer, string>;
+  LTakenDictionary: TMap<Integer, string>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<Integer, string>.Create;
@@ -551,14 +551,14 @@ begin
     LTakenDictionary := LDictionary.Take(3);
 
     // Assert
-    Assert.AreEqual(3, LTakenDictionary.Count);
+    Assert.AreEqual(3, LTakenDictionary.Length);
 
-    Assert.IsTrue(LTakenDictionary.ContainsKey(1));
-    Assert.IsTrue(LTakenDictionary.ContainsKey(2));
-    Assert.IsTrue(LTakenDictionary.ContainsKey(3));
+    Assert.IsTrue(LTakenDictionary.Contains(1));
+    Assert.IsTrue(LTakenDictionary.Contains(2));
+    Assert.IsTrue(LTakenDictionary.Contains(3));
 
-    Assert.IsFalse(LTakenDictionary.ContainsKey(4));
-    Assert.IsFalse(LTakenDictionary.ContainsKey(5));
+    Assert.IsFalse(LTakenDictionary.Contains(4));
+    Assert.IsFalse(LTakenDictionary.Contains(5));
 
     Assert.AreEqual('One', LTakenDictionary[1]);
     Assert.AreEqual('Two', LTakenDictionary[2]);
@@ -566,14 +566,13 @@ begin
   finally
     // Clean up
     LDictionary.Free;
-    LTakenDictionary.Free;
   end;
 end;
 
 procedure TDictionaryHelperTest.TestSkip;
 var
   LDictionary: TDictionaryHelper<Integer, string>;
-  LSkippedDictionary: TDictionaryHelper<Integer, string>;
+  LSkippedDictionary: TMap<Integer, string>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<Integer, string>.Create;
@@ -588,14 +587,14 @@ begin
     LSkippedDictionary := LDictionary.Skip(2);
 
     // Assert
-    Assert.AreEqual(3, LSkippedDictionary.Count);
+    Assert.AreEqual(3, LSkippedDictionary.Length);
 
-    Assert.IsTrue(LSkippedDictionary.ContainsKey(3));
-    Assert.IsTrue(LSkippedDictionary.ContainsKey(4));
-    Assert.IsTrue(LSkippedDictionary.ContainsKey(5));
+    Assert.IsTrue(LSkippedDictionary.Contains(3));
+    Assert.IsTrue(LSkippedDictionary.Contains(4));
+    Assert.IsTrue(LSkippedDictionary.Contains(5));
 
-    Assert.IsFalse(LSkippedDictionary.ContainsKey(1));
-    Assert.IsFalse(LSkippedDictionary.ContainsKey(2));
+    Assert.IsFalse(LSkippedDictionary.Contains(1));
+    Assert.IsFalse(LSkippedDictionary.Contains(2));
 
     Assert.AreEqual('Three', LSkippedDictionary[3]);
     Assert.AreEqual('Four', LSkippedDictionary[4]);
@@ -603,14 +602,35 @@ begin
   finally
     // Clean up
     LDictionary.Free;
-    LSkippedDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestSkipMemoryLeak;
+var
+  LFor: Integer;
+  LDictionary: TDictionaryHelper<Integer, String>;
+  LResult: TMap<Integer, string>;
+  L: integer;
+begin
+  LDictionary := TDictionaryHelper<Integer, String>.Create;
+  try
+    for LFor := 0 to 10 do
+    begin
+      LDictionary.Add(LFor, 'Valor ' + LFor.ToString);
+      LResult := LDictionary.Skip(1);
+    end;
+
+    // Agora, verificamos se não há vazamento de memória
+    Assert.Pass('Teste bem-sucedido: Nenhum vazamento de memória detectado.');
+  finally
+    LDictionary.Free;
   end;
 end;
 
 procedure TDictionaryHelperTest.TestSlice;
 var
   LDictionary: TDictionaryHelper<Integer, string>;
-  LSlicedDictionary: TDictionaryHelper<Integer, string>;
+  LSlicedDictionary: TMap<Integer, string>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<Integer, string>.Create;
@@ -625,14 +645,14 @@ begin
     LSlicedDictionary := LDictionary.Slice(1, 3); // Slice from index 1 to 3
 
     // Assert
-    Assert.AreEqual(3, LSlicedDictionary.Count);
+    Assert.AreEqual(3, LSlicedDictionary.Length);
 
-    Assert.IsTrue(LSlicedDictionary.ContainsKey(2));
-    Assert.IsTrue(LSlicedDictionary.ContainsKey(3));
-    Assert.IsTrue(LSlicedDictionary.ContainsKey(4));
+    Assert.IsTrue(LSlicedDictionary.Contains(2));
+    Assert.IsTrue(LSlicedDictionary.Contains(3));
+    Assert.IsTrue(LSlicedDictionary.Contains(4));
 
-    Assert.IsFalse(LSlicedDictionary.ContainsKey(1));
-    Assert.IsFalse(LSlicedDictionary.ContainsKey(5));
+    Assert.IsFalse(LSlicedDictionary.Contains(1));
+    Assert.IsFalse(LSlicedDictionary.Contains(5));
 
     Assert.AreEqual('Two', LSlicedDictionary[2]);
     Assert.AreEqual('Three', LSlicedDictionary[3]);
@@ -640,14 +660,13 @@ begin
   finally
     // Clean up
     LDictionary.Free;
-    LSlicedDictionary.Free;
   end;
 end;
 
 procedure TDictionaryHelperTest.TestZip;
 var
   LDictionary1, LDictionary2: TDictionaryHelper<Integer, string>;
-  LZippedDictionary: TDictionaryHelper<Integer, string>;
+  LZippedDictionary: TMap<Integer, string>;
 begin
   // Arrange
   LDictionary1 := TDictionaryHelper<Integer, string>.Create;
@@ -670,11 +689,11 @@ begin
     );
 
     // Assert
-    Assert.AreEqual(3, LZippedDictionary.Count);
+    Assert.AreEqual(3, LZippedDictionary.Length);
 
-    Assert.IsTrue(LZippedDictionary.ContainsKey(1));
-    Assert.IsTrue(LZippedDictionary.ContainsKey(2));
-    Assert.IsTrue(LZippedDictionary.ContainsKey(3));
+    Assert.IsTrue(LZippedDictionary.Contains(1));
+    Assert.IsTrue(LZippedDictionary.Contains(2));
+    Assert.IsTrue(LZippedDictionary.Contains(3));
 
     Assert.AreEqual('One | Uno', LZippedDictionary[1]);
     Assert.AreEqual('Two | Dos', LZippedDictionary[2]);
@@ -683,15 +702,13 @@ begin
     // Clean up
     LDictionary1.Free;
     LDictionary2.Free;
-    LZippedDictionary.Free;
   end;
 end;
 
 procedure TDictionaryHelperTest.TestFlatMap;
 var
   LDictionary: TDictionaryHelper<Integer, string>;
-  LFlatMappedDictionary: TDictionaryHelper<Integer, Integer>;
-  LFlatMappedValues: TList<Integer>;
+  LFlatMappedDictionary: TMap<Integer, Integer>;
 begin
   // Arrange
   LDictionary := TDictionaryHelper<Integer, string>.Create;
@@ -702,10 +719,11 @@ begin
 
     // Act
     LFlatMappedDictionary := LDictionary.FlatMap<Integer>(
-      function(Value: System.Rtti.TValue): TArray<Integer>
+      function(Value: TValue): TArray<Integer>
       var
         LValues: TArray<string>;
         LItem: string;
+        LFlatMappedValues: TList<Integer>;
       begin
         LValues := Value.ToString.Split([',']);
         LFlatMappedValues := TList<Integer>.Create;
@@ -716,16 +734,17 @@ begin
           end;
           Result := LFlatMappedValues.ToArray;
         finally
+          LFlatMappedValues.Free;
         end;
       end
     );
 
     // Assert
-    Assert.AreEqual(6, LFlatMappedDictionary.Count);
+    Assert.AreEqual(6, LFlatMappedDictionary.Length);
 
-    Assert.IsTrue(LFlatMappedDictionary.ContainsKey(1));
-    Assert.IsTrue(LFlatMappedDictionary.ContainsKey(2));
-    Assert.IsTrue(LFlatMappedDictionary.ContainsKey(3));
+    Assert.IsTrue(LFlatMappedDictionary.Contains(1));
+    Assert.IsTrue(LFlatMappedDictionary.Contains(2));
+    Assert.IsTrue(LFlatMappedDictionary.Contains(3));
 
     Assert.AreEqual(1, LFlatMappedDictionary[1]);
     Assert.AreEqual(2, LFlatMappedDictionary[2]);
@@ -736,8 +755,6 @@ begin
   finally
     // Clean up
     LDictionary.Free;
-    LFlatMappedDictionary.Free;
-    LFlatMappedValues.Free;
   end;
 end;
 

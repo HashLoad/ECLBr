@@ -821,13 +821,13 @@ begin
   try
     if not _ExecuteSession then
     begin
-      Result.Failure('Use Execute after session [sCase, sDefault, sTryExcept]');
+      Result := TResultPair<boolean, string>.New.Failure('Use Execute after session [sCase, sDefault, sTryExcept]');
       exit;
     end
     else
     if (not _ExecuteGuard) or (not _ExecuteRegex) then
     begin
-      Result.Failure('No matching Guard/Regex.');
+      Result := TResultPair<boolean, string>.New.Failure('No matching Guard/Regex.');
       exit;
     end;
 
@@ -836,13 +836,13 @@ begin
     except
       on E: Exception do
       begin
-        Result.Failure(E.Message);
+        Result := TResultPair<boolean, string>.New.Failure(E.Message);
         try
           if (FCaseDictionary['TryExcept'].Count > 0) and (_MatchingTryExcept) then
             exit;
         except
           on E: Exception do
-            Result.Failure(Result.ValueFailure + sLineBreak + E.Message);
+            Result := TResultPair<boolean, string>.New.Failure(Result.ValueFailure + sLineBreak + E.Message);
         end;
       end;
     end;
@@ -855,7 +855,7 @@ function TMatch<T>._ExecuteCasesValidation: TResultPair<boolean, string>;
 begin
   if (not _ExecuteCaseIf_Proc) or (not _ExecuteCaseIf_Func) then
   begin
-    Result.Failure('No matching Guard.');
+    Result := TResultPair<boolean, string>.New.Failure('No matching Guard.');
     exit;
   end
   else
@@ -863,10 +863,10 @@ begin
      (_ExecuteCaseIn) or (_ExecuteCaseIs) or (_ExecuteCaseRange) or
      (_ExecuteCaseDefault) then
   begin
-    Result.Success(true);
+    Result := TResultPair<boolean, string>.New.Success(true);
     exit;
   end;
-  Result.Failure('No matching case found.');
+  Result := TResultPair<boolean, string>.New.Failure('No matching case found.');
 end;
 
 function TMatch<T>._ExecuteSession: boolean;

@@ -157,6 +157,17 @@ type
     procedure Clear;
 
     /// <summary>
+    ///   Sorts the elements of the dictionary based on their keys in ascending order.
+    /// </summary>
+    /// <remarks>
+    ///   This procedure rearranges the elements of the dictionary so that they are
+    ///   sorted in ascending order based on their keys. After calling this procedure,
+    ///   the dictionary will be sorted, and you can access its elements in a sorted
+    ///   order using iterators or other methods.
+    /// </remarks>
+    procedure Sort;
+
+    /// <summary>
     ///   Removes duplicate elements from the vector, keeping only one occurrence of each element.
     /// </summary>
     procedure Unique;
@@ -411,6 +422,11 @@ begin
   TArrayManager.SetLength(FItems, ALength);
 end;
 
+procedure TVector<T>.Sort;
+begin
+  TArray.Sort<T>(FItems);
+end;
+
 procedure TVector<T>.AddRange(const ACollection: TArrayType);
 var
   LItem: T;
@@ -640,12 +656,14 @@ class function TVector<T>.TArrayManager.IndexOf(const AArray: TArrayType;
 var
   LFor: integer;
 begin
-  for LFor := 0 to System.Length(AArray) - 1 do
-  begin
-    if TEqualityComparer<T>.Default.Equals(AArray[LFor], AItem) then
-      exit(LFor);
-  end;
   Result := -1;
+  for LFor := Low(AArray) to High(AArray) do
+  begin
+    if not TEqualityComparer<T>.Default.Equals(AArray[LFor], AItem) then
+      continue;
+    Result := LFor;
+    break;
+  end;
 end;
 
 class procedure TVector<T>.TArrayManager.SetLength(var AArray: TArrayType; ALength: integer);

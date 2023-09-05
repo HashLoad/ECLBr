@@ -25,9 +25,7 @@ uses
   eclbr.include in '..\..\Source\eclbr.include.pas',
   eclbr.interfaces in '..\..\Source\eclbr.interfaces.pas',
   eclbr.sysmatch in '..\..\Source\eclbr.sysmatch.pas',
-  eclbr.result.pair.exception in '..\..\Source\resultpair\eclbr.result.pair.exception.pas',
-  eclbr.result.pair in '..\..\Source\resultpair\eclbr.result.pair.pas',
-  eclbr.result.pair.value in '..\..\Source\resultpair\eclbr.result.pair.value.pas',
+  eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
   UTestEclbr.SysVector in 'UTestEclbr.SysVector.pas';
 
 var

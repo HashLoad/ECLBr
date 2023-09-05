@@ -112,9 +112,7 @@
         <DCCReference Include="..\..\Source\eclbr.include.pas"/>
         <DCCReference Include="..\..\Source\eclbr.interfaces.pas"/>
         <DCCReference Include="..\..\Source\eclbr.sysmatch.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.exception.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.pas"/>
-        <DCCReference Include="..\..\Source\resultpair\eclbr.result.pair.value.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.result.pair.pas"/>
         <DCCReference Include="UTestEclbr.SysMap.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

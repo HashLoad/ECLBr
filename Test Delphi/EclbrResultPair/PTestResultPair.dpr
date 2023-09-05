@@ -13,10 +13,7 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
   UTestResultPair in 'UTestResultPair.pas',
-  eclbr.result.pair.exception in '..\..\Source\resultpair\eclbr.result.pair.exception.pas',
-  eclbr.result.pair in '..\..\Source\resultpair\eclbr.result.pair.pas',
-  eclbr.result.pair.value in '..\..\Source\resultpair\eclbr.result.pair.value.pas',
-  eclbr.result.pair.container in '..\..\Source\resultpair\eclbr.result.pair.container.pas';
+  eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas';
 
 var
   runner : ITestRunner;
