@@ -15,8 +15,7 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   UTestEclbr.SysIfTuple in 'UTestEclbr.SysIfTuple.pas',
-  eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
-  eclbr.map in '..\..\Source\eclbr.map.pas';
+  eclbr.tuple in '..\..\Source\eclbr.tuple.pas';
 
 var
   runner : ITestRunner;

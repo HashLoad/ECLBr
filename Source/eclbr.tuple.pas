@@ -5,12 +5,12 @@ interface
 uses
   SysUtils,
   Generics.Collections,
-  eclbr.map;
+  Generics.Defaults;
 
 type
   TTuple<K, V> = packed record
   private
-    FTuplas: TMap<K, V>;
+    FTuples: TArray<TPair<K, V>>;
   public
     /// <summary>
     ///   Cria um objeto TTuple contendo as chaves especificadas no array AKeyArray.
@@ -32,40 +32,62 @@ type
     /// <param name="AKey">A chave para a qual se deseja obter o valor correspondente.</param>
     /// <returns>O valor associado à chave especificada.</returns>
     function Get(const AKey: K): V;
+
+    /// <summary>
+    ///   Returns the number of elements in the collection.
+    /// </summary>
+    /// <remarks>
+    ///   This function returns the current count of elements stored in the collection.
+    /// </remarks>
+    /// <returns>
+    ///   An integer value representing the number of elements in the collection.
+    /// </returns>
+    function Count: integer;
   end;
 
 implementation
 
 { TTupla<K, V> }
 
-function TTuple<K, V>.Get(const AKey: K): V;
+function TTuple<K, V>.Count: integer;
 begin
-  Result := FTuplas[Akey];
+  Result := Length(FTuples);
+end;
+
+function TTuple<K, V>.Get(const AKey: K): V;
+var
+  LPair: TPair<K, V>;
+begin
+  for LPair in FTuples do
+  begin
+    if TEqualityComparer<K>.Default.Equals(LPair.Key, AKey) then
+      exit(LPair.Value);
+  end;
+  raise Exception.Create('Key not found');
 end;
 
 function TTuple<K, V>.Keys(const AKeyArray: array of K): TTuple<K, V>;
 var
-  LFor: Integer;
+  LFor: integer;
+  LTuples: TArray<TPair<K, V>>;
 begin
-  for LFor := Low(AKeyArray) to High(AKeyArray) do
-    FTuplas.Add(AKeyArray[LFor], Default(V));
+  SetLength(LTuples, Length(FTuples) + Length(AKeyArray));
+  for LFor := Low(FTuples) to High(FTuples) do
+    LTuples[LFor] := FTuples[LFor];
+  for LFor := 0 to High(AKeyArray) do
+    LTuples[High(FTuples) + LFor + 1] := TPair<K, V>.Create(AKeyArray[LFor], Default(V));
+  FTuples := LTuples;
   Result := Self;
 end;
 
 function TTuple<K, V>.Values(const AValueArray: array of V): TTuple<K, V>;
 var
   LFor: Integer;
-  LPair: TPair<K, V>;
 begin
-  if FTuplas.Length <> Length(AValueArray) then
-    raise Exception.Create('Error Message');
-
-  LFor := 0;
-  for LPair in FTuplas.ToArray do
-  begin
-    FTuplas[LPair.Key] := AValueArray[LFor];
-    Inc(LFor);
-  end;
+  if Length(FTuples) <> Length(AValueArray) then
+    raise Exception.Create('Number of values does not match the number of keys');
+  for LFor := Low(FTuples) to High(FTuples) do
+    FTuples[LFor] := TPair<K, V>.Create(FTuples[LFor].Key, AValueArray[LFor]);
   Result := Self;
 end;
 

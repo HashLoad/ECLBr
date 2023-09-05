@@ -47,6 +47,19 @@ type
       FTrueFunc: TFunc<T>;
       FFalseFuncs: TArray<TPair<boolean, TFunc<T>>>;
   private
+    /// <summary>
+    ///   Conditionally adds a function to be executed if the specified condition is false.
+    /// </summary>
+    /// <remarks>
+    ///   This procedure allows you to conditionally add a function to the collection to be executed
+    ///   if the specified condition evaluates to false when processing a conditional chain.
+    /// </remarks>
+    /// <param name="ACondition">
+    ///   A boolean value representing the condition to evaluate.
+    /// </param>
+    /// <param name="AFalseFunc">
+    ///   A TFunc<T> representing the function to be executed if the condition is false.
+    /// </param>
     procedure _AddElseFunc(const ACondition: boolean; const AFalseFunc: TFunc<T>);
   public
     /// <summary>

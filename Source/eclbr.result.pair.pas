@@ -60,7 +60,6 @@ type
     constructor Create(AValue: T);
     class function CreateNil: TResultPairValue<T>; static;
     function GetValue: T;
-//    procedure SetValue(const AValue: T);
     function HasValue: boolean;
   end;
 
@@ -88,9 +87,58 @@ type
     ///  </summary>
     procedure _DestroyFailure;
 
+    /// <summary>
+    ///   Sets the success value for the TResultPair.
+    /// </summary>
+    /// <remarks>
+    ///   Use this procedure to set the success value for the current TResultPair instance.
+    ///   The success value represents the successful result of an operation in the Railway Pattern.
+    /// </remarks>
+    /// <param name="ASuccess">
+    ///   The success value of type S to set.
+    /// </param>
     procedure _SetSuccessValue(const ASuccess: S);
+
+    /// <summary>
+    ///   Sets the failure value for the TResultPair.
+    /// </summary>
+    /// <remarks>
+    ///   Use this procedure to set the failure value for the current TResultPair instance.
+    ///   The failure value represents an error or failure in the Railway Pattern.
+    /// </remarks>
+    /// <param name="AFailure">
+    ///   The failure value of type F to set.
+    /// </param>
     procedure _SetFailureValue(const AFailure: F);
+
+    /// <summary>
+    ///   Returns a TResultPair with the success value set.
+    /// </summary>
+    /// <remarks>
+    ///   Use this function to create and return a new TResultPair instance with the success
+    ///   value set to the value specified in <paramref name="ASuccess"/>.
+    /// </remarks>
+    /// <param name="ASuccess">
+    ///   The success value of type S to set in the returned TResultPair.
+    /// </param>
+    /// <returns>
+    ///   A new TResultPair instance with the success value set to <paramref name="ASuccess"/>.
+    /// </returns>
     function _ReturnSuccess: TResultPair<S, F>;
+
+    /// <summary>
+    ///   Returns a TResultPair with the failure value set.
+    /// </summary>
+    /// <remarks>
+    ///   Use this function to create and return a new TResultPair instance with the failure
+    ///   value set to the value specified in <paramref name="AFailure"/>.
+    /// </remarks>
+    /// <param name="AFailure">
+    ///   The failure value of type F to set in the returned TResultPair.
+    /// </param>
+    /// <returns>
+    ///   A new TResultPair instance with the failure value set to <paramref name="AFailure"/>.
+    /// </returns>
     function _ReturnFailure: TResultPair<S, F>;
 
     ///  <summary>
@@ -105,6 +153,22 @@ type
     class operator Equal(const Left, Right: TResultPair<S, F>): Boolean;
     class operator NotEqual(const Left, Right: TResultPair<S, F>): Boolean;
 
+    /// <summary>
+    ///   Creates and returns a new TResultPair<S, F> instance, initiating a Railway Pattern workflow.
+    /// </summary>
+    /// <returns>
+    ///   A new TResultPair<S, F> instance.
+    /// </returns>
+    class function New: TResultPair<S, F>; static;
+
+    /// <summary>
+    ///   Releases any resources associated with the current TResultPair instance.
+    /// </summary>
+    /// <remarks>
+    ///   Use this procedure to release any resources, if applicable, and perform necessary cleanup
+    ///   for the current TResultPair instance. It's recommended to call this method when you are
+    ///   finished using the TResultPair object to ensure proper resource management.
+    /// </remarks>
     procedure Dispose;
 
     /// <summary>
@@ -429,13 +493,76 @@ type
     /// </exception>
     function ValueFailure: F;
 
-    class function New: TResultPair<S, F>; static;
+    /// <summary>
+    ///   Executes a custom function specified by AFunc. The result of this function determines whether
+    ///   the workflow continues down the success or failure path.
+    /// </summary>
+    /// <param name="AFunc">
+    ///   A custom function that receives the current TResultPair<S, F> instance and returns a new
+    ///   TResultPair<S, F>.
+    /// </param>
+    /// <returns>
+    ///   The TResultPair<S, F> instance after executing the custom function.
+    /// </returns>
     function Exec(const AFunc: TFuncExec): TResultPair<S, F>;
+
+    /// <summary>
+    ///   Marks the current step as successful and provides a value ASuccess to carry forward in the
+    ///   success path.
+    /// </summary>
+    /// <param name="ASuccess">
+    ///   The value representing the successful outcome of the current step.
+    /// </param>
+    /// <returns>
+    ///   The TResultPair<S, F> instance after marking the step as successful.
+    /// </returns>
     function Ok(const ASuccess: S): TResultPair<S, F>;
+
+    /// <summary>
+    ///   Marks the current step as a failure and provides a value AFailure to carry forward in the
+    ///   failure path.
+    /// </summary>
+    /// <param name="AFailure">
+    ///   The value representing the failure outcome of the current step.
+    /// </param>
+    /// <returns>
+    ///   The TResultPair<S, F> instance after marking the step as a failure.
+    /// </returns>
     function Fail(const AFailure: F): TResultPair<S, F>;
+
+    /// <summary>
+    ///   Specifies a custom function AFunc to execute if the previous step was successful. It continues
+    ///   the success path.
+    /// </summary>
+    /// <param name="AFunc">
+    ///   A custom function that processes the successful outcome and returns a new TResultPair<S, F>.
+    /// </param>
+    /// <returns>
+    ///   The TResultPair<S, F> instance after executing the custom function.
+    /// </returns>
     function ThenOf(const AFunc: TFuncOk): TResultPair<S, F>;
+
+    /// <summary>
+    ///   Specifies a custom function AFunc to execute if the previous step resulted in failure. It
+    ///   continues the failure path.
+    /// </summary>
+    /// <param name="AFunc">
+    ///   A custom function that processes the failure outcome and returns a new TResultPair<S, F>.
+    /// </param>
+    /// <returns>
+    ///   The TResultPair<S, F> instance after executing the custom function.
+    /// </returns>
     function ExceptOf(const AFunc: TFuncFail): TResultPair<S, F>;
+
+    /// <summary>
+    ///   Returns the current TResultPair<S, F> instance, allowing you to retrieve the final result of
+    ///   the Railway Pattern workflow.
+    /// </summary>
+    /// <returns>
+    ///   The current TResultPair<S, F> instance.
+    /// </returns>
     function Return: TResultPair<S, F>;
+
   end;
 
 implementation
@@ -915,12 +1042,6 @@ function TResultPairValue<T>.HasValue: boolean;
 begin
   Result := FHasValue;
 end;
-
-//procedure TResultPairValue<T>.SetValue(const AValue: T);
-//begin
-//  FValue := AValue;
-//  FHasValue := True;
-//end;
 
 { EFailureException<S> }
 

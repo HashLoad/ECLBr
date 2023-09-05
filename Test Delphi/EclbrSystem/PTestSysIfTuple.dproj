@@ -103,7 +103,6 @@
         </DelphiCompile>
         <DCCReference Include="UTestEclbr.SysIfTuple.pas"/>
         <DCCReference Include="..\..\Source\eclbr.tuple.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.map.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
