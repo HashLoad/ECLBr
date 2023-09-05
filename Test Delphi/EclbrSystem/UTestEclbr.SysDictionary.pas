@@ -7,9 +7,9 @@ uses
   Rtti,
   SysUtils,
   Generics.Collections,
-  eclbr.sysvector,
-  eclbr.sysmap,
-  eclbr.sysdictionary;
+  eclbr.vector,
+  eclbr.map,
+  eclbr.dictionary;
 
 type
   TDictionaryHelperTest = class

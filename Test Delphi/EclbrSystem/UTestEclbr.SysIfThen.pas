@@ -3,7 +3,7 @@ unit UTestEclbr.SysIfThen;
 interface
 
 uses
-  DUnitX.TestFramework, eclbr.sysifthen;
+  DUnitX.TestFramework, eclbr.ifthen;
 
 type
   [TestFixture]

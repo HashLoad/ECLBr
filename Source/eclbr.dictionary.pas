@@ -24,16 +24,16 @@
   @Telegram(https://t.me/ormbr)
 }
 
-unit eclbr.sysdictionary;
+unit eclbr.dictionary;
 
 interface
 
 uses
   Rtti,
   SysUtils,
-  eclbr.syslist,
-  eclbr.sysvector,
-  eclbr.sysmap,
+  eclbr.list,
+  eclbr.vector,
+  eclbr.map,
   Generics.Defaults,
   Generics.Collections;
 
@@ -296,7 +296,7 @@ type
 implementation
 
 uses
-  eclbr.sysutils;
+  eclbr.utils;
 
 { TDictionaryHelper<K, V> }
 

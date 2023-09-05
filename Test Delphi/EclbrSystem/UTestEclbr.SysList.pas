@@ -5,7 +5,7 @@ interface
 uses
   DUnitX.TestFramework,
   Generics.Collections,
-  eclbr.sysvector;
+  eclbr.vector;
 
 type
   TListTest = class

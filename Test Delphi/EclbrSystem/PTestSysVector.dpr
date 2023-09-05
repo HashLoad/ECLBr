@@ -14,19 +14,8 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  eclbr.objectlib in '..\..\Source\eclbr.objectlib.pas',
-  eclbr.regexlib in '..\..\Source\eclbr.regexlib.pas',
-  eclbr.sysvector in '..\..\Source\eclbr.sysvector.pas',
-  eclbr.sysdictionary in '..\..\Source\eclbr.sysdictionary.pas',
-  eclbr.sysifthen in '..\..\Source\eclbr.sysifthen.pas',
-  eclbr.syslist in '..\..\Source\eclbr.syslist.pas',
-  eclbr.sysmap in '..\..\Source\eclbr.sysmap.pas',
-  eclbr.sysutils in '..\..\Source\eclbr.sysutils.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas',
-  eclbr.interfaces in '..\..\Source\eclbr.interfaces.pas',
-  eclbr.sysmatch in '..\..\Source\eclbr.sysmatch.pas',
-  eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
-  UTestEclbr.SysVector in 'UTestEclbr.SysVector.pas';
+  UTestEclbr.SysVector in 'UTestEclbr.SysVector.pas',
+  eclbr.vector in '..\..\Source\eclbr.vector.pas';
 
 var
   runner : ITestRunner;

@@ -1,11 +1,11 @@
-unit eclbr.systuple;
+unit eclbr.tuple;
 
 interface
 
 uses
   SysUtils,
   Generics.Collections,
-  eclbr.sysmap;
+  eclbr.map;
 
 type
   TTuple<K, V> = packed record

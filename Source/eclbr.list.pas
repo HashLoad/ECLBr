@@ -24,7 +24,7 @@
   @Telegram(https://t.me/ormbr)
 }
 
-unit eclbr.syslist;
+unit eclbr.list;
 
 interface
 
@@ -280,7 +280,7 @@ type
 implementation
 
 uses
-  eclbr.sysutils;
+  eclbr.utils;
 
 { TListHelper<T> }
 

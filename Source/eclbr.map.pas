@@ -24,7 +24,7 @@
   @Telegram(https://t.me/ormbr)
 }
 
-unit eclbr.sysmap;
+unit eclbr.map;
 
 interface
 

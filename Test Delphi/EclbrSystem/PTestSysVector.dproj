@@ -101,19 +101,8 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\..\Source\eclbr.objectlib.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.regexlib.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.sysvector.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.sysdictionary.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.sysifthen.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.syslist.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.sysmap.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.sysutils.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.include.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.interfaces.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.sysmatch.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.result.pair.pas"/>
         <DCCReference Include="UTestEclbr.SysVector.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

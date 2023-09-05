@@ -6,7 +6,7 @@ uses
 //  Rtti,
   SysUtils,
   Generics.Collections,
-  eclbr.sysmatch,
+  eclbr.match,
   eclbr.result.pair,
   DUnitX.TestFramework;
 
