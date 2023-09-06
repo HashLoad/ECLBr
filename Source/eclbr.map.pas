@@ -53,9 +53,7 @@ type
   TMap<K, V> = record
   private
     type
-      PItemPair = ^TItemPair;
       TItemPair = TPair<K, V>;
-
       PPairArray = ^TPairArray;
       TPairArray = TArray<TItemPair>;
 
@@ -241,34 +239,58 @@ type
     function Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>; overload;
 
     /// <summary>
-    ///   Aplica uma função de mapeamento a cada par chave-valor no mapa atual e cria um novo mapa
-    ///   onde as chaves permanecem as mesmas, mas os valores são transformados usando a função de mapeamento.
+    ///   Creates a new map resulting from the application of a mapping function to each value in the original map.
     /// </summary>
-    /// <typeparam name="TResult">
-    ///   O tipo dos valores resultantes após a aplicação da função de mapeamento.
+    /// <typeparam name="R">
+    ///   The type of values in the resulting new map.
     /// </typeparam>
     /// <param name="AMappingFunc">
-    ///   Uma função que define como os valores originais devem ser transformados.
-    ///   A função deve receber a chave (K) e o valor (V) originais como entrada e retornar um novo valor (TResult).
+    ///   The mapping function that transforms each value from the original map into a value of the specified type R in the new map.
     /// </param>
     /// <returns>
-    ///   Um novo mapa contendo as mesmas chaves do mapa original, mas com os valores transformados
-    ///   de acordo com a função de mapeamento especificada.
+    ///   A new map containing the values mapped from the original map.
     /// </returns>
+    /// <remarks>
+    ///   This function creates a new map resulting from the application of the specified mapping function to each value
+    ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
+    ///   The mapping function should accept a value of type V and return a value of the type specified by R.
+    /// </remarks>
+    function Map<R>(const AMappingFunc: TFunc<V, R>): TMap<K, R>; overload;
+
+    /// <summary>
+    ///   Creates a new map resulting from the application of a mapping function to each key-value pair in the original map.
+    /// </summary>
+    /// <param name="AMappingFunc">
+    ///   The mapping function that transforms each key-value pair from the original map into a new value in the new map.
+    /// </param>
+    /// <returns>
+    ///   A new map containing the values mapped from the original map.
+    /// </returns>
+    /// <remarks>
+    ///   This function creates a new map resulting from the application of the specified mapping function to each key-value pair
+    ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
+    ///   The mapping function should accept a key of type K, a value of type V, and return a new value of type V.
+    /// </remarks>
     function Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>; overload;
 
     /// <summary>
-    ///   Coleta os valores do mapa atual e cria um novo mapa onde as chaves permanecem as mesmas,
-    ///   mas os valores são convertidos para um novo tipo especificado.
+    ///   Creates a new map resulting from the application of a mapping function to each key-value pair in the original map.
     /// </summary>
-    /// <typeparam name="TConvert">
-    ///   O tipo para o qual os valores originais devem ser convertidos.
+    /// <typeparam name="R">
+    ///   The type of values in the resulting new map.
     /// </typeparam>
+    /// <param name="AMappingFunc">
+    ///   The mapping function that transforms each key-value pair from the original map into a value of the specified type R in the new map.
+    /// </param>
     /// <returns>
-    ///   Um novo mapa contendo as mesmas chaves do mapa original, mas com os valores convertidos
-    ///   para o tipo especificado (<typeparamref name="TConvert"/>).
+    ///   A new map containing the values mapped from the original map.
     /// </returns>
-    function Collect<N>(const APredicate: TFunc<V, N>): TMap<K, N>;
+    /// <remarks>
+    ///   This function creates a new map resulting from the application of the specified mapping function to each key-value pair
+    ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
+    ///   The mapping function should accept a key of type K, a value of type V, and return a value of the type specified by R.
+    /// </remarks>
+    function Map<R>(const AMappingFunc: TFunc<K, V, R>): TMap<K, R>; overload;
 
     /// <summary>
     ///   Removes a key-value pair from the map by its key.
@@ -311,7 +333,7 @@ type
     ///   Returns the number of key-value pairs in the map.
     /// </summary>
     /// <returns>The number of key-value pairs in the map.</returns>
-    function Length: integer;
+    function Count: integer;
 
     /// <summary>
     ///   Returns an array containing all key-value pairs in the map.
@@ -521,20 +543,6 @@ begin
   FItems := nil;
 end;
 
-function TMap<K, V>.Collect<N>(const APredicate: TFunc<V, N>): TMap<K, N>;
-var
-  LPair: TPair<K, V>;
-begin
-  Result := [];
-  try
-    for LPair in Self do
-      Result.Add(LPair.Key, APredicate(LPair.Value));
-  except
-    raise;
-  end;
-  Self := [];
-end;
-
 function TMap<K, V>.Contains(const AKey: K): boolean;
 begin
   Result := _IndexOf(AKey) <> -1;
@@ -589,7 +597,7 @@ begin
   raise Exception.Create('No non-empty elements found');
 end;
 
-function TMap<K, V>.Length: integer;
+function TMap<K, V>.Count: integer;
 begin
   Result := _GetCount;
 end;
@@ -620,6 +628,32 @@ begin
   end;
 end;
 
+function TMap<K, V>.Map<R>(const AMappingFunc: TFunc<K, V, R>): TMap<K, R>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  try
+    for LPair in Self do
+      Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
+  except
+    raise;
+  end;
+end;
+
+function TMap<K, V>.Map<R>(const AMappingFunc: TFunc<V, R>): TMap<K, R>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  try
+    for LPair in Self do
+      Result.Add(LPair.Key, AMappingFunc(LPair.Value));
+  except
+    raise;
+  end;
+end;
+
 function TMap<K, V>.Merge(const ASourceArray: TPairArray): TMap<K, V>;
 var
   LItem: TItemPair;
@@ -634,21 +668,16 @@ end;
 
 function TMap<K, V>.Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
 var
-  LFiltered: TPairArray;
   LItem: TItemPair;
 begin
-  LFiltered := [];
+  Result := [];
   for LItem in FItems do
   begin
     if TEqualityComparer<TItemPair>.Default.Equals(LItem, Default(TItemPair)) then
       continue;
     if APredicate(LItem.Key, LItem.Value) then
-    begin
-      SetLength(LFiltered, System.Length(LFiltered) + 1);
-      LFiltered[High(LFiltered)] := LItem;
-    end;
+      Result.Add(LItem.Key, LItem.Value);
   end;
-  Result := TMap<K, V>.Create(LFiltered);
 end;
 
 function TMap<K, V>.First: TItemPair;

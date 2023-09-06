@@ -3,7 +3,6 @@ unit UTestEclbr.SysMatch;
 interface
 
 uses
-//  Rtti,
   SysUtils,
   Generics.Collections,
   eclbr.match,
@@ -112,6 +111,8 @@ type
     procedure TestCombineWithDefault;
     [Test]
     procedure TestDefaultExecutionFailure;
+    [Test]
+    procedure TestMapFilterMap;
 end;
 
 implementation
@@ -319,6 +320,28 @@ begin
   finally
     LMatchResult.Dispose;
   end;
+end;
+
+procedure TestTMatch.TestMapFilterMap;
+var
+  LIlteredMap: TMap<integer, string>;
+begin
+  FMap.Add(3, 'Pling');
+  FMap.Add(5, 'Plang');
+  FMap.Add(7, 'Plong');
+
+  LIlteredMap := FMap.Filter(
+                          function(Key: Integer; Value: String): boolean
+                          begin
+                            Result := 28 mod Key = 0;
+                          end)
+                     .Map(function(Value: string): String
+                          begin
+                            Result := Value;
+                          end);
+
+  Assert.IsTrue(LIlteredMap.Length = 1);
+  Assert.AreEqual(LIlteredMap.ToString, '7: Plong');
 end;
 
 procedure TestTMatch.TestMatchWithMatchingCase;

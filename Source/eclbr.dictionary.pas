@@ -31,11 +31,12 @@ interface
 uses
   Rtti,
   SysUtils,
-  eclbr.list,
-  eclbr.vector,
-  eclbr.map,
   Generics.Defaults,
-  Generics.Collections;
+  Generics.Collections,
+  eclbr.list,
+  eclbr.map,
+  eclbr.utils,
+  eclbr.vector;
 
 type
   TDictionaryHelper<K,V> = class(TDictionary<K,V>)
@@ -75,16 +76,6 @@ type
     procedure Unique;
 
     /// <summary>
-    ///   Releases the memory occupied by the values stored in the dictionary.
-    /// </summary>
-    /// <remarks>
-    ///   This procedure iterates through the dictionary and releases the memory occupied by all
-    ///   the values stored in the dictionary. The key-value pairs will still be present in the
-    ///   dictionary, but the associated values will be removed from memory.
-    /// </remarks>
-    procedure FreeValues;
-
-    /// <summary>
     ///   Returns the sorted keys of the dictionary.
     /// </summary>
     function SortedKeys: TArray<K>;
@@ -99,27 +90,67 @@ type
     /// </summary>
     /// <typeparam name="TResult">The type of the mapped results.</typeparam>
     /// <param name="AMappingFunc">The mapping function to be applied to each value.</param>
-    function Map(const AMappingFunc: TFunc<V, V>): TDictionaryHelper<K, V>; overload;
+    function Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>; overload;
 
     /// <summary>
-    ///   Aplica uma função de mapeamento a cada par chave-valor no dicionário atual e cria um novo dicionário
-    ///   onde as chaves permanecem as mesmas, mas os valores são transformados usando a função de mapeamento.
+    ///   Creates a new map resulting from the application of a mapping function to each value in the original map.
     /// </summary>
+    /// <typeparam name="R">
+    ///   The type of values in the resulting new map.
+    /// </typeparam>
     /// <param name="AMappingFunc">
-    ///   Uma função que define como os valores originais devem ser transformados.
-    ///   A função deve receber a chave (K) e o valor (V) originais como entrada e retornar um novo valor (TResult).
+    ///   The mapping function that transforms each value from the original map into a value of the specified type R in the new map.
     /// </param>
     /// <returns>
-    ///   Um novo dicionário contendo as mesmas chaves do dicionário original, mas com os valores transformados
-    ///   de acordo com a função de mapeamento especificada.
+    ///   A new map containing the values mapped from the original map.
     /// </returns>
-    function Map(const AMappingFunc: TFunc<K, V, V>): TDictionaryHelper<K, V>; overload;
+    /// <remarks>
+    ///   This function creates a new map resulting from the application of the specified mapping function to each value
+    ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
+    ///   The mapping function should accept a value of type V and return a value of the type specified by R.
+    /// </remarks>
+    function Map<R>(const AMappingFunc: TFunc<V, R>): TMap<K, R>; overload;
+
+    /// <summary>
+    ///   Creates a new map resulting from the application of a mapping function to each key-value pair in the original map.
+    /// </summary>
+    /// <param name="AMappingFunc">
+    ///   The mapping function that transforms each key-value pair from the original map into a new value in the new map.
+    /// </param>
+    /// <returns>
+    ///   A new map containing the values mapped from the original map.
+    /// </returns>
+    /// <remarks>
+    ///   This function creates a new map resulting from the application of the specified mapping function to each key-value pair
+    ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
+    ///   The mapping function should accept a key of type K, a value of type V, and return a new value of type V.
+    /// </remarks>
+    function Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>; overload;
+
+    /// <summary>
+    ///   Creates a new map resulting from the application of a mapping function to each key-value pair in the original map.
+    /// </summary>
+    /// <param name="AMappingFunc">
+    ///   The mapping function that transforms each key-value pair from the original map into a value in the new map.
+    /// </param>
+    /// <typeparam name="R">
+    ///   The type of values in the resulting new map.
+    /// </typeparam>
+    /// <returns>
+    ///   A new map containing the values mapped from the original map.
+    /// </returns>
+    /// <remarks>
+    ///   This function creates a new map resulting from the application of the specified mapping function to each key-value pair
+    ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
+    ///   The mapping function should accept a key of type K, a value of type V, and return a value of the type specified by R.
+    /// </remarks>
+    function Map<R>(const AMappingFunc: TFunc<K, V, R>): TMap<K, R>; overload;
 
     /// <summary>
     ///   Filters the values of the dictionary based on a specified predicate.
     /// </summary>
     /// <param name="APredicate">The predicate used to filter the values.</param>
-    function Filter(const APredicate: TFunc<K, V, boolean>): TDictionaryHelper<K, V>;
+    function Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
 
     /// <summary>
     ///   Reduces the values of the dictionary to a single value using an accumulator function.
@@ -212,13 +243,13 @@ type
     ///   Returns the maximum key in the dictionary.
     /// </summary>
     /// <returns>The maximum key in the dictionary.</returns>
-    function Max: K;
+    function MaxKey: K;
 
     /// <summary>
     ///   Returns the minimum key in the dictionary.
     /// </summary>
     /// <returns>The minimum key in the dictionary.</returns>
-    function Min: K;
+    function MinKey: K;
 
     /// <summary>
     ///   Returns a new dictionary with distinct keys based on the selected key selector function.
@@ -262,29 +293,16 @@ type
     function PartitionBy(const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
 
     /// <summary>
-    ///   Returns the last key in the dictionary.
+    ///   Returns the maximum value in the dictionary.
     /// </summary>
-    /// <returns>The last key in the dictionary.</returns>
-    function LastKey: K;
+    /// <returns>The maximum value in the dictionary.</returns>
+    function MaxValue: V;
 
     /// <summary>
-    ///   Returns the last value in the dictionary.
+    ///   Returns the minimum value in the dictionary.
     /// </summary>
-    /// <returns>The last value in the dictionary.</returns>
-    function LastValue: V;
-
-    /// <summary>
-    ///   Coleta os valores do mapa atual e cria um novo mapa onde as chaves permanecem as mesmas,
-    ///   mas os valores são convertidos para um novo tipo especificado.
-    /// </summary>
-    /// <typeparam name="TConvert">
-    ///   O tipo para o qual os valores originais devem ser convertidos.
-    /// </typeparam>
-    /// <returns>
-    ///   Um novo mapa contendo as mesmas chaves do mapa original, mas com os valores convertidos
-    ///   para o tipo especificado (<typeparamref name="TConvert"/>).
-    /// </returns>
-    function Collect<N>(const APredicate: TFunc<V, N>): TDictionaryHelper<K, N>;
+    /// <returns>The minimum value in the dictionary.</returns>
+    function MinValue: V;
 
     /// <summary>
     ///   Returns a string representation of the dictionary.
@@ -295,42 +313,20 @@ type
 
 implementation
 
-uses
-  eclbr.utils;
-
 { TDictionaryHelper<K, V> }
-
-function TDictionaryHelper<K, V>.Collect<N>(const APredicate: TFunc<V, N>): TDictionaryHelper<K, N>;
-var
-  LPair: TPair<K, V>;
-  LResult: TDictionaryHelper<K, N>;
-begin
-  LResult := TDictionaryHelper<K, N>.Create;
-  try
-    for LPair in Self do
-      LResult.Add(LPair.Key, APredicate(LPair.Value));
-
-    Result := LResult;
-  except
-    LResult.Free;
-    raise;
-  end;
-end;
 
 function TDictionaryHelper<K, V>.DistinctBy<TKey>(
   const AKeySelector: TFunc<K, TKey>): TMap<TKey, V>;
 var
   LPair: TPair<K, V>;
-  LKey: TValue;
+  LKey: TKey;
 begin
   Result := [];
   for LPair in Self do
   begin
-    if not Result.Contains(AKeySelector(LPair.Key)) then
-    begin
-      LKey := TValue.From<K>(LPair.Key);
-      Result.Add(LKey.AsType<TKey>, LPair.Value);
-    end;
+    LKey := AKeySelector(LPair.Key);
+    if not Result.Contains(LKey) then
+      Result.Add(LKey, LPair.Value);
   end;
 end;
 
@@ -356,24 +352,16 @@ begin
 end;
 
 function TDictionaryHelper<K, V>.Filter(
-  const APredicate: TFunc<K, V, boolean>): TDictionaryHelper<K, V>;
+  const APredicate: TFunc<K, V, Boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
-  LToDelete: TArray<K>;
-  LPairKey: K;
 begin
-  LToDelete := [];
+  Result := [];
   for LPair in Self do
   begin
-    if not APredicate(LPair.Key, LPair.Value) then
-    begin
-      SetLength(LToDelete, Length(LToDelete) + 1);
-      LToDelete[High(LToDelete)] := LPair.Key;
-    end;
+    if APredicate(LPair.Key, LPair.Value) then
+      Result.Add(LPair.Key, LPair.Value);
   end;
-  for LPairKey in LToDelete do
-    Self.Remove(LPairKey);
-  Result := Self;
 end;
 
 function TDictionaryHelper<K, V>.FindAll(
@@ -392,18 +380,20 @@ end;
 function TDictionaryHelper<K, V>.FlatMap<TResult>(
   const AFunc: TFunc<TValue, TArray<TResult>>): TMap<K, TResult>;
 var
-  LPair: TPair<K, V>;
+  LKey: K;
   LValue: TValue;
-  LResultArray: TArray<TResult>;
   LResult: TResult;
+  LSortedKeys: TArray<K>;
+  LResultArray: TArray<TResult>;
 begin
   Result := [];
-  for LPair in Self do
+  LSortedKeys := SortedKeys;
+  for LKey in LSortedKeys do
   begin
-    LValue := TValue.From<V>(LPair.Value);
+    LValue := TValue.From<V>(Self[LKey]);
     LResultArray := AFunc(LValue);
     for LResult in LResultArray do
-      Result.Add(LPair.Key, LResult);
+      Result.Add(TValue.FromVariant(Result.Count + 1).AsType<K>, LResult);
   end;
 end;
 
@@ -427,19 +417,6 @@ begin
   begin
     LKey := LSortedKeys[LIndex];
     AAction(LIndex, LKey, Self[LKey]);
-  end;
-end;
-
-procedure TDictionaryHelper<K, V>.FreeValues;
-var
-  LItem: V;
-  LValue: TValue;
-begin
-  for LItem in Values do
-  begin
-    LValue := TValue.From<V>(LItem);
-    if LValue.IsObject then
-      TObject(LValue.AsObject).Free;
   end;
 end;
 
@@ -495,44 +472,90 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K,V>.LastKey: K;
+function TDictionaryHelper<K,V>.MaxValue: V;
 var
-  LKey: K;
+  LPair: TPair<K, V>;
+  LMaxValue: V;
+  LIsFirst: boolean;
 begin
-  Result := Default(K);
-  for LKey in Self.Keys do
-    Result := LKey;
+  LIsFirst := True;
+  for LPair in Self do
+  begin
+    if LIsFirst or (TComparer<V>.Default.Compare(LPair.Value, LMaxValue) > 0) then
+    begin
+      LMaxValue := LPair.Value;
+      LIsFirst := False;
+    end;
+  end;
+  if LIsFirst then
+    raise Exception.Create('The dictionary is empty.');
+  Result := LMaxValue;
 end;
 
-function TDictionaryHelper<K, V>.LastValue: V;
+function TDictionaryHelper<K, V>.MinValue: V;
 var
-  LValue: V;
+  LPair: TPair<K, V>;
+  LMinValue: V;
+  LIsFirst: boolean;
 begin
-  Result := Default(V);
-  for LValue in Self.Values do
-    Result := LValue;
+  if Count = 0 then
+    raise Exception.Create('The dictionary is empty.');
+
+  LIsFirst := True;
+  for LPair in Self do
+  begin
+    if LIsFirst or (TComparer<V>.Default.Compare(LPair.Value, LMinValue) < 0) then
+    begin
+      LMinValue := LPair.Value;
+      LIsFirst := False;
+    end;
+  end;
+  if LIsFirst then
+    raise Exception.Create('No minimum key found in the dictionary.');
+  Result := LMinValue;
 end;
 
 function TDictionaryHelper<K, V>.Map(
-  const AMappingFunc: TFunc<V, V>): TDictionaryHelper<K, V>;
+  const AMappingFunc: TFunc<V, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
+  Result := [];
   for LPair in Self do
-    Self[LPair.Key] := AMappingFunc(LPair.Value);
-  Result := Self;
+    Result.Add(LPair.Key, AMappingFunc(LPair.Value));
 end;
 
 function TDictionaryHelper<K, V>.Map(
-  const AMappingFunc: TFunc<K, V, V>): TDictionaryHelper<K, V>;
+  const AMappingFunc: TFunc<K, V, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
+  Result := [];
   for LPair in Self do
-    Self[LPair.Key] := AMappingFunc(LPair.Key, LPair.Value);
+    Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
 end;
 
-function TDictionaryHelper<K, V>.Max: K;
+function TDictionaryHelper<K, V>.Map<R>(
+  const AMappingFunc: TFunc<K, V, R>): TMap<K, R>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  for LPair in Self do
+    Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
+end;
+
+function TDictionaryHelper<K, V>.Map<R>(
+  const AMappingFunc: TFunc<V, R>): TMap<K, R>;
+var
+  LPair: TPair<K, V>;
+begin
+  Result := [];
+  for LPair in Self do
+    Result.Add(LPair.Key, AMappingFunc(LPair.Value));
+end;
+
+function TDictionaryHelper<K, V>.MaxKey: K;
 var
   LPair: TPair<K, V>;
   LMaxKey: K;
@@ -549,11 +572,10 @@ begin
   end;
   if LIsFirst then
     raise Exception.Create('The dictionary is empty.');
-
   Result := LMaxKey;
 end;
 
-function TDictionaryHelper<K, V>.Min: K;
+function TDictionaryHelper<K, V>.MinKey: K;
 var
   LPair: TPair<K, V>;
   LMinKey: K;
@@ -573,7 +595,6 @@ begin
   end;
   if LIsFirst then
     raise Exception.Create('No minimum key found in the dictionary.');
-
   Result := LMinKey;
 end;
 
@@ -598,24 +619,23 @@ end;
 function TDictionaryHelper<K, V>.PartitionBy(
   const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
 var
-  LPair: TPair<K, V>;
+  LSortedKeys: TArray<K>;
+  LKey: K;
   LValue: V;
-  LKey: boolean;
-  LList: TVector<V>;
+  LResult: boolean;
 begin
   Result := [];
-  for LPair in Self do
+  LSortedKeys := Self.SortedKeys;
+  for LKey in LSortedKeys do
   begin
-    LValue := LPair.Value;
-    LKey := APredicate(LValue);
-    if not Result.Contains(LKey) then
-    begin
-      LList := [];
-      Result[LKey] := LList;
-    end;
-    Result[LKey].Add(LValue);
+    LValue := Self[LKey];
+    LResult := APredicate(LValue);
+    if not Result.Contains(LResult) then
+      Result[LResult] := TVector<V>.Create([]);
+    Result[LResult].Add(LValue);
   end;
 end;
+
 
 function TDictionaryHelper<K, V>.Reduce(const AAccumulator: TFunc<V, V, V>): V;
 var
@@ -646,7 +666,6 @@ begin
   end;
 end;
 
-
 function TDictionaryHelper<K, V>.ShuffleKeys: TArray<K>;
 var
   LKeysList: TListHelper<K>;
@@ -674,17 +693,19 @@ end;
 function TDictionaryHelper<K, V>.SkipWhile(
   const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
-  LPair: TPair<K, V>;
+  LKey: K;
   LFound: boolean;
+  LSortedKeys: TArray<K>;
 begin
   Result := [];
   LFound := False;
-  for LPair in Self do
+  LSortedKeys := SortedKeys;
+  for LKey in LSortedKeys do
   begin
-    if not LFound and not APredicate(LPair.Key) then
+    if not LFound and not APredicate(LKey) then
       LFound := True;
     if LFound then
-      Result.Add(LPair.Key, LPair.Value);
+      Result.Add(LKey, Self[LKey]);
   end;
 end;
 
@@ -722,7 +743,7 @@ begin
   LSortedKeys := Self.SortedKeys;
   for LKey in LSortedKeys do
   begin
-    if Result.Length >= ACount then
+    if Result.Count >= ACount then
       break;
     if Self.ContainsKey(LKey) then
       Result.Add(LKey, Self[LKey]);
@@ -740,8 +761,6 @@ begin
   begin
     if APredicate(LPair.Key) then
       Result.Add(LPair.Key, LPair.Value)
-    else
-      break;
   end;
 end;
 

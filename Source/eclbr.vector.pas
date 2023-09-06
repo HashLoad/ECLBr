@@ -85,9 +85,13 @@ type
     FItems: TArrayType;
     function _GetItem(Index: integer): T;
     procedure _SetItem(Index: integer; const V: T);
+    function _TrimItems: TArrayType;
   public
     class operator Implicit(const V: TVector<T>): TArrayType;
     class operator Implicit(const V: TArrayType): TVector<T>;
+    class operator Equal(const Left, Right: TVector<T>): boolean;
+    class operator NotEqual(const Left, Right: TVector<T>): boolean;
+
     class function Empty: TVector<T>; static;
     /// <summary>
     ///   Creates a new vector initialized with the provided array of elements.
@@ -253,6 +257,7 @@ type
     /// </summary>
     /// <returns>The number of non-empty elements in the vector.</returns>
     function Length: integer;
+    function Count: integer;
 
     /// <summary>
     ///   Returns the capacity of the vector.
@@ -280,6 +285,22 @@ end;
 procedure TVector<T>._SetItem(Index: integer; const V: T);
 begin
   FItems[Index] := V;
+end;
+
+function TVector<T>._TrimItems: TArrayType;
+var
+  LFor: integer;
+  LIndex: integer;
+begin
+  System.SetLength(Result, Length);
+  LIndex := 0;
+  for LFor := 0 to High(FItems) do
+  begin
+    if TEqualityComparer<T>.Default.Equals(FItems[LFor], Default(T)) then
+      continue;
+    Result[Lindex] := FItems[LFor];
+    Inc(LIndex);
+  end;
 end;
 
 procedure TVector<T>.SetCapacity(const ACapacity: integer);
@@ -362,6 +383,11 @@ begin
       Add(LItem);
   end;
   Result := Self;
+end;
+
+class operator TVector<T>.NotEqual(const Left, Right: TVector<T>): boolean;
+begin
+  Result := not (Left = Right);
 end;
 
 function TVector<T>.AsPointer: PArrayType;
@@ -483,9 +509,14 @@ begin
   Result := TArrayManager.Contains(FItems, AItem);
 end;
 
-function TVector<T>.Length: integer;
+function TVector<T>.Count: integer;
 begin
   Result := TArrayManager._GetCount(FItems);
+end;
+
+function TVector<T>.Length: integer;
+begin
+  Result := Count;
 end;
 
 constructor TVector<T>.Create(const Value: TArrayType);
@@ -503,9 +534,26 @@ begin
   Result.FItems := [];
 end;
 
+class operator TVector<T>.Equal(const Left, Right: TVector<T>): boolean;
+var
+  LFor: Integer;
+begin
+  Result := false;
+  if System.Length(Left.FItems) <> System.Length(Right.FItems) then
+    exit;
+  for LFor := 0 to High(Left.FItems) do
+  begin
+    if not TEqualityComparer<T>.Default.Equals(Left.FItems[LFor], Right.FItems[LFor]) then
+    begin
+      exit;
+    end;
+  end;
+  Result := True;
+end;
+
 class operator TVector<T>.Implicit(const V: TVector<T>): TArrayType;
 begin
-  Result := V.FItems;
+  Result := V._TrimItems;
 end;
 
 class operator TVector<T>.Implicit(const V: TArrayType): TVector<T>;

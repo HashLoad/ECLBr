@@ -43,8 +43,6 @@ type
     procedure TestMapAddRange;
     [Test]
     procedure TestEnumerator;
-    [Test]
-    procedure TestMapFilterMap;
   end;
 
 implementation
@@ -144,17 +142,17 @@ procedure TMapTest.TestLength;
 var
   LArrayPair: TMap<string, Integer>;
 begin
-  Assert.AreEqual(0, LArrayPair.Length);
+  Assert.AreEqual(0, LArrayPair.Count);
 
   LArrayPair.AddOrUpdate('Key1', 10);
   LArrayPair.AddOrUpdate('Key2', 20);
   LArrayPair.AddOrUpdate('Key3', 30);
 
-  Assert.AreEqual(3, LArrayPair.Length);
+  Assert.AreEqual(3, LArrayPair.Count);
 
   LArrayPair.Remove('Key2');
 
-  Assert.AreEqual(2, LArrayPair.Length);
+  Assert.AreEqual(2, LArrayPair.Count);
 end;
 
 procedure TMapTest.TestMapAddRange;
@@ -169,13 +167,14 @@ begin
 
   FMap.AddRange(MapToAdd);
 
-  Assert.AreEqual(4, FMap.Length);
+  Assert.AreEqual(4, FMap.Count);
   Assert.AreEqual('Three', FMap[3]);
   Assert.AreEqual('Four', FMap[4]);
 end;
 
 procedure TMapTest.TestMapCapacity;
 begin
+  FMap.SetDefaultCapacity(16);
   FMap.SetCapacity(10);
 
   Assert.AreEqual(10, FMap.Capacity);
@@ -198,28 +197,6 @@ begin
   Assert.IsTrue(LilteredMap.Contains(2));
   Assert.IsFalse(LilteredMap.Contains(1));
   Assert.IsFalse(LilteredMap.Contains(3));
-end;
-
-procedure TMapTest.TestMapFilterMap;
-var
-  LIlteredMap: TMap<integer, string>;
-begin
-  FMap.Add(3, 'Pling');
-  FMap.Add(5, 'Plang');
-  FMap.Add(7, 'Plong');
-
-  LIlteredMap := FMap.Filter(
-                          function(Key: Integer; Value: String): boolean
-                          begin
-                            Result := 28 mod Key = 0;
-                          end)
-                     .Map(function(Value: string): String
-                          begin
-                            Result := Value;
-                          end);
-
-  Assert.IsTrue(LIlteredMap.Length = 1);
-  Assert.AreEqual(LIlteredMap.ToString, '7: Plong');
 end;
 
 procedure TMapTest.TestLastItemEqualsLastAdded;
