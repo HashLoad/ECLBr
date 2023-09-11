@@ -39,7 +39,7 @@ uses
   eclbr.vector;
 
 type
-  TDictionaryHelper<K,V> = class(TDictionary<K,V>)
+  TDict<K,V> = class(TDictionary<K,V>)
   private
     type
       TItemPair = TPair<K, V>;
@@ -214,7 +214,7 @@ type
     /// <param name="AList2">The second dictionary to combine.</param>
     /// <param name="AFunc">The function to apply to each pair of values.</param>
     /// <returns>A new dictionary with values resulting from applying the function to corresponding pairs.</returns>
-    function Zip<T, TResult>(const AList: TDictionaryHelper<K, T>;
+    function Zip<T, TResult>(const AList: TDict<K, T>;
       const AFunc: TFunc<V, T, TResult>): TMap<K, TResult>;
 
     /// <summary>
@@ -230,14 +230,14 @@ type
     /// </summary>
     /// <param name="AOtherDict">The other dictionary to intersect with.</param>
     /// <returns>A new dictionary containing common key-value pairs.</returns>
-    function Intersect(const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
+    function Intersect(const AOtherDict: TDict<K, V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs that exist in the current dictionary but not in another dictionary.
     /// </summary>
     /// <param name="AOtherDict">The other dictionary to compare.</param>
     /// <returns>A new dictionary containing key-value pairs not present in the other dictionary.</returns>
-    function &Except(const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
+    function &Except(const AOtherDict: TDict<K, V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns the maximum key in the dictionary.
@@ -315,7 +315,7 @@ implementation
 
 { TDictionaryHelper<K, V> }
 
-function TDictionaryHelper<K, V>.DistinctBy<TKey>(
+function TDict<K, V>.DistinctBy<TKey>(
   const AKeySelector: TFunc<K, TKey>): TMap<TKey, V>;
 var
   LPair: TPair<K, V>;
@@ -330,8 +330,8 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.&Except(
-  const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
+function TDict<K, V>.&Except(
+  const AOtherDict: TDict<K, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
@@ -343,7 +343,7 @@ begin
   end;
 end;
 
-procedure TDictionaryHelper<K, V>.AddRange(const ASource: TDictionary<K, V>);
+procedure TDict<K, V>.AddRange(const ASource: TDictionary<K, V>);
 var
   LPair: TPair<K, V>;
 begin
@@ -351,7 +351,7 @@ begin
     Self.Add(LPair.Key, LPair.Value);
 end;
 
-function TDictionaryHelper<K, V>.Filter(
+function TDict<K, V>.Filter(
   const APredicate: TFunc<K, V, Boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -364,7 +364,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.FindAll(
+function TDict<K, V>.FindAll(
   const APredicate: TFunc<V, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -377,7 +377,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.FlatMap<TResult>(
+function TDict<K, V>.FlatMap<TResult>(
   const AFunc: TFunc<TValue, TArray<TResult>>): TMap<K, TResult>;
 var
   LKey: K;
@@ -397,7 +397,7 @@ begin
   end;
 end;
 
-procedure TDictionaryHelper<K, V>.ForEach(const AAction: TProc<K, V>);
+procedure TDict<K, V>.ForEach(const AAction: TProc<K, V>);
 var
   LPair: TPair<K, V>;
 begin
@@ -405,7 +405,7 @@ begin
     AAction(LPair.Key, LPair.Value);
 end;
 
-procedure TDictionaryHelper<K, V>.ForEachIndexed(
+procedure TDict<K, V>.ForEachIndexed(
   const AAction: TProc<Integer, K, V>);
 var
   LIndex: Integer;
@@ -420,31 +420,29 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.GroupBy<TKey>(
+function TDict<K, V>.GroupBy<TKey>(
   const AKeySelector: TFunc<V, TKey>): TMap<TKey, TVector<V>>;
 var
   LPair: TPair<K, V>;
   LKey: TKey;
-  LGroupedDict: TMap<TKey, TVector<V>>;
   LList: TVector<V>;
 begin
-  LGroupedDict := [];
+  Result := [];
   for LPair in Self do
   begin
     LKey := AKeySelector(LPair.Value);
-    if not LGroupedDict.TryGetValue(LKey, LList) then
+    if not Result.TryGetValue(LKey, LList) then
     begin
-      LList := [];
-      LGroupedDict.Add(LKey, LList);
+      LList := TVector<V>.Create([]);
+      Result.Add(LKey, LList);
     end;
     LList.Add(LPair.Value);
-    LGroupedDict[LKey] := LList;
+    Result[LKey] := LList;
   end;
-  Result := LGroupedDict;
 end;
 
-function TDictionaryHelper<K, V>.Intersect(
-  const AOtherDict: TDictionaryHelper<K, V>): TMap<K, V>;
+function TDict<K, V>.Intersect(
+  const AOtherDict: TDict<K, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
@@ -456,7 +454,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Join(const ASeparator: string): string;
+function TDict<K, V>.Join(const ASeparator: string): string;
 var
   LPair: TPair<K, V>;
   LSortKeys: TArray<K>;
@@ -472,7 +470,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K,V>.MaxValue: V;
+function TDict<K,V>.MaxValue: V;
 var
   LPair: TPair<K, V>;
   LMaxValue: V;
@@ -492,7 +490,7 @@ begin
   Result := LMaxValue;
 end;
 
-function TDictionaryHelper<K, V>.MinValue: V;
+function TDict<K, V>.MinValue: V;
 var
   LPair: TPair<K, V>;
   LMinValue: V;
@@ -515,7 +513,7 @@ begin
   Result := LMinValue;
 end;
 
-function TDictionaryHelper<K, V>.Map(
+function TDict<K, V>.Map(
   const AMappingFunc: TFunc<V, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -525,7 +523,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Value));
 end;
 
-function TDictionaryHelper<K, V>.Map(
+function TDict<K, V>.Map(
   const AMappingFunc: TFunc<K, V, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -535,7 +533,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
 end;
 
-function TDictionaryHelper<K, V>.Map<R>(
+function TDict<K, V>.Map<R>(
   const AMappingFunc: TFunc<K, V, R>): TMap<K, R>;
 var
   LPair: TPair<K, V>;
@@ -545,7 +543,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
 end;
 
-function TDictionaryHelper<K, V>.Map<R>(
+function TDict<K, V>.Map<R>(
   const AMappingFunc: TFunc<V, R>): TMap<K, R>;
 var
   LPair: TPair<K, V>;
@@ -555,7 +553,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Value));
 end;
 
-function TDictionaryHelper<K, V>.MaxKey: K;
+function TDict<K, V>.MaxKey: K;
 var
   LPair: TPair<K, V>;
   LMaxKey: K;
@@ -575,7 +573,7 @@ begin
   Result := LMaxKey;
 end;
 
-function TDictionaryHelper<K, V>.MinKey: K;
+function TDict<K, V>.MinKey: K;
 var
   LPair: TPair<K, V>;
   LMinKey: K;
@@ -598,7 +596,7 @@ begin
   Result := LMinKey;
 end;
 
-function TDictionaryHelper<K, V>.Partition(
+function TDict<K, V>.Partition(
   const APredicate: TFunc<V, boolean>): TPair<TMap<K, V>, TMap<K, V>>;
 var
   LPair: TPair<K, V>;
@@ -616,13 +614,14 @@ begin
   Result := TPair<TMap<K, V>, TMap<K, V>>.Create(LTrueMap, LFalseMap);
 end;
 
-function TDictionaryHelper<K, V>.PartitionBy(
+function TDict<K, V>.PartitionBy(
   const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
 var
   LSortedKeys: TArray<K>;
   LKey: K;
   LValue: V;
   LResult: boolean;
+  LList: TVector<V>;
 begin
   Result := [];
   LSortedKeys := Self.SortedKeys;
@@ -631,13 +630,16 @@ begin
     LValue := Self[LKey];
     LResult := APredicate(LValue);
     if not Result.Contains(LResult) then
-      Result[LResult] := TVector<V>.Create([]);
-    Result[LResult].Add(LValue);
+    begin
+      LList := TVector<V>.Create([]);
+      Result.Add(LResult, LList);
+    end;
+    LList.Add(LValue);
+    Result[LResult] := LList;
   end;
 end;
 
-
-function TDictionaryHelper<K, V>.Reduce(const AAccumulator: TFunc<V, V, V>): V;
+function TDict<K, V>.Reduce(const AAccumulator: TFunc<V, V, V>): V;
 var
   LPair: TPair<K, V>;
   LAccumulatedValue: V;
@@ -650,7 +652,7 @@ begin
   Result := LAccumulatedValue;
 end;
 
-function TDictionaryHelper<K, V>.Rotate(const ACount: Integer): TArray<TPair<K, V>>;
+function TDict<K, V>.Rotate(const ACount: Integer): TArray<TPair<K, V>>;
 var
   LSortedKeysArray: TArray<K>;
   LList: TList<TPair<K, V>>;
@@ -666,7 +668,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.ShuffleKeys: TArray<K>;
+function TDict<K, V>.ShuffleKeys: TArray<K>;
 var
   LKeysList: TListHelper<K>;
 begin
@@ -679,7 +681,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Skip(const ACount: Integer): TMap<K, V>;
+function TDict<K, V>.Skip(const ACount: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LIndex: Integer;
@@ -690,7 +692,7 @@ begin
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
 end;
 
-function TDictionaryHelper<K, V>.SkipWhile(
+function TDict<K, V>.SkipWhile(
   const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
   LKey: K;
@@ -709,7 +711,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Slice(const AStartIndex: integer;
+function TDict<K, V>.Slice(const AStartIndex: integer;
   const AEndIndex: integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
@@ -721,7 +723,7 @@ begin
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
 end;
 
-function TDictionaryHelper<K, V>.SortedKeys: TArray<K>;
+function TDict<K, V>.SortedKeys: TArray<K>;
 var
   LList: TList<K>;
 begin
@@ -734,7 +736,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Take(const ACount: Integer): TMap<K, V>;
+function TDict<K, V>.Take(const ACount: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LKey: K;
@@ -751,7 +753,7 @@ begin
 end;
 
 
-function TDictionaryHelper<K, V>.TakeWhile(
+function TDict<K, V>.TakeWhile(
   const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -764,7 +766,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.ToString: string;
+function TDict<K, V>.ToString: string;
 var
   LPair: TPair<K, V>;
   LResultBuilder: TStringBuilder;
@@ -778,9 +780,9 @@ begin
       LKey := TValue.From<K>(LPair.Key);
       LValue := TValue.From<V>(LPair.Value);
       if LKey.IsObject then
-        LResultBuilder.AppendLine(Format('%s: %s', [LKey.AsObject.ToString, LValue.ToString]))
+        LResultBuilder.AppendLine(Format('%s=%s', [LKey.AsObject.ToString, LValue.ToString]))
       else
-        LResultBuilder.AppendLine(Format('%s: %s', [LKey.ToString, LValue.ToString]));
+        LResultBuilder.AppendLine(Format('%s=%s', [LKey.ToString, LValue.ToString]));
     end;
     Result := TrimRight(LResultBuilder.ToString);
   finally
@@ -788,12 +790,12 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>._ComparePairs(const Left, Right: TPair<K, V>): Integer;
+function TDict<K, V>._ComparePairs(const Left, Right: TPair<K, V>): Integer;
 begin
   Result := TComparer<K>.Default.Compare(Left.Key, Right.Key);
 end;
 
-procedure TDictionaryHelper<K, V>.Unique;
+procedure TDict<K, V>.Unique;
 var
   LUniqueValues: TDictionary<V, boolean>;
   LPair: TPair<K, V>;
@@ -812,7 +814,7 @@ begin
   end;
 end;
 
-function TDictionaryHelper<K, V>.Zip<T, TResult>(const AList: TDictionaryHelper<K, T>;
+function TDict<K, V>.Zip<T, TResult>(const AList: TDict<K, T>;
   const AFunc: TFunc<V, T, TResult>): TMap<K, TResult>;
 var
   LKey: K;

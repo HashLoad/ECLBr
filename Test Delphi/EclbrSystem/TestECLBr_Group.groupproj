@@ -27,6 +27,9 @@
         <Projects Include="PTestSysIfThen.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="PTestSysStream.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -107,14 +110,23 @@
     <Target Name="PTestSysIfThen:Make">
         <MSBuild Projects="PTestSysIfThen.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PTestSysStream">
+        <MSBuild Projects="PTestSysStream.dproj"/>
+    </Target>
+    <Target Name="PTestSysStream:Clean">
+        <MSBuild Projects="PTestSysStream.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestSysStream:Make">
+        <MSBuild Projects="PTestSysStream.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysIfTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen"/>
+        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysIfTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen;PTestSysStream"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysIfTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean"/>
+        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysIfTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean;PTestSysStream:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysIfTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make"/>
+        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysIfTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make;PTestSysStream:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

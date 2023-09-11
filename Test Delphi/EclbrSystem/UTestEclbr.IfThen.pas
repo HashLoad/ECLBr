@@ -1,4 +1,4 @@
-unit UTestEclbr.SysIfThen;
+unit UTestEclbr.IfThen;
 
 interface
 

@@ -242,7 +242,7 @@ begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
 
-  Assert.AreEqual('1: One'#13#10'2: Two', FMap.ToString);
+  Assert.AreEqual('1=One 2=Two', FMap.ToString);
 end;
 
 initialization

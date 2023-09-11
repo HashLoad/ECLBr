@@ -1,4 +1,4 @@
-program PTestSysIfThen;
+program PTestSysStream;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,8 +14,10 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  eclbr.ifthen in '..\..\Source\eclbr.ifthen.pas',
-  UTestEclbr.IfThen in 'UTestEclbr.IfThen.pas';
+  eclbr.stream in '..\..\Source\eclbr.stream.pas',
+  UTestEclbr.StreamReader in 'UTestEclbr.StreamReader.pas',
+  eclbr.map in '..\..\Source\eclbr.map.pas',
+  eclbr.vector in '..\..\Source\eclbr.vector.pas';
 
 var
   runner : ITestRunner;

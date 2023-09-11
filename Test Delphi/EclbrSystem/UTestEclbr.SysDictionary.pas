@@ -100,11 +100,11 @@ end;
 
 procedure TDictionaryHelperTest.TestAddRange;
 var
-  LSourceDict, LTargetDict: TDictionaryHelper<Integer, string>;
+  LSourceDict, LTargetDict: TDict<Integer, string>;
 begin
   // Arrange
-  LSourceDict := TDictionaryHelper<Integer, string>.Create;
-  LTargetDict := TDictionaryHelper<Integer, string>.Create;
+  LSourceDict := TDict<Integer, string>.Create;
+  LTargetDict := TDict<Integer, string>.Create;
 
   try
     LSourceDict.Add(1, 'One');
@@ -126,11 +126,11 @@ end;
 
 procedure TDictionaryHelperTest.TestDistinctBy;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LDistinctDict: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -161,12 +161,12 @@ end;
 
 procedure TDictionaryHelperTest.TestExcept;
 var
-  LDictionary1, LDictionary2: TDictionaryHelper<Integer, string>;
+  LDictionary1, LDictionary2: TDict<Integer, string>;
   LExceptedDict: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary1 := TDictionaryHelper<Integer, string>.Create;
-  LDictionary2 := TDictionaryHelper<Integer, string>.Create;
+  LDictionary1 := TDict<Integer, string>.Create;
+  LDictionary2 := TDict<Integer, string>.Create;
   LExceptedDict := [];
 
   try
@@ -198,11 +198,11 @@ end;
 
 procedure TDictionaryHelperTest.TestForEach;
 var
-  LDictionaryHelper: TDictionaryHelper<Integer, string>;
+  LDictionaryHelper: TDict<Integer, string>;
   LCollectedValues: TList<string>;
 begin
   // Arrange
-  LDictionaryHelper := TDictionaryHelper<Integer, string>.Create;
+  LDictionaryHelper := TDict<Integer, string>.Create;
   LCollectedValues := TList<string>.Create;
   try
     LDictionaryHelper.Add(1, 'One');
@@ -230,13 +230,13 @@ end;
 
 procedure TDictionaryHelperTest.TestForEachIndexed;
 var
-  LDictionaryHelper: TDictionaryHelper<Integer, string>;
+  LDictionaryHelper: TDict<Integer, string>;
   LIndexList: TList<Integer>;
   LKeyList: TList<Integer>;
   LValueList: TList<string>;
 begin
   // Arrange
-  LDictionaryHelper := TDictionaryHelper<Integer, string>.Create;
+  LDictionaryHelper := TDict<Integer, string>.Create;
   try
     LDictionaryHelper.Add(1, 'One');
     LDictionaryHelper.Add(2, 'Two');
@@ -281,11 +281,11 @@ end;
 
 procedure TDictionaryHelperTest.TestRotate;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LRotatedPairs: TArray<TPair<Integer, string>>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -314,10 +314,10 @@ end;
 
 procedure TDictionaryHelperTest.TestUnique;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -341,11 +341,11 @@ end;
 
 procedure TDictionaryHelperTest.TestSortedKeys;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LSortedKeys: TArray<Integer>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(3, 'Three');
     LDictionary.Add(1, 'One');
@@ -367,11 +367,11 @@ end;
 
 procedure TDictionaryHelperTest.TestShuffleKeys;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LShuffledKeys: TArray<Integer>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -396,11 +396,11 @@ end;
 
 procedure TDictionaryHelperTest.TestMap;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LResultList: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -427,11 +427,11 @@ end;
 
 procedure TDictionaryHelperTest.TestFilter;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LResultList: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -459,11 +459,11 @@ end;
 
 procedure TDictionaryHelperTest.TestFindAll;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LFilteredDict: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -500,11 +500,11 @@ end;
 
 procedure TDictionaryHelperTest.TestReduce;
 var
-  LDictionary: TDictionaryHelper<string, Integer>;
+  LDictionary: TDict<string, Integer>;
   LResultValue: Integer;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<string, Integer>.Create;
+  LDictionary := TDict<string, Integer>.Create;
   try
     LDictionary.Add('One', 1);
     LDictionary.Add('Two', 2);
@@ -529,11 +529,11 @@ end;
 
 procedure TDictionaryHelperTest.TestGroupBy;
 var
-  LDictionary: TDictionaryHelper<string, Integer>;
+  LDictionary: TDict<string, Integer>;
   LGroupedDictionary: TMap<string, TVector<Integer>>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<string, Integer>.Create;
+  LDictionary := TDict<string, Integer>.Create;
   try
     LDictionary.Add('One', 1);
     LDictionary.Add('Two', 2);
@@ -567,12 +567,12 @@ end;
 
 procedure TDictionaryHelperTest.TestIntersect;
 var
-  LDictionary1, LDictionary2: TDictionaryHelper<Integer, string>;
+  LDictionary1, LDictionary2: TDict<Integer, string>;
   LIntersectedDict: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary1 := TDictionaryHelper<Integer, string>.Create;
-  LDictionary2 := TDictionaryHelper<Integer, string>.Create;
+  LDictionary1 := TDict<Integer, string>.Create;
+  LDictionary2 := TDict<Integer, string>.Create;
   LIntersectedDict := [];
 
   try
@@ -603,10 +603,10 @@ begin
 
 procedure TDictionaryHelperTest.TestJoin;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LResultStr: string;
 begin
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     // Arrange
     LDictionary.Add(1, 'One');
@@ -625,11 +625,11 @@ end;
 
 procedure TDictionaryHelperTest.TestMapFilterMap;
 var
-  LMap: TDictionaryHelper<integer, string>;
+  LMap: TDict<integer, string>;
   LIlteredMap: TMap<integer, integer>;
 begin
   // Arrange
-  LMap := TDictionaryHelper<Integer, string>.Create;
+  LMap := TDict<Integer, string>.Create;
   try
     LMap.Add(3, '105');
     LMap.Add(5, '120');
@@ -646,7 +646,7 @@ begin
                            end);
 
     Assert.IsTrue(LIlteredMap.Count = 1); // <<<<===== FILTRO
-    Assert.AreEqual(LIlteredMap.ToString, '7: 250'); // <<<<==== CONVERT
+    Assert.AreEqual(LIlteredMap.ToString, '7=250'); // <<<<==== CONVERT
   finally
     LMap.Free;
   end;
@@ -654,11 +654,11 @@ end;
 
 procedure TDictionaryHelperTest.TestMaxKey;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LMaxKey: Integer;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -678,11 +678,11 @@ end;
 
 procedure TDictionaryHelperTest.TestMaxValue;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LMaxValue: String;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -702,11 +702,11 @@ end;
 
 procedure TDictionaryHelperTest.TestMinKey;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LMinKey: Integer;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -726,11 +726,11 @@ end;
 
 procedure TDictionaryHelperTest.TestMinValue;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LMinValue: String;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -750,11 +750,11 @@ end;
 
 procedure TDictionaryHelperTest.TestPartition;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LPartitions: TPair<TMap<Integer, string>, TMap<Integer, string>>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -795,11 +795,11 @@ end;
 
 procedure TDictionaryHelperTest.TestTake;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LTakenDictionary: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -831,11 +831,11 @@ end;
 
 procedure TDictionaryHelperTest.TestTakeWhile;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LTakenDict: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -872,11 +872,11 @@ end;
 
 procedure TDictionaryHelperTest.TestSkip;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LSkippedDictionary: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -909,11 +909,11 @@ end;
 procedure TDictionaryHelperTest.TestSkipMemoryLeak;
 var
   LFor: Integer;
-  LDictionary: TDictionaryHelper<Integer, String>;
+  LDictionary: TDict<Integer, String>;
   LResult: TMap<Integer, string>;
   L: integer;
 begin
-  LDictionary := TDictionaryHelper<Integer, String>.Create;
+  LDictionary := TDict<Integer, String>.Create;
   try
     for LFor := 0 to 10 do
     begin
@@ -930,11 +930,11 @@ end;
 
 procedure TDictionaryHelperTest.TestSkipWhile;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LSkipDict: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -971,11 +971,11 @@ end;
 
 procedure TDictionaryHelperTest.TestSlice;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LSlicedDictionary: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
@@ -1007,12 +1007,12 @@ end;
 
 procedure TDictionaryHelperTest.TestZip;
 var
-  LDictionary1, LDictionary2: TDictionaryHelper<Integer, string>;
+  LDictionary1, LDictionary2: TDict<Integer, string>;
   LZippedDictionary: TMap<Integer, string>;
 begin
   // Arrange
-  LDictionary1 := TDictionaryHelper<Integer, string>.Create;
-  LDictionary2 := TDictionaryHelper<Integer, string>.Create;
+  LDictionary1 := TDict<Integer, string>.Create;
+  LDictionary2 := TDict<Integer, string>.Create;
   try
     LDictionary1.Add(1, 'One');
     LDictionary1.Add(2, 'Two');
@@ -1049,11 +1049,11 @@ end;
 
 procedure TDictionaryHelperTest.TestFlatMap;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LFlatMappedDictionary: TMap<Integer, Integer>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
   try
     LDictionary.Add(1, '1,2,3');
     LDictionary.Add(2, '4,5');
@@ -1098,11 +1098,11 @@ end;
 
 procedure TDictionaryHelperTest.TestPartitionBy;
 var
-  LDictionary: TDictionaryHelper<Integer, string>;
+  LDictionary: TDict<Integer, string>;
   LPartitionedDict: TMap<Boolean, TVector<string>>;
 begin
   // Arrange
-  LDictionary := TDictionaryHelper<Integer, string>.Create;
+  LDictionary := TDict<Integer, string>.Create;
 
   try
     LDictionary.Add(1, 'One');
@@ -1117,7 +1117,7 @@ begin
       function(Value: string): Boolean
       begin
         // Particiona com base na primeira letra sendo vogal ou consoante
-        Result := CharInSet(Value[1], ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+        Result := CharInSet(Value[1], ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U', 'T']);
       end
     );
 

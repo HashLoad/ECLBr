@@ -40,9 +40,9 @@ uses
 type
   IMapEnumerator<K, V> = interface
     ['{5BC9B8F2-7503-4896-82C6-E8EFA27E9555}']
-    function GetCurrent: TPair<K, V>;
+    function _GetCurrent: TPair<K, V>;
     function MoveNext: Boolean;
-    property Current: TPair<K, V> read GetCurrent;
+    property Current: TPair<K, V> read _GetCurrent;
   end;
 
   TDefaultCapacity = class
@@ -53,35 +53,47 @@ type
   TMap<K, V> = record
   private
     type
-      TItemPair = TPair<K, V>;
-      PPairArray = ^TPairArray;
-      TPairArray = TArray<TItemPair>;
+      PItemPair = ^TItemPair;
+      TItemPair = record
+        HashCode: integer;
+        Key: K;
+        Value: V;
+        constructor Create(const AKey: K; const AValue: V; const AHashCode: integer = -1);
+      end;
+      PArrayPair = ^TArrayPair;
+      TArrayPair = TArray<TItemPair>;
 
-      TMapEnumerator = class(TInterfacedObject, IMapEnumerator<K, V>)
+      TMapEnumerator = class(TEnumerator<TPair<K,V>>)
       private
-        FItems: PPairArray;
+        FItems: PArrayPair;
         FIndex: integer;
+        function _GetCurrent: TPair<K, V>;
+        function _IsEquals<T>(const ALeft: T; ARight: T): boolean;
       protected
-        function GetCurrent: TItemPair;
-        function MoveNext: boolean;
+        function DoGetCurrent: TPair<K,V>; override;
+        function DoMoveNext: boolean; override;
       public
-        constructor Create(const AItems: PPairArray);
+        constructor Create(const AItems: PArrayPair);
         destructor Destroy; override;
-        property Current: TItemPair read GetCurrent;
+        function MoveNext: boolean;
+        property Current: TPair<K, V> read _GetCurrent;
       end;
   private
-    FItems: TPairArray;
+    FMapItems: TArrayPair;
     FDefaultCapacity: TDefaultCapacity;
     FCapacity: integer;
-    function _IndexOf(const AKey: K): integer;
+    function _GetBucketIndex(const AKey: K; const AHashCode: integer = -1): integer;
     function _GetLength: integer;
-    procedure _SetLength(const AValue: integer);
+    procedure _SetNewLength(const ALength: integer);
     function _GetCount: integer;
     function _GetDefaultCapacity: integer;
-    function _GetBucketIndex(const AKey: K): integer;
+    function _Hash(const Key: K): integer;
+    function _ComparePairs(const ALeft, ARight: TPair<K, V>): integer;
+    function _IsEquals<T>(const ALeft: T; ARight: T): boolean;
+    procedure _DoAdd(const AKey: K; const AValue: V; const AIndex: integer);
   public
-    class operator Implicit(const V: TMap<K, V>): TPairArray;
-    class operator Implicit(const V: TPairArray): TMap<K, V>;
+    class operator Implicit(const V: TMap<K, V>): TArrayPair;
+    class operator Implicit(const V: TArrayPair): TMap<K, V>;
 
     /// <summary>
     ///   Creates and returns a new empty dictionary of type TMap<K, V>.
@@ -99,7 +111,7 @@ type
     ///   Creates a new map instance initialized with the key-value pairs provided in AValue.
     /// </summary>
     /// <param name="AValue">The initial key-value pairs to populate the map.</param>
-    constructor Create(const AValue: TPairArray); overload;
+    constructor Create(const AValue: TArrayPair); overload;
 
     /// <summary>
     ///   Creates a new map instance with an initial key-value pair.
@@ -107,13 +119,6 @@ type
     /// <param name="AKey">The key for the initial pair.</param>
     /// <param name="AValue">The value for the initial pair.</param>
     constructor Create(const AKey: K; AValue: V); overload;
-
-    /// <summary>
-    ///   Adds or updates a key-value pair in the map.
-    /// </summary>
-    /// <param name="AKey">The key to add or update.</param>
-    /// <param name="AValue">The value associated with the key.</param>
-    procedure AddOrUpdate(const AKey: K; const AValue: V);
 
     /// <summary>
     ///   Iterates through the key-value pairs in the map, applying the specified action to each pair.
@@ -160,7 +165,7 @@ type
     /// <summary>
     ///   Returns an enumerator for iterating through key-value pairs in the map.
     /// </summary>
-    function GetEnumerator: IMapEnumerator<K, V>;
+    function GetEnumerator: TEnumerator<TPair<K,V>>;
 
     /// <summary>
     ///   Retrieves the value associated with the specified key.
@@ -200,7 +205,7 @@ type
     /// </summary>
     /// <param name="APair">The key-value pair to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
-    function Add(const APair: TItemPair): integer; overload;
+    function Add(const APair: TPair<K, V>): integer; overload;
 
     /// <summary>
     ///   Adds a key-value pair to the map.
@@ -209,6 +214,13 @@ type
     /// <param name="AValue">The value to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
     function Add(const AKey: K; const AValue: V): integer; overload;
+
+    /// <summary>
+    ///   Adds or updates a key-value pair in the map.
+    /// </summary>
+    /// <param name="AKey">The key to add or update.</param>
+    /// <param name="AValue">The value associated with the key.</param>
+    procedure AddOrUpdate(const AKey: K; const AValue: V);
 
     /// <summary>
     ///   Checks if the map contains the specified key.
@@ -222,7 +234,7 @@ type
     /// </summary>
     /// <param name="ASourceArray">The array containing key-value pairs to merge.</param>
     /// <returns>The updated map with merged key-value pairs.</returns>
-    function Merge(const ASourceArray: TPairArray): TMap<K, V>;
+    function Merge(const ASourceArray: TArray<TPair<K, V>>): TMap<K, V>;
 
     /// <summary>
     ///   Filters key-value pairs in the map based on a specified predicate.
@@ -309,7 +321,7 @@ type
     ///   Retrieves the last key-value pair in the map.
     /// </summary>
     /// <returns>The last key-value pair in the map.</returns>
-    function Last: TItemPair;
+    function Last: TPair<K, V>;
 
     /// <summary>
     ///   Converts the map to a JSON string.
@@ -358,28 +370,16 @@ implementation
 
 { TMap<TKey, TValue> }
 
-function TMap<K, V>._GetBucketIndex(const AKey: K): integer;
+function TMap<K, V>._GetCount: integer;
 var
   LFor: integer;
 begin
-  Result := -1;
-  for LFor := Low(Self.FItems) to High(Self.FItems) do
-  begin
-    if not TEqualityComparer<K>.Default.Equals(Self.FItems[LFor].Key, AKey) then
-      continue;
-    Result := LFor;
-    break;
-  end;
-end;
-
-function TMap<K, V>._GetCount: integer;
-var
-  LFor: Integer;
-begin
   Result := 0;
-  for LFor := 0 to High(FItems) do
+  for LFor := 0 to High(FMapItems) do
   begin
-    if not TEqualityComparer<TItemPair>.Default.Equals(FItems[LFor], Default(TItemPair)) then
+    if _IsEquals<TItemPair>(FMapItems[LFor], Default(TItemPair)) then
+      break
+    else
       Inc(Result);
   end;
 end;
@@ -391,17 +391,50 @@ end;
 
 function TMap<K, V>._GetLength: integer;
 begin
-  Result := System.Length(FItems);
+  Result := Length(FMapItems);
 end;
 
-function TMap<K, V>._IndexOf(const AKey: K): integer;
+function TMap<K, V>._ComparePairs(const ALeft, ARight: TPair<K, V>): integer;
+begin
+  Result := TComparer<K>.Default.Compare(ALeft.Key, ARight.Key);
+end;
+
+function TMap<K, V>._GetBucketIndex(const AKey: K; const AHashCode: integer): integer;
+//var
+//  LLength: integer;
+//  LHashCode: integer;
+//  LMapItems: PItemPair;
+//begin
+//  LLength := Length(FMapItems);
+//  if LLength = 0 then
+//    exit(-1);
+//  LHashCode := _Hash(AKey);
+//  Result := LHashCode mod Count; //and (LLength - 1);
+//  LMapItems := @FMapItems[Result];
+//  while True do
+//  begin
+//    if _IsEquals<K>(LMapItems^.Key, Default(K)) and (LMapItems^.HashCode = 0) then
+//      exit(Result);
+//
+//    if _IsEquals<K>(LMapItems^.Key, AKey) and (LMapItems^.HashCode = LHashCode) then
+//      exit(Result);
+//
+//    Inc(Result);
+//    Inc(LMapItems);
+//    if Result >= LLength then
+//    begin
+//      Result := 0;
+//      LMapItems := @FMapItems[0];
+//    end;
+//  end;
+
 var
   LFor: integer;
 begin
   Result := -1;
-  for LFor := 0 to System.Length(FItems) - 1 do
+  for LFor := 0 to System.Length(FMapItems) - 1 do
   begin
-    if TEqualityComparer<K>.Default.Equals(FItems[LFor].Key, AKey) then
+    if _IsEquals<K>(FMapItems[LFor].Key, AKey) and (FMapItems[LFor].HashCode > 0) then
     begin
       Result := LFor;
       break;
@@ -412,7 +445,7 @@ end;
 procedure TMap<K, V>.SetCapacity(const ACapacity: integer);
 begin
   FCapacity := ACapacity;
-  SetLength(FItems, FCapacity);
+  _SetNewLength(ACapacity);
 end;
 
 procedure TMap<K, V>.SetDefaultCapacity(const ADefault: integer);
@@ -420,28 +453,21 @@ begin
   FDefaultCapacity.DefaultCapacity := ADefault;
 end;
 
-procedure TMap<K, V>._SetLength(const AValue: integer);
+procedure TMap<K, V>._SetNewLength(const ALength: integer);
 begin
-  SetLength(FItems, AValue);
-end;
-
-procedure TMap<K, V>.AddOrUpdate(const AKey: K; const AValue: V);
-var
-  LIndex: integer;
-begin
-  LIndex := _IndexOf(AKey);
-  if LIndex <> -1 then
-    FItems[LIndex] := TItemPair.Create(AKey, AValue)
-  else
-    Add(TItemPair.Create(AKey, AValue));
+  SetLength(FMapItems, ALength);
 end;
 
 procedure TMap<K, V>.AddRange(const ACollection: TMap<K, V>);
 var
   LPair: TItemPair;
 begin
-  for LPair in ACollection.FItems do
-    Add(LPair);
+  for LPair in ACollection.FMapItems do
+  begin
+    if _IsEquals<K>(LPair.Key, Default(K)) then
+      continue;
+    Add(LPair.Key, LPair.Value);
+  end;
 end;
 
 function TMap<K, V>.GetValue(const AKey: K): V;
@@ -449,20 +475,20 @@ var
   LPair: TItemPair;
 begin
   LPair := GetPair(AKey);
-  if TEqualityComparer<K>.Default.Equals(LPair.Key, AKey) then
+  if _IsEquals<K>(LPair.Key, AKey) then
     Result := LPair.Value
   else
     Result := Default(V);
 end;
 
-class operator TMap<K, V>.Implicit(const V: TMap<K, V>): TPairArray;
+class operator TMap<K, V>.Implicit(const V: TMap<K, V>): TArrayPair;
 begin
-  Result := V.FItems;
+  Result := V.FMapItems;
 end;
 
-class operator TMap<K, V>.Implicit(const V: TPairArray): TMap<K, V>;
+class operator TMap<K, V>.Implicit(const V: TArrayPair): TMap<K, V>;
 begin
-  Result.FItems := V;
+  Result.FMapItems := V;
 end;
 
 procedure TMap<K, V>.Insert(const AIndex: integer; const AItem: TItemPair);
@@ -478,59 +504,83 @@ begin
   end
   else if LLength <= AIndex then
   begin
-    LLength := (AIndex + AIndex shr 3) + FDefaultCapacity.DefaultCapacity;
+    LLength := AIndex + FDefaultCapacity.DefaultCapacity;
     SetCapacity(LLength);
   end;
   for LFor := LLength - 1 downto AIndex + 1 do
-    FItems[LFor] := FItems[LFor - 1];
-
-  FItems[AIndex] := AItem;
+    FMapItems[LFor] := FMapItems[LFor - 1];
+  FMapItems[AIndex] := AItem;
 end;
 
-function TMap<K, V>.GetEnumerator: IMapEnumerator<K, V>;
+function TMap<K, V>.GetEnumerator: TEnumerator<TPair<K,V>>;
 begin
-  Result := TMapEnumerator.Create(@FItems);
+  Result := TMapEnumerator.Create(@FMapItems);
 end;
 
 function TMap<K, V>.GetPair(const AKey: K): TItemPair;
 var
   LIndex: integer;
 begin
-  LIndex := _IndexOf(AKey);
+  LIndex := _GetBucketIndex(AKey);
   if LIndex <> -1 then
-    Result := FItems[LIndex]
+    Result := FMapItems[LIndex]
   else
     Result := TItemPair.Create(Default(K), Default(V));
 end;
 
-function TMap<K, V>.Add(const APair: TItemPair): integer;
+function TMap<K, V>.Add(const APair: TPair<K, V>): integer;
 var
   LIndex: integer;
   LLength: integer;
 begin
   LIndex := -1;
-  for LIndex := Low(FItems) to High(FItems) do
+  for LIndex := Low(FMapItems) to High(FMapItems) do
   begin
-    if TEqualityComparer<TItemPair>.Default.Equals(FItems[LIndex], Default(TItemPair)) then
+    if _IsEquals(FMapItems[LIndex], Default(TItemPair)) then
     begin
-      FItems[LIndex] := APair;
+      FMapItems[LIndex].Key := APair.Key;
+      FMapItems[LIndex].Value := APair.Value;
+      FMapItems[LIndex].HashCode := _Hash(APair.Key);
       Result := LIndex;
       exit;
     end;
   end;
-  if (LIndex = -1) or (LIndex = System.Length(FItems)) then
-  begin
-    LIndex := _GetCount;
-    LLength := LIndex + FDefaultCapacity.DefaultCapacity;
-    SetCapacity(LLength);
-  end;
-  FItems[LIndex] := APair;
+  _DoAdd(APair.Key, APair.Value, LIndex);
+
   Result := FCapacity;
 end;
 
 function TMap<K, V>.Add(const AKey: K; const AValue: V): integer;
 begin
-  Result := Add(TItemPair.Create(AKey, AValue));
+  Result := Add(TPair<K, V>.Create(AKey, AValue));
+end;
+
+procedure TMap<K, V>.AddOrUpdate(const AKey: K; const AValue: V);
+var
+  LIndex: integer;
+begin
+  LIndex := _GetBucketIndex(AKey);
+  if LIndex > -1 then
+    FMapItems[LIndex] := TItemPair.Create(AKey, AValue, _Hash(AKey))
+  else
+    Add(TPair<K, V>.Create(AKey, AValue));
+end;
+
+procedure TMap<K, V>._DoAdd(const AKey: K; const AValue: V; const AIndex: integer);
+var
+  LLength: integer;
+  LIndex: integer;
+begin
+  LIndex := AIndex;
+  if (LIndex = -1) or (LIndex = System.Length(FMapItems)) then
+  begin
+    LIndex := _GetCount;
+    LLength := LIndex + FDefaultCapacity.DefaultCapacity;
+    SetCapacity(LLength);
+  end;
+  FMapItems[LIndex].Key := AKey;
+  FMapItems[LIndex].Value := AValue;
+  FMapItems[LIndex].HashCode := _Hash(AKey);
 end;
 
 function TMap<K, V>.Capacity: integer;
@@ -540,17 +590,17 @@ end;
 
 procedure TMap<K, V>.Clear;
 begin
-  FItems := nil;
+  FMapItems := nil;
 end;
 
 function TMap<K, V>.Contains(const AKey: K): boolean;
 begin
-  Result := _IndexOf(AKey) <> -1;
+  Result := _GetBucketIndex(AKey) <> -1;
 end;
 
-constructor TMap<K, V>.Create(const AValue: TPairArray);
+constructor TMap<K, V>.Create(const AValue: TArrayPair);
 begin
-  FItems := AValue;
+  FMapItems := AValue;
 end;
 
 constructor TMap<K, V>.Create(const AKey: K; AValue: V);
@@ -563,13 +613,13 @@ var
   LFor: integer;
 begin
   for LFor := AIndex + 1 to FCapacity - 1 do
-    FItems[LFor - 1] := FItems[LFor];
+    FMapItems[LFor - 1] := FMapItems[LFor];
   SetCapacity(FCapacity - 1);
 end;
 
 class function TMap<K, V>.Empty: TMap<K, V>;
 begin
-  Result.FItems := [];
+  Result.FMapItems := [];
 end;
 
 function TMap<K, V>.Remove(const AKey: K): boolean;
@@ -577,21 +627,22 @@ var
   LIndex: integer;
   LCount: integer;
 begin
-  LIndex := _IndexOf(AKey);
+  LIndex := _GetBucketIndex(AKey);
   Result := LIndex >= 0;
   if Result then
     Delete(LIndex);
 end;
 
-function TMap<K, V>.Last: TItemPair;
+function TMap<K, V>.Last: TPair<K, V>;
 var
   LFor: integer;
 begin
-  for LFor := System.Length(FItems) - 1 downto 0 do
+  for LFor := System.Length(FMapItems) - 1 downto 0 do
   begin
-    if TEqualityComparer<TItemPair>.Default.Equals(FItems[LFor], Default(TItemPair)) then
+    if _IsEquals<TItemPair>(FMapItems[LFor], Default(TItemPair)) then
       continue;
-    Result := FItems[LFor];
+    Result.Key := FMapItems[LFor].Key;
+    Result.Value := FMapItems[LFor].Value;
     exit;
   end;
   raise Exception.Create('No non-empty elements found');
@@ -654,14 +705,14 @@ begin
   end;
 end;
 
-function TMap<K, V>.Merge(const ASourceArray: TPairArray): TMap<K, V>;
+function TMap<K, V>.Merge(const ASourceArray: TArray<TPair<K, V>>): TMap<K, V>;
 var
-  LItem: TItemPair;
+  LItem: TPair<K, V>;
 begin
   for LItem in ASourceArray do
   begin
     if not Contains(LItem.Key) then
-      Add(LItem);
+      Add(LItem.Key, LItem.Value);
   end;
   Result := Self;
 end;
@@ -671,9 +722,9 @@ var
   LItem: TItemPair;
 begin
   Result := [];
-  for LItem in FItems do
+  for LItem in FMapItems do
   begin
-    if TEqualityComparer<TItemPair>.Default.Equals(LItem, Default(TItemPair)) then
+    if _IsEquals<TItemPair>(LItem, Default(TItemPair)) then
       continue;
     if APredicate(LItem.Key, LItem.Value) then
       Result.Add(LItem.Key, LItem.Value);
@@ -682,42 +733,45 @@ end;
 
 function TMap<K, V>.First: TItemPair;
 begin
-  if System.Length(FItems) = 0 then
+  if System.Length(FMapItems) = 0 then
     exit;
-  Result := FItems[0];
+  Result := FMapItems[0];
 end;
 
 procedure TMap<K, V>.ForEach(const AAction: TProc<K, V>);
 var
   LPair: TItemPair;
 begin
-  for LPair in FItems do
+  for LPair in FMapItems do
     AAction(LPair.Key, LPair.Value);
 end;
 
 function TMap<K, V>.ToString: string;
 var
   LPair: TItemPair;
-  ResultBuilder: TStringBuilder;
+  LBuilder: TStringBuilder;
   LKey: TValue;
   LValue: TValue;
 begin
-  ResultBuilder := TStringBuilder.Create;
+  LBuilder := TStringBuilder.Create;
   try
-    for LPair in FItems do
+    for LPair in FMapItems do
     begin
-      if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
+      if _IsEquals<TItemPair>(LPair, Default(TItemPair)) then
         continue;
       LKey := TValue.From<K>(LPair.Key);
       LValue := TValue.From<V>(LPair.Value);
       if LKey.IsObject then
-        ResultBuilder.AppendLine(Format('%s: %s', [LKey.AsObject.ToString, LValue.ToString]))
+        LBuilder.Append(Format('%s=%s ', [LKey.AsObject.ToString, LValue.ToString]))
       else
-        ResultBuilder.AppendLine(Format('%s: %s', [LKey.ToString, LValue.ToString]));
+        LBuilder.Append(Format('%s=%s ', [LKey.ToString, LValue.ToString]));
+      LBuilder.AppendLine(TrimRight(''));
     end;
-    Result := TrimRight(ResultBuilder.ToString);
+    Result := TrimRight(LBuilder.ToString);
+    Result := StringReplace(Result, #$D, '', [rfReplaceAll]);
+    Result := StringReplace(Result, #$A, '', [rfReplaceAll]);
   finally
-    ResultBuilder.Free;
+    LBuilder.Free;
   end;
 end;
 
@@ -728,7 +782,7 @@ begin
   LIndex := _GetBucketIndex(AKey);
   Result := LIndex >= 0;
   if Result then
-    AValue := FItems[LIndex].Value
+    AValue := FMapItems[LIndex].Value
   else
     AValue := Default(V);
 end;
@@ -738,9 +792,9 @@ var
   LPair: TItemPair;
 begin
   SetLength(Result, 0);
-  for LPair in FItems do
+  for LPair in FMapItems do
   begin
-    if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
+    if _IsEquals<TItemPair>(LPair, Default(TItemPair)) then
       continue;
     SetLength(Result, System.Length(Result) + 1);
     Result[System.Length(Result) -1] := LPair;
@@ -758,9 +812,9 @@ begin
   LJsonPairs := TStringBuilder.Create;
   LFirstPair := True;
   try
-    for LPair in FItems do
+    for LPair in FMapItems do
     begin
-      if TEqualityComparer<TItemPair>.Default.Equals(LPair, Default(TItemPair)) then
+      if _IsEquals<TItemPair>(LPair, Default(TItemPair)) then
         continue;
       LKey := TValue.From<K>(LPair.Key);
       LValue := TValue.From<V>(LPair.Value);
@@ -775,9 +829,21 @@ begin
   end;
 end;
 
+function TMap<K, V>._Hash(const Key: K): integer;
+const
+  POSITIVEMASK = not integer($80000000);
+begin
+  Result := POSITIVEMASK and ((POSITIVEMASK and TEqualityComparer<K>.Default.GetHashCode(Key)) + 1);
+end;
+
+function TMap<K, V>._IsEquals<T>(const ALeft: T; ARight: T): boolean;
+begin
+  Result := TEqualityComparer<T>.Default.Equals(ALeft, ARight);
+end;
+
 { TMap<K, V>.TMapEnumerator }
 
-constructor TMap<K, V>.TMapEnumerator.Create(const AItems: PPairArray);
+constructor TMap<K, V>.TMapEnumerator.Create(const AItems: PArrayPair);
 begin
   FItems := AItems;
   FIndex := -1;
@@ -789,17 +855,45 @@ begin
   inherited;
 end;
 
-function TMap<K, V>.TMapEnumerator.GetCurrent: TItemPair;
+function TMap<K, V>.TMapEnumerator.DoGetCurrent: TPair<K, V>;
 begin
-  Result := FItems^[FIndex];
+  Result := _GetCurrent;
+end;
+
+function TMap<K, V>.TMapEnumerator.DoMoveNext: boolean;
+begin
+  Result := MoveNext;
+end;
+
+function TMap<K, V>.TMapEnumerator._GetCurrent: TPair<K, V>;
+begin
+  Result.Key := FItems^[FIndex].Key;
+  Result.Value := FItems^[FIndex].Value;
+end;
+
+function TMap<K, V>.TMapEnumerator._IsEquals<T>(const ALeft: T; ARight: T): boolean;
+begin
+  Result := TEqualityComparer<T>.Default.Equals(ALeft, ARight);
 end;
 
 function TMap<K, V>.TMapEnumerator.MoveNext: boolean;
 begin
   repeat
     Inc(FIndex);
-  until (FIndex >= System.Length(FItems^)) or not TEqualityComparer<TItemPair>.Default.Equals(FItems^[FIndex], Default(TItemPair));
+  until (FIndex >= System.Length(FItems^)) or
+        (not _IsEquals<K>(FItems^[FIndex].Key, Default(K))) or
+        (not _IsEquals<V>(FItems^[FIndex].Value, Default(V)));
   Result := FIndex < System.Length(FItems^);
+end;
+
+{ TMap<K, V>.TItemPair }
+
+constructor TMap<K, V>.TItemPair.Create(const AKey: K; const AValue: V;
+  const AHashCode: integer);
+begin
+  Key := AKey;
+  Value := AValue;
+  HashCode := AHashCode;
 end;
 
 initialization
