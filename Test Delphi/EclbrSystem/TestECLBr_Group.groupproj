@@ -9,7 +9,7 @@
         <Projects Include="PTestSysMatch.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysIfTuple.dproj">
+        <Projects Include="PTestSysTuple.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="..\EclbrResultPair\PTestResultPair.dproj">
@@ -56,14 +56,14 @@
     <Target Name="PTestSysMatch:Make">
         <MSBuild Projects="PTestSysMatch.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysIfTuple">
-        <MSBuild Projects="PTestSysIfTuple.dproj"/>
+    <Target Name="PTestSysTuple">
+        <MSBuild Projects="PTestSysTuple.dproj"/>
     </Target>
-    <Target Name="PTestSysIfTuple:Clean">
-        <MSBuild Projects="PTestSysIfTuple.dproj" Targets="Clean"/>
+    <Target Name="PTestSysTuple:Clean">
+        <MSBuild Projects="PTestSysTuple.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysIfTuple:Make">
-        <MSBuild Projects="PTestSysIfTuple.dproj" Targets="Make"/>
+    <Target Name="PTestSysTuple:Make">
+        <MSBuild Projects="PTestSysTuple.dproj" Targets="Make"/>
     </Target>
     <Target Name="PTestResultPair">
         <MSBuild Projects="..\EclbrResultPair\PTestResultPair.dproj"/>
@@ -120,13 +120,13 @@
         <MSBuild Projects="PTestSysStream.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysIfTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen;PTestSysStream"/>
+        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen;PTestSysStream"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysIfTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean;PTestSysStream:Clean"/>
+        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean;PTestSysStream:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysIfTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make;PTestSysStream:Make"/>
+        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make;PTestSysStream:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

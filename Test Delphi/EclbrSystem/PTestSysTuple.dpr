@@ -1,4 +1,4 @@
-program PTestSysIfTuple;
+program PTestSysTuple;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,7 +14,7 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.SysIfTuple in 'UTestEclbr.SysIfTuple.pas',
+  UTestEclbr.SysTuple in 'UTestEclbr.SysTuple.pas',
   eclbr.tuple in '..\..\Source\eclbr.tuple.pas';
 
 var
