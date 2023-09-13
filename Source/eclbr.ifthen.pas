@@ -1,7 +1,7 @@
 {
              ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2022, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -46,6 +46,7 @@ type
       FFalseValue: TValue<T>;
       FTrueFunc: TFunc<T>;
       FFalseFuncs: TArray<TPair<boolean, TFunc<T>>>;
+      FTryExcept: TProc<Exception>;
   private
     /// <summary>
     ///   Conditionally adds a function to be executed if the specified condition is false.
@@ -113,6 +114,19 @@ type
     function ElseOf(const ACondition: boolean; const AFalseValue: T): TIfThen<T>; overload;
 
     /// <summary>
+    ///   Wraps the specified action in a try-except block to catch exceptions and handle them gracefully.
+    /// </summary>
+    /// <param name="AProc">
+    ///   The procedure to be executed within the try-except block. This procedure may throw exceptions,
+    ///   which will be caught and handled within the exception block.
+    /// </param>
+    /// <returns>
+    ///   An instance of the <see cref="TIfThen{T}"/> class, which allows you to handle the outcome of the operation
+    ///   and decide how to proceed based on success or failure.
+    /// </returns>
+    function TryExcept(const AProc: TProc<Exception>): TIfThen<T>;
+
+    /// <summary>
     ///   Returns the value corresponding to conditional evaluation.
     /// </summary>
     function Return: T;
@@ -172,24 +186,34 @@ var
   LFunc: TPair<boolean, TFunc<T>>;
 begin
   try
-    if FCondition then
-    begin
-      if Assigned(FTrueFunc) then
-        Result := FTrueFunc()
-      else
-        Result := FTrueValue.Value;
-    end
-    else
-    begin
-      for LFunc in FFalseFuncs do
+    try
+      if FCondition then
       begin
-        if Assigned(LFunc.Value) and (LFunc.Key) then
+        if Assigned(FTrueFunc) then
+          Result := FTrueFunc()
+        else
+          Result := FTrueValue.Value;
+      end
+      else
+      begin
+        for LFunc in FFalseFuncs do
         begin
-          Result := LFunc.Value();
-          exit;
+          if Assigned(LFunc.Value) and (LFunc.Key) then
+          begin
+            Result := LFunc.Value();
+            exit;
+          end;
         end;
+        Result := FFalseValue.Value;
       end;
-      Result := FFalseValue.Value;
+    except
+      on E: Exception do
+      begin
+        if Assigned(FTryExcept) then
+          FTryExcept(E)
+        else
+          raise;
+      end;
     end;
   finally
     FCondition := false;
@@ -203,6 +227,12 @@ end;
 function TIfThen<T>.ThenOf(const ATrueFunc: TFunc<T>): TIfThen<T>;
 begin
   FTrueFunc := ATrueFunc;
+  Result := Self;
+end;
+
+function TIfThen<T>.TryExcept(const AProc: TProc<Exception>): TIfThen<T>;
+begin
+  FTryExcept := AProc;
   Result := Self;
 end;
 

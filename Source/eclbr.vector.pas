@@ -1,7 +1,7 @@
 {
              ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2022, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -54,11 +54,10 @@ type
       private
         class var FCapacity: integer;
       private
-        class function _GetLength(const AArray: TArrayType): integer; static;
-        class procedure _SetLength(var AArray: TArrayType; ACount: integer); static;
         class function _GetCapacity: integer; static;
         class procedure _SetCapacity(var AArray: TArrayType; const ACapacity: integer); static;
         class function _GetCount(var AArray: TArrayType): integer; static;
+        class function _IsEquals<I>(const ALeft: I; ARight: I): boolean; static;
       public
         class procedure Add(var AArray: TArrayType; const AItem: T); static;
         class procedure Insert(var AArray: TArrayType; const AIndex: integer; const AItem: T); static;
@@ -86,13 +85,14 @@ type
     function _GetItem(Index: integer): T;
     procedure _SetItem(Index: integer; const V: T);
     function _TrimItems: TArrayType;
+    function _IsEquals<I>(const ALeft: I; ARight: I): boolean;
   public
     class operator Implicit(const V: TVector<T>): TArrayType;
     class operator Implicit(const V: TArrayType): TVector<T>;
     class operator Equal(const Left, Right: TVector<T>): boolean;
     class operator NotEqual(const Left, Right: TVector<T>): boolean;
-
     class function Empty: TVector<T>; static;
+
     /// <summary>
     ///   Creates a new vector initialized with the provided array of elements.
     /// </summary>
@@ -210,6 +210,17 @@ type
     function Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
 
     /// <summary>
+    ///   Mapeia os elementos desta coleção para uma nova coleção de tipo TResult usando a função de mapeamento fornecida.
+    /// </summary>
+    /// <param name="AMappingFunc">
+    ///   A função de mapeamento que transforma cada elemento da coleção atual em um elemento do tipo TResult.
+    /// </param>
+    /// <returns>
+    ///   Uma nova coleção contendo os elementos resultantes da aplicação da função de mapeamento.
+    /// </returns>
+    function Map<TResult: class>(const AMappingFunc: TFunc<T, TResult>): TVector<TResult>;
+
+    /// <summary>
     ///   Returns the first element in the vector.
     /// </summary>
     /// <returns>The first element in the vector.</returns>
@@ -247,6 +258,17 @@ type
     function AsList: TList<T>;
 
     /// <summary>
+    ///   Converte os elementos desta coleção em um array de tipo T.
+    /// </summary>
+    /// <remarks>
+    ///   Este método cria um novo array contendo todos os elementos da coleção atual.
+    /// </remarks>
+    /// <returns>
+    ///   Um array contendo os elementos da coleção.
+    /// </returns>
+    function ToArray: TArray<T>;
+
+    /// <summary>
     ///   Converts the vector into a string representation containing non-empty elements.
     /// </summary>
     /// <returns>A string representation of the vector containing non-empty elements.</returns>
@@ -257,6 +279,11 @@ type
     /// </summary>
     /// <returns>The number of non-empty elements in the vector.</returns>
     function Length: integer;
+
+    /// <summary>
+    ///   Returns the number of non-empty elements in the vector.
+    /// </summary>
+    /// <returns>The number of non-empty elements in the vector.</returns>
     function Count: integer;
 
     /// <summary>
@@ -282,6 +309,11 @@ begin
   Result := FItems[Index];
 end;
 
+function TVector<T>._IsEquals<I>(const ALeft: I; ARight: I): boolean;
+begin
+  Result := TEqualityComparer<I>.Default.Equals(ALeft, ARight);
+end;
+
 procedure TVector<T>._SetItem(Index: integer; const V: T);
 begin
   FItems[Index] := V;
@@ -296,7 +328,7 @@ begin
   LIndex := 0;
   for LFor := 0 to High(FItems) do
   begin
-    if TEqualityComparer<T>.Default.Equals(FItems[LFor], Default(T)) then
+    if _IsEquals<T>(FItems[LFor], Default(T)) then
       continue;
     Result[Lindex] := FItems[LFor];
     Inc(LIndex);
@@ -363,7 +395,7 @@ var
 begin
   for LFor := System.Length(FItems) - 1 downto 0 do
   begin
-    if not TEqualityComparer<T>.Default.Equals(FItems[LFor], Default(T)) then
+    if not _IsEquals<T>(FItems[LFor], Default(T)) then
     begin
       Result := FItems[LFor];
       exit;
@@ -372,6 +404,15 @@ begin
   raise Exception.Create('No non-empty elements found');
 end;
 
+function TVector<T>.Map<TResult>(
+  const AMappingFunc: TFunc<T, TResult>): TVector<TResult>;
+var
+  LItem: T;
+begin
+  Result := TVector<TResult>.Create([]);
+  for LItem in Self do
+    Result.Add(AMappingFunc(LItem));
+end;
 
 function TVector<T>.Merge(const ASourceArray: TArrayType): TVector<T>;
 var
@@ -468,8 +509,24 @@ begin
   Result := TList<T>.Create;
   for LFor := 0 to High(FItems) do
   begin
-    if not TEqualityComparer<T>.Default.Equals(FItems[LFor], Default(T)) then
+    if not _IsEquals<T>(FItems[LFor], Default(T)) then
       Result.Add(FItems[LFor]);
+  end;
+end;
+
+function TVector<T>.ToArray: TArray<T>;
+var
+  LItem: T;
+  LIndex: integer;
+begin
+  System.SetLength(Result, Self.Count);
+  LIndex := -1;
+  for LItem in FItems do
+  begin
+    if _IsEquals<T>(LItem, Default(T)) then
+      continue;
+    Inc(LIndex);
+    Result[LIndex] := LItem;
   end;
 end;
 
@@ -483,7 +540,7 @@ begin
   FirstNonEmpty := true;
   for LItem in FItems do
   begin
-    if not TEqualityComparer<T>.Default.Equals(LItem, Default(T)) then
+    if not _IsEquals<T>(LItem, Default(T)) then
     begin
       LFormat := TValue.From<T>(LItem);
       if not FirstNonEmpty then
@@ -563,21 +620,10 @@ end;
 
 { TArrayDictionary<T>.TArrayHelper }
 
-class function TVector<T>.TArrayManager._GetLength(const AArray: TArrayType): integer;
-var
-  LIndex: Integer;
+class function TVector<T>.TArrayManager._IsEquals<I>(const ALeft: I;
+  ARight: I): boolean;
 begin
-  Result := 0;
-  for LIndex := 0 to High(AArray) do
-  begin
-    if not TEqualityComparer<T>.Default.Equals(AArray[LIndex], Default(T)) then
-      Inc(Result);
-  end;
-end;
-
-class procedure TVector<T>.TArrayManager._SetLength(var AArray: TArrayType; ACount: integer);
-begin
-  SetLength(AArray, ACount);
+  Result := TEqualityComparer<I>.Default.Equals(ALeft, ARight);
 end;
 
 class function TVector<T>.TArrayManager._GetCapacity: integer;
@@ -593,7 +639,7 @@ begin
   Result := 0;
   for LFor := 0 to High(AArray) do
   begin
-    if not TEqualityComparer<T>.Default.Equals(AArray[LFor], Default(T)) then
+    if not _IsEquals<T>(AArray[LFor], Default(T)) then
       Inc(Result);
   end;
 end;
@@ -620,7 +666,7 @@ begin
   begin
     for LIndex := 0 to FCapacity do
     begin
-      if TEqualityComparer<T>.Default.Equals(AArray[LIndex], Default(T)) then
+      if _IsEquals<T>(AArray[LIndex], Default(T)) then
         break;
     end;
   end;
@@ -675,7 +721,7 @@ begin
   LFound := false;
   for LFor := 0 to FCapacity - 1 do
   begin
-    if TEqualityComparer<T>.Default.Equals(AArray[LFor], AItem) then
+    if _IsEquals<T>(AArray[LFor], AItem) then
     begin
       LIndex := LFor;
       LFound := true;
@@ -693,7 +739,7 @@ var
 begin
   for LFor := 0 to System.Length(AArray) - 1 do
   begin
-    if TEqualityComparer<T>.Default.Equals(AArray[LFor], AItem) then
+    if _IsEquals<T>(AArray[LFor], AItem) then
       exit(true);
   end;
   Result := false;
@@ -707,7 +753,7 @@ begin
   Result := -1;
   for LFor := Low(AArray) to High(AArray) do
   begin
-    if not TEqualityComparer<T>.Default.Equals(AArray[LFor], AItem) then
+    if not _IsEquals<T>(AArray[LFor], AItem) then
       continue;
     Result := LFor;
     break;
@@ -749,3 +795,4 @@ begin
 end;
 
 end.
+

@@ -7,6 +7,7 @@ uses
   Classes,
   Generics.Collections,
   eclbr.match,
+  eclbr.tuple,
   eclbr.result.pair,
   DUnitX.TestFramework;
 
@@ -112,6 +113,8 @@ type
     procedure TestCombineWithDefault;
     [Test]
     procedure TestDefaultExecutionFailure;
+    [Test]
+    procedure TestMatchWithTTuple;
 end;
 
 implementation
@@ -323,8 +326,8 @@ var
   LResult: TResultPair<boolean, string>;
 begin
   LResult := TMatch<Integer>.Value(FValue1)
-                           .CaseEq(1, Proc1)
-                           .Execute;
+                            .CaseEq(1, Proc1)
+                            .Execute;
   try
     Assert.AreEqual(42, FValue1);
     Assert.AreEqual(2, FValue2);
@@ -338,12 +341,38 @@ var
   LMatchResult: TResultPair<boolean, string>;
 begin
   LMatchResult := TMatch<Integer>.Value(FValue2)
-                     .CaseEq(2, Proc2)
-                     .Execute;
+                                 .CaseEq(2, Proc2)
+                                 .Execute;
   try
     Assert.IsFalse(LMatchResult.isFailure, 'Expected match to be successful');
   finally
     LMatchResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchWithTTuple;
+var
+  LDados: TTuple<string>;
+  LChave: string;
+  LValor: string;
+  LResult: TResultPair<boolean, string>;
+begin
+  LDados := TTuple<string>.New(['Nome', 'Idade', 'Cidade'], ['Alice', '25', 'Nova York']);
+
+  // Teste com a chave 'Idade'
+  LChave := 'Idade';
+  LResult := TMatch<string>.Value(LChave)
+    .CaseEq('Nome', procedure(Key: string) begin LValor := LDados.Get<string>(Key); end)
+    .CaseEq('Idade', procedure(Key: string) begin LValor := LDados.Get<string>(Key); end)
+    .CaseEq('Cidade', procedure(Key: string) begin LValor := LDados.Get<string>(Key); end)
+    .Default(procedure begin LValor := 'Chave não encontrada'; end)
+    .Execute;
+  try
+    Assert.AreEqual('25', LValor);
+    Assert.IsTrue(LResult.isSuccess);
+    Assert.IsFalse(LResult.isFailure);
+  finally
+    LResult.Dispose;
   end;
 end;
 
@@ -435,7 +464,8 @@ begin
     (LDiscount as TPercentageDiscount).Percentage := 10;
 
     LResult := TMatch<TProduct>.Value(LProduct)
-      .CaseIs<TPercentageDiscount>(procedure(LDiscount: TPercentageDiscount)
+      .CaseIs<TPercentageDiscount>(
+        procedure(LDiscount: TPercentageDiscount)
         var
           LDiscountedPrice: Double;
         begin
@@ -462,8 +492,8 @@ var
   LResultString: string;
 begin
   LResult := TMatch<Integer>.Value(2)
-                           .CaseIn([1, 2], procedure begin LResultString := 'Matched 1 or 2'; end)
-                           .Execute;
+                            .CaseIn([1, 2], procedure begin LResultString := 'Matched 1 or 2'; end)
+                            .Execute;
   try
     Assert.AreEqual('Matched 1 or 2', LResultString);
   finally
@@ -480,9 +510,9 @@ begin
   LValue := 1;
   try
     LResult := TMatch<Integer>.Value(LValue)
-                             .CaseIf((LValue = 1) and not (LValue <> 1))
-                             .CaseEq(1, procedure begin LResultString := 'Matched 1 with NotGuard'; end)
-                             .Execute;
+                              .CaseIf((LValue = 1) and not (LValue <> 1))
+                              .CaseEq(1, procedure begin LResultString := 'Matched 1 with NotGuard'; end)
+                              .Execute;
     Assert.AreEqual('Matched 1 with NotGuard', LResultString);
   finally
     LResult.Dispose;
@@ -497,9 +527,9 @@ var
 begin
   LValue := 1;
   LResult := TMatch<Integer>.Value(LValue)
-                           .CaseIf((LValue = 1) or (LValue < 0))
-                           .CaseEq(1, procedure begin LResultString := 'Matched 1 with OrGuard'; end)
-                           .Execute;
+                            .CaseIf((LValue = 1) or (LValue < 0))
+                            .CaseEq(1, procedure begin LResultString := 'Matched 1 with OrGuard'; end)
+                            .Execute;
   try
     Assert.AreEqual('Matched 1 with OrGuard', LResultString);
   finally
@@ -530,11 +560,11 @@ begin
   LIsMatch := false;
   try
     LMatchResult := TMatch<Integer>.Value(2)
-                                    .CaseIn([1, 2, 3], procedure begin LIsMatch := true; end)
-                                    .CaseIn([1, 4, 8], procedure begin LIsMatch := false; end)
-                                    .CaseIn([1, 9, 6], procedure begin LIsMatch := false; end)
-                                    .CaseRegex('email@gmail.com', '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$')
-                                    .Execute;
+                                   .CaseIn([1, 2, 3], procedure begin LIsMatch := true; end)
+                                   .CaseIn([1, 4, 8], procedure begin LIsMatch := false; end)
+                                   .CaseIn([1, 9, 6], procedure begin LIsMatch := false; end)
+                                   .CaseRegex('email@gmail.com', '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$')
+                                   .Execute;
 
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
   finally
@@ -548,8 +578,8 @@ var
   LResultString: string;
 begin
   LResult := TMatch<Integer>.Value(1)
-                           .CaseEq(1, procedure begin LResultString := 'Matched 1'; end)
-                           .Execute;
+                            .CaseEq(1, procedure begin LResultString := 'Matched 1'; end)
+                            .Execute;
   try
     Assert.AreEqual('Matched 1', LResultString);
   finally
@@ -563,8 +593,8 @@ var
   LResultString: string;
 begin
   LResult := TMatch<Integer>.Value(1)
-                           .CaseEq(1, procedure(Arg: Integer) begin LResultString := Format('Matched %d', [Arg]); end)
-                           .Execute;
+                            .CaseEq(1, procedure(Arg: Integer) begin LResultString := Format('Matched %d', [Arg]); end)
+                            .Execute;
   try
     Assert.AreEqual('Matched 1', LResultString);
   finally
@@ -580,10 +610,10 @@ begin
   isMatch := false;
   try
     LMatchResult := TMatch<Integer>.Value(42)
-                                     .CaseEq(1, procedure begin isMatch := false; end)
-                                     .CaseEq(42, procedure begin raise Exception.Create('TryExcept'); end)
-                                     .TryExcept(procedure begin isMatch := true; end)
-                                     .Execute;
+                                   .CaseEq(1, procedure begin isMatch := false; end)
+                                   .CaseEq(42, procedure begin raise Exception.Create('TryExcept'); end)
+                                   .TryExcept(procedure begin isMatch := true; end)
+                                   .Execute;
 
     Assert.AreEqual('TryExcept', LMatchResult.ValueFailure, 'Expected match to be successful');
     Assert.IsTrue(LMatchResult.isFailure, 'Expected match to be successful');
@@ -636,19 +666,23 @@ begin
   LValueList := [42, 36];
 
   LResult := TMatch<integer>.Value(LValueList[0])
-                .CaseIs<Integer>(procedure(Value: Integer)
+                .CaseIs<Integer>(
+                  procedure(Value: Integer)
                   begin
                     ResultString := 'Value is an Integer: ' + Value.ToString;
                   end)
-                .CaseIs<string>(procedure(Value: string)
+                .CaseIs<string>(
+                  procedure(Value: string)
                   begin
                     ResultString := 'Value is a String: ' + Value;
                   end)
-                .CaseIs<TDateTime>(procedure(Value: TDateTime)
+                .CaseIs<TDateTime>(
+                  procedure(Value: TDateTime)
                   begin
                     ResultString := 'Value is a DateTime: ' + DateTimeToStr(Value);
                   end)
-                .Default(procedure
+                .Default(
+                  procedure
                   begin
                     ResultString := 'Value is of an unknown type';
                   end)
@@ -709,12 +743,14 @@ begin
   LIsMatch := false;
   try
     LResult := TMatch<Integer>.Value(LValue)
-      .CaseLt(15, procedure
+      .CaseLt(15,
+        procedure
         begin
           LIsMatch := true;
           Assert.Fail('Value is not greater than 15.');
         end)
-      .CaseLt(5, procedure
+      .CaseLt(5,
+        procedure
         begin
           LIsMatch := false;
           Assert.Pass('Value is greater than 5.');
@@ -738,14 +774,16 @@ begin
   LValueString := 'Hello';
 
   LStrPattern := TMatch<String>.Value(LValueString)
-                                 .CaseIs<String>(procedure
+                                 .CaseIs<String>(
+                                   procedure
                                    begin
                                      LResultString := 'Value is a String';
                                    end);
 
   LResult := TMatch<String>.Value(LValueString)
                 .Combine(LStrPattern)
-                .Default(procedure
+                .Default(
+                    procedure
                     begin
                       LResultString := 'Value is of an unknown type';
                     end)
@@ -768,7 +806,7 @@ begin
 
   // Padrão de combinação 1
   LStrPattern1 := TMatch<String>.Value(LValueString)
-//    .CaseIf(false)
+    .CaseIf(Length(LValueString) > 3)
     .CaseIs<Integer>(procedure
       begin
         LResultString := 'Type is a String';

@@ -12,10 +12,22 @@ uses
   eclbr.stream;
 
 type
+  TPerson = class
+  private
+    FName: string;
+    FAge: integer;
+    FDate: TDateTime;
+  public
+    constructor Create(const AName: string; const AAge: integer; const ADate: TDateTime);
+    function GetName: string;
+    function GetAge: integer;
+    function GetDate: TDateTime;
+  end;
+
   [TestFixture]
   TestStreamReader = class
   private
-    FStreamReader: TStreamReaderHelper;
+    FStreamReader: TStreamReaderEx;
     FSampleFile: TStringStream;
   public
     [Setup]
@@ -44,6 +56,8 @@ type
     procedure TestConcat;
     [Test]
     procedure TestPartition;
+    [Test]
+    procedure TestMapListObject;
   end;
 
 implementation
@@ -57,7 +71,7 @@ begin
     'It contains multiple lines.' + sLineBreak +
     'Each line has some text.'
   );
-  FStreamReader := TStreamReaderHelper.New(FSampleFile);
+  FStreamReader := TStreamReaderEx.New(FSampleFile);
 end;
 
 procedure TestStreamReader.TearDown;
@@ -68,7 +82,7 @@ end;
 
 procedure TestStreamReader.TestDistinct;
 var
-  LDistinctStream: TStreamReaderHelper;
+  LDistinctStream: TStreamReaderEx;
 begin
   LDistinctStream := FStreamReader.Distinct;
   try
@@ -88,7 +102,7 @@ end;
 procedure TestStreamReader.TestFilterByGender;
 var
   LDataStream: TStringStream;
-  LReader: TStreamReaderHelper;
+  LReader: TStreamReaderEx;
 begin
   // Crie uma sequência de dados com informações de nome e sexo
   LDataStream := TStringStream.Create(
@@ -103,7 +117,7 @@ begin
   );
 
   // Crie um leitor de fluxo a partir dos dados
-  LReader := TStreamReaderHelper.New(LDataStream)
+  LReader := TStreamReaderEx.New(LDataStream)
                                 .Filter(function(Line: string): Boolean
                                         begin
                                           Result := Pos('feminino', Line) > 0;
@@ -149,7 +163,7 @@ end;
 procedure TestStreamReader.TestGroupBy;
 var
   LSampleFile: TStringStream;
-  LStreamReader: TStreamReaderHelper;
+  LStreamReader: TStreamReaderEx;
   LGroups: TMap<string, TVector<string>>;
 begin
   LSampleFile := TStringStream.Create(
@@ -160,7 +174,7 @@ begin
     'Date' + sLineBreak +
     'Apple'
   );
-  LStreamReader := TStreamReaderHelper.New(LSampleFile);
+  LStreamReader := TStreamReaderEx.New(LSampleFile);
   try
     LGroups := LStreamReader.GroupBy(
       function(Line: string): string
@@ -185,18 +199,18 @@ end;
 
 procedure TestStreamReader.TestMapLines;
 var
-  LReader: TStreamReaderHelper;
+  LReader: TStreamReaderEx;
 begin
   // streams.txt
   // linha 1 de teste
   // linha 2 de teste
   // linha 3 de teste
 
-  LReader := TStreamReaderHelper.New('streams.txt')
-                                .Map(function(Line: string): string
-                                     begin
-                                       Result := UpperCase(Line);
-                                     end);
+  LReader := TStreamReaderEx.New('streams.txt')
+                            .Map(function(Line: string): string
+                                 begin
+                                   Result := UpperCase(Line);
+                                 end);
   try
     Assert.AreEqual('LINHA 1 DE TESTE', LReader.AsLine);
     Assert.AreEqual('LINHA 2 DE TESTE', LReader.AsLine);
@@ -205,12 +219,52 @@ begin
   end;
 end;
 
+procedure TestStreamReader.TestMapListObject;
+var
+  LSampleFile: TStringStream;
+  LStreamReader: TStreamReaderEx;
+  LPersons: TList<TPerson>;
+  LPerson: TPerson;
+begin
+  LSampleFile := TStringStream.Create('Name 1;15;09-11-2023' + sLineBreak +
+                                      'Name 2;22;09-11-2023' + sLineBreak +
+                                      'Name 3;33;09-11-2023' + sLineBreak +
+                                      'Name 4;44;09-11-2023' + sLineBreak);
+  LStreamReader := TStreamReaderEx.New(LSampleFile);
+  try
+    LPersons := LStreamReader.Map<TVector<string>>(function(Line: string): TVector<string>
+                                                   begin
+                                                     Result := TVector<string>.Create(Line.Split([';']))
+                                                   end)
+                             .Map<TPerson>(function(Data: TVector<string>): TPerson
+                                                   begin
+                                                     Result := TPerson.Create(Data[0],
+                                                                              StrToIntDef(Data[1], 0),
+                                                                              StrToDateDef(Data[2], Date))
+                                                   end)
+                             .AsList;
+
+    Assert.IsTrue(LPersons.Count = 4);
+
+    Assert.AreEqual(15, LPersons[0].GetAge);
+    Assert.AreEqual(44, LPersons[3].GetAge);
+
+    Assert.AreEqual('Name 2', LPersons[1].GetName);
+  finally
+    LStreamReader.Free;
+    LSampleFile.Free;
+    for LPerson in LPersons do
+      LPerson.Free;
+    LPersons.Free;
+  end;
+end;
+
 procedure TestStreamReader.TestPartition;
 var
   LSampleFile: TStringStream;
-  LStreamReader: TStreamReaderHelper;
-  LLeftStreamReader, LRightStreamReader: TStreamReaderHelper;
-  LPartitionResult: TPair<TStreamReaderHelper, TStreamReaderHelper>;
+  LStreamReader: TStreamReaderEx;
+  LLeftStreamReader, LRightStreamReader: TStreamReaderEx;
+  LPartitionResult: TPair<TStreamReaderEx, TStreamReaderEx>;
 begin
   // Criar um TStringStream com algumas linhas de exemplo.
   LSampleFile := TStringStream.Create(
@@ -220,14 +274,8 @@ begin
     'Line 4' + sLineBreak +
     'Line 05' + sLineBreak
   );
-//  LSampleFile := TStringStream.Create('');
-//  LSampleFile.WriteString('Line 01' + sLineBreak);
-//  LSampleFile.WriteString('Line 2' + sLineBreak);
-//  LSampleFile.WriteString('Line 03' + sLineBreak);
-//  LSampleFile.WriteString('Line 4' + sLineBreak);
-//  LSampleFile.WriteString('Line 05' + sLineBreak);
 
-  LStreamReader := TStreamReaderHelper.New(LSampleFile);
+  LStreamReader := TStreamReaderEx.New(LSampleFile);
   LPartitionResult := LStreamReader.Partition(function(Line: string): Boolean
                                               begin
                                                 Result := Length(Line) mod 2 = 0;
@@ -270,7 +318,7 @@ end;
 
 procedure TestStreamReader.TestSkip;
 var
-  LStreamReader: TStreamReaderHelper;
+  LStreamReader: TStreamReaderEx;
   LSampleFile: TStringStream;
 begin
   LSampleFile := TStringStream.Create(
@@ -280,7 +328,7 @@ begin
     'Line 4' + sLineBreak +
     'Line 5'
   );
-  LStreamReader := TStreamReaderHelper.New(LSampleFile);
+  LStreamReader := TStreamReaderEx.New(LSampleFile);
   try
     // Ler e descartar as três primeiras linhas
     LStreamReader.Skip(3);
@@ -294,7 +342,7 @@ end;
 
 procedure TestStreamReader.TestSort;
 var
-  LStreamReader: TStreamReaderHelper;
+  LStreamReader: TStreamReaderEx;
   LSampleFile: TStringStream;
 begin
   LSampleFile := TStringStream.Create(
@@ -302,7 +350,7 @@ begin
     'A' + sLineBreak +
     'B'
   );
-  LStreamReader := TStreamReaderHelper.New(LSampleFile);
+  LStreamReader := TStreamReaderEx.New(LSampleFile);
   try
     LStreamReader.Sort;
     Assert.AreEqual('A', LStreamReader.AsLine);
@@ -316,9 +364,9 @@ end;
 
 procedure TestStreamReader.TestTake;
 var
-  LStreamReader: TStreamReaderHelper;
+  LStreamReader: TStreamReaderEx;
 begin
-  LStreamReader := TStreamReaderHelper.New(FSampleFile);
+  LStreamReader := TStreamReaderEx.New(FSampleFile);
   try
     LStreamReader.Take(2);
     Assert.AreEqual('This is a sample text file.', LStreamReader.AsLine);
@@ -332,15 +380,15 @@ end;
 procedure TestStreamReader.TestConcat;
 var
   LSampleFile2: TStringStream;
-  LStreamReader: TStreamReaderHelper;
-  LStreamReader2: TStreamReaderHelper;
+  LStreamReader: TStreamReaderEx;
+  LStreamReader2: TStreamReaderEx;
 begin
-  LStreamReader := TStreamReaderHelper.New(FSampleFile);
+  LStreamReader := TStreamReaderEx.New(FSampleFile);
   LSampleFile2 := TStringStream.Create(
     'Another line of text.' + sLineBreak +
     'Yet another line of text.'
   );
-  LStreamReader2 := TStreamReaderHelper.New(LSampleFile2);
+  LStreamReader2 := TStreamReaderEx.New(LSampleFile2);
   try
     // Verifique se o método Concat funciona corretamente.
     LStreamReader.Concat(LStreamReader2);
@@ -357,6 +405,31 @@ begin
   end;
 end;
 
+
+{ TPerson }
+
+constructor TPerson.Create(const AName: string; const AAge: integer;
+  const ADate: TDateTime);
+begin
+  FName := AName;
+  FAge := AAge;
+  FDate := ADate;
+end;
+
+function TPerson.GetAge: integer;
+begin
+  Result := FAge;
+end;
+
+function TPerson.GetDate: TDateTime;
+begin
+  Result := FDate;
+end;
+
+function TPerson.GetName: string;
+begin
+  Result := FName;
+end;
 
 initialization
   TDUnitX.RegisterTestFixture(TestStreamReader);

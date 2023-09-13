@@ -105,6 +105,7 @@
         <DCCReference Include="..\..\Source\eclbr.match.pas"/>
         <DCCReference Include="..\..\Source\eclbr.regexlib.pas"/>
         <DCCReference Include="..\..\Source\eclbr.result.pair.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.tuple.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

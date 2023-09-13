@@ -1,7 +1,7 @@
 {
              ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2022, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -39,7 +39,7 @@ uses
   eclbr.vector;
 
 type
-  TDict<K,V> = class(TDictionary<K,V>)
+  TDictEx<K,V> = class(TDictionary<K,V>)
   private
     type
       TItemPair = TPair<K, V>;
@@ -88,7 +88,7 @@ type
     /// <summary>
     ///   Maps the values of the dictionary to a new dictionary of results.
     /// </summary>
-    /// <typeparam name="TResult">The type of the mapped results.</typeparam>
+    /// <typeparam name="R">The type of the mapped results.</typeparam>
     /// <param name="AMappingFunc">The mapping function to be applied to each value.</param>
     function Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>; overload;
 
@@ -155,7 +155,7 @@ type
     /// <summary>
     ///   Reduces the values of the dictionary to a single value using an accumulator function.
     /// </summary>
-    /// <typeparam name="TResult">The type of the reduction result.</typeparam>
+    /// <typeparam name="R">The type of the reduction result.</typeparam>
     /// <param name="AAccumulator">The accumulator function used to reduce the values.</param>
     function Reduce(const AAccumulator: TFunc<V, V, V>): V;
 
@@ -209,35 +209,35 @@ type
     /// </summary>
     /// <typeparam name="T1">The value type of the first dictionary.</typeparam>
     /// <typeparam name="T2">The value type of the second dictionary.</typeparam>
-    /// <typeparam name="TResult">The value type of the result dictionary.</typeparam>
+    /// <typeparam name="R">The value type of the result dictionary.</typeparam>
     /// <param name="AList1">The first dictionary to combine.</param>
     /// <param name="AList2">The second dictionary to combine.</param>
     /// <param name="AFunc">The function to apply to each pair of values.</param>
     /// <returns>A new dictionary with values resulting from applying the function to corresponding pairs.</returns>
-    function Zip<T, TResult>(const AList: TDict<K, T>;
-      const AFunc: TFunc<V, T, TResult>): TMap<K, TResult>;
+    function Zip<T, R>(const AList: TDictEx<K, T>;
+      const AFunc: TFunc<V, T, R>): TMap<K, R>;
 
     /// <summary>
     ///   Maps each value in the dictionary to an array of results and flattens the results into a single dictionary.
     /// </summary>
-    /// <typeparam name="TResult">The value type of the result dictionary.</typeparam>
+    /// <typeparam name="R">The value type of the result dictionary.</typeparam>
     /// <param name="AFunc">The function to map each value to an array of results.</param>
     /// <returns>A new dictionary containing flattened results.</returns>
-    function FlatMap<TResult>(const AFunc: TFunc<TValue, TArray<TResult>>): TMap<K, TResult>;
+    function FlatMap<R>(const AFunc: TFunc<TValue, TArray<R>>): TMap<K, R>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs that are common between two dictionaries.
     /// </summary>
     /// <param name="AOtherDict">The other dictionary to intersect with.</param>
     /// <returns>A new dictionary containing common key-value pairs.</returns>
-    function Intersect(const AOtherDict: TDict<K, V>): TMap<K, V>;
+    function Intersect(const AOtherDict: TDictEx<K, V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs that exist in the current dictionary but not in another dictionary.
     /// </summary>
     /// <param name="AOtherDict">The other dictionary to compare.</param>
     /// <returns>A new dictionary containing key-value pairs not present in the other dictionary.</returns>
-    function &Except(const AOtherDict: TDict<K, V>): TMap<K, V>;
+    function &Except(const AOtherDict: TDictEx<K, V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns the maximum key in the dictionary.
@@ -315,7 +315,7 @@ implementation
 
 { TDictionaryHelper<K, V> }
 
-function TDict<K, V>.DistinctBy<TKey>(
+function TDictEx<K, V>.DistinctBy<TKey>(
   const AKeySelector: TFunc<K, TKey>): TMap<TKey, V>;
 var
   LPair: TPair<K, V>;
@@ -330,8 +330,8 @@ begin
   end;
 end;
 
-function TDict<K, V>.&Except(
-  const AOtherDict: TDict<K, V>): TMap<K, V>;
+function TDictEx<K, V>.&Except(
+  const AOtherDict: TDictEx<K, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
@@ -343,7 +343,7 @@ begin
   end;
 end;
 
-procedure TDict<K, V>.AddRange(const ASource: TDictionary<K, V>);
+procedure TDictEx<K, V>.AddRange(const ASource: TDictionary<K, V>);
 var
   LPair: TPair<K, V>;
 begin
@@ -351,7 +351,7 @@ begin
     Self.Add(LPair.Key, LPair.Value);
 end;
 
-function TDict<K, V>.Filter(
+function TDictEx<K, V>.Filter(
   const APredicate: TFunc<K, V, Boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -364,7 +364,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.FindAll(
+function TDictEx<K, V>.FindAll(
   const APredicate: TFunc<V, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -377,14 +377,14 @@ begin
   end;
 end;
 
-function TDict<K, V>.FlatMap<TResult>(
-  const AFunc: TFunc<TValue, TArray<TResult>>): TMap<K, TResult>;
+function TDictEx<K, V>.FlatMap<R>(
+  const AFunc: TFunc<TValue, TArray<R>>): TMap<K, R>;
 var
   LKey: K;
   LValue: TValue;
-  LResult: TResult;
+  LResult: R;
   LSortedKeys: TArray<K>;
-  LResultArray: TArray<TResult>;
+  LResultArray: TArray<R>;
 begin
   Result := [];
   LSortedKeys := SortedKeys;
@@ -397,7 +397,7 @@ begin
   end;
 end;
 
-procedure TDict<K, V>.ForEach(const AAction: TProc<K, V>);
+procedure TDictEx<K, V>.ForEach(const AAction: TProc<K, V>);
 var
   LPair: TPair<K, V>;
 begin
@@ -405,7 +405,7 @@ begin
     AAction(LPair.Key, LPair.Value);
 end;
 
-procedure TDict<K, V>.ForEachIndexed(
+procedure TDictEx<K, V>.ForEachIndexed(
   const AAction: TProc<Integer, K, V>);
 var
   LIndex: Integer;
@@ -420,7 +420,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.GroupBy<TKey>(
+function TDictEx<K, V>.GroupBy<TKey>(
   const AKeySelector: TFunc<V, TKey>): TMap<TKey, TVector<V>>;
 var
   LPair: TPair<K, V>;
@@ -441,8 +441,8 @@ begin
   end;
 end;
 
-function TDict<K, V>.Intersect(
-  const AOtherDict: TDict<K, V>): TMap<K, V>;
+function TDictEx<K, V>.Intersect(
+  const AOtherDict: TDictEx<K, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
@@ -454,7 +454,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.Join(const ASeparator: string): string;
+function TDictEx<K, V>.Join(const ASeparator: string): string;
 var
   LPair: TPair<K, V>;
   LSortKeys: TArray<K>;
@@ -470,7 +470,7 @@ begin
   end;
 end;
 
-function TDict<K,V>.MaxValue: V;
+function TDictEx<K,V>.MaxValue: V;
 var
   LPair: TPair<K, V>;
   LMaxValue: V;
@@ -490,7 +490,7 @@ begin
   Result := LMaxValue;
 end;
 
-function TDict<K, V>.MinValue: V;
+function TDictEx<K, V>.MinValue: V;
 var
   LPair: TPair<K, V>;
   LMinValue: V;
@@ -513,7 +513,7 @@ begin
   Result := LMinValue;
 end;
 
-function TDict<K, V>.Map(
+function TDictEx<K, V>.Map(
   const AMappingFunc: TFunc<V, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -523,7 +523,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Value));
 end;
 
-function TDict<K, V>.Map(
+function TDictEx<K, V>.Map(
   const AMappingFunc: TFunc<K, V, V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -533,7 +533,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
 end;
 
-function TDict<K, V>.Map<R>(
+function TDictEx<K, V>.Map<R>(
   const AMappingFunc: TFunc<K, V, R>): TMap<K, R>;
 var
   LPair: TPair<K, V>;
@@ -543,7 +543,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Key, LPair.Value));
 end;
 
-function TDict<K, V>.Map<R>(
+function TDictEx<K, V>.Map<R>(
   const AMappingFunc: TFunc<V, R>): TMap<K, R>;
 var
   LPair: TPair<K, V>;
@@ -553,7 +553,7 @@ begin
     Result.Add(LPair.Key, AMappingFunc(LPair.Value));
 end;
 
-function TDict<K, V>.MaxKey: K;
+function TDictEx<K, V>.MaxKey: K;
 var
   LPair: TPair<K, V>;
   LMaxKey: K;
@@ -573,7 +573,7 @@ begin
   Result := LMaxKey;
 end;
 
-function TDict<K, V>.MinKey: K;
+function TDictEx<K, V>.MinKey: K;
 var
   LPair: TPair<K, V>;
   LMinKey: K;
@@ -596,7 +596,7 @@ begin
   Result := LMinKey;
 end;
 
-function TDict<K, V>.Partition(
+function TDictEx<K, V>.Partition(
   const APredicate: TFunc<V, boolean>): TPair<TMap<K, V>, TMap<K, V>>;
 var
   LPair: TPair<K, V>;
@@ -614,7 +614,7 @@ begin
   Result := TPair<TMap<K, V>, TMap<K, V>>.Create(LTrueMap, LFalseMap);
 end;
 
-function TDict<K, V>.PartitionBy(
+function TDictEx<K, V>.PartitionBy(
   const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
 var
   LSortedKeys: TArray<K>;
@@ -639,7 +639,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.Reduce(const AAccumulator: TFunc<V, V, V>): V;
+function TDictEx<K, V>.Reduce(const AAccumulator: TFunc<V, V, V>): V;
 var
   LPair: TPair<K, V>;
   LAccumulatedValue: V;
@@ -652,7 +652,7 @@ begin
   Result := LAccumulatedValue;
 end;
 
-function TDict<K, V>.Rotate(const ACount: Integer): TArray<TPair<K, V>>;
+function TDictEx<K, V>.Rotate(const ACount: Integer): TArray<TPair<K, V>>;
 var
   LSortedKeysArray: TArray<K>;
   LList: TList<TPair<K, V>>;
@@ -668,11 +668,11 @@ begin
   end;
 end;
 
-function TDict<K, V>.ShuffleKeys: TArray<K>;
+function TDictEx<K, V>.ShuffleKeys: TArray<K>;
 var
-  LKeysList: TListHelper<K>;
+  LKeysList: TListEx<K>;
 begin
-  LKeysList := TListHelper<K>.Create(Self.Keys.ToArray);
+  LKeysList := TListEx<K>.Create(Self.Keys.ToArray);
   try
     LKeysList.Shuffle;
     Result := LKeysList.ToArray;
@@ -681,7 +681,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.Skip(const ACount: Integer): TMap<K, V>;
+function TDictEx<K, V>.Skip(const ACount: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LIndex: Integer;
@@ -692,7 +692,7 @@ begin
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
 end;
 
-function TDict<K, V>.SkipWhile(
+function TDictEx<K, V>.SkipWhile(
   const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
   LKey: K;
@@ -711,7 +711,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.Slice(const AStartIndex: integer;
+function TDictEx<K, V>.Slice(const AStartIndex: integer;
   const AEndIndex: integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
@@ -723,7 +723,7 @@ begin
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
 end;
 
-function TDict<K, V>.SortedKeys: TArray<K>;
+function TDictEx<K, V>.SortedKeys: TArray<K>;
 var
   LList: TList<K>;
 begin
@@ -736,7 +736,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.Take(const ACount: Integer): TMap<K, V>;
+function TDictEx<K, V>.Take(const ACount: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LKey: K;
@@ -753,7 +753,7 @@ begin
 end;
 
 
-function TDict<K, V>.TakeWhile(
+function TDictEx<K, V>.TakeWhile(
   const APredicate: TFunc<K, boolean>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
@@ -766,7 +766,7 @@ begin
   end;
 end;
 
-function TDict<K, V>.ToString: string;
+function TDictEx<K, V>.ToString: string;
 var
   LPair: TPair<K, V>;
   LResultBuilder: TStringBuilder;
@@ -790,12 +790,12 @@ begin
   end;
 end;
 
-function TDict<K, V>._ComparePairs(const Left, Right: TPair<K, V>): Integer;
+function TDictEx<K, V>._ComparePairs(const Left, Right: TPair<K, V>): Integer;
 begin
   Result := TComparer<K>.Default.Compare(Left.Key, Right.Key);
 end;
 
-procedure TDict<K, V>.Unique;
+procedure TDictEx<K, V>.Unique;
 var
   LUniqueValues: TDictionary<V, boolean>;
   LPair: TPair<K, V>;
@@ -814,8 +814,8 @@ begin
   end;
 end;
 
-function TDict<K, V>.Zip<T, TResult>(const AList: TDict<K, T>;
-  const AFunc: TFunc<V, T, TResult>): TMap<K, TResult>;
+function TDictEx<K, V>.Zip<T, R>(const AList: TDictEx<K, T>;
+  const AFunc: TFunc<V, T, R>): TMap<K, R>;
 var
   LKey: K;
   LValue1: V;

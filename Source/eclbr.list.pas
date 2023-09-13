@@ -1,7 +1,7 @@
 {
              ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2022, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -41,7 +41,7 @@ type
     constructor Create(const ALeft: L; const ARight: R);
   end;
 
-  TListHelper<T> = class(TList<T>)
+  TListEx<T> = class(TList<T>)
   public
     /// <summary>
     ///   Sorts the list based on a specified key selector function.
@@ -274,6 +274,17 @@ type
     /// </summary>
     /// <returns>True if the list is empty; otherwise, False.</returns>
     function IsEmpty: boolean;
+
+    /// <summary>
+    ///   Retorna uma representação de string deste objeto.
+    /// </summary>
+    /// <remarks>
+    ///   Esta função é chamada automaticamente quando você usa funções que exigem
+    ///   uma representação de string deste objeto, como WriteLn ou String.Format.
+    /// </remarks>
+    /// <returns>
+    ///   Uma string que representa este objeto.
+    /// </returns>
     function ToString: string; override;
   end;
 
@@ -284,7 +295,7 @@ uses
 
 { TListHelper<T> }
 
-function TListHelper<T>.DistinctBy<TKey>(const AKeySelector: TFunc<T, TKey>): TList<T>;
+function TListEx<T>.DistinctBy<TKey>(const AKeySelector: TFunc<T, TKey>): TList<T>;
 var
   LDict: TDictionary<TKey, T>;
   LItem: T;
@@ -300,7 +311,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.DistinctUntilChanged: TList<T>;
+function TListEx<T>.DistinctUntilChanged: TList<T>;
 var
   LItem: T;
 begin
@@ -315,7 +326,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.&Except<T>(const List1, List2: TList<T>): TList<T>;
+function TListEx<T>.&Except<T>(const List1, List2: TList<T>): TList<T>;
 var
   LItem: T;
 begin
@@ -327,7 +338,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Filter(const APredicate: TFunc<T, boolean>): TList<T>;
+function TListEx<T>.Filter(const APredicate: TFunc<T, boolean>): TList<T>;
 var
   LItem: T;
 begin
@@ -337,7 +348,7 @@ begin
       Result.Add(LItem);
 end;
 
-function TListHelper<T>.Find(const APredicate: TFunc<T, boolean>): T;
+function TListEx<T>.Find(const APredicate: TFunc<T, boolean>): T;
 var
   LItem: T;
 begin
@@ -349,11 +360,11 @@ begin
   Result := Default(T);
 end;
 
-function TListHelper<T>.FindAll(const APredicate: TFunc<T, boolean>): TList<T>;
+function TListEx<T>.FindAll(const APredicate: TFunc<T, boolean>): TList<T>;
 var
   LItem: T;
 begin
-  Result := TListHelper<T>.Create;
+  Result := TListEx<T>.Create;
   for LItem in Self do
   begin
     if APredicate(LItem) then
@@ -361,7 +372,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.FlatMap<T, TResult>(const AList: TList<T>;
+function TListEx<T>.FlatMap<T, TResult>(const AList: TList<T>;
   const AFunc: TFunc<T, TArray<TResult>>): TList<TResult>;
 var
   LItem: T;
@@ -377,7 +388,7 @@ begin
   end;
 end;
 
-procedure TListHelper<T>.ForEach(const Action: TProc<T>);
+procedure TListEx<T>.ForEach(const Action: TProc<T>);
 var
   LItem: T;
 begin
@@ -385,7 +396,7 @@ begin
     Action(LItem);
 end;
 
-procedure TListHelper<T>.ForEachIndexed(const Action: TProc<integer, T>);
+procedure TListEx<T>.ForEachIndexed(const Action: TProc<integer, T>);
 var
   LIndex: integer;
   LItem: T;
@@ -397,7 +408,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.GroupBy<TKey>(const AKeySelector: TFunc<T, TKey>): TDictionary<TKey, TList<T>>;
+function TListEx<T>.GroupBy<TKey>(const AKeySelector: TFunc<T, TKey>): TDictionary<TKey, TList<T>>;
 var
   LItem: T;
   LKey: TKey;
@@ -412,7 +423,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.GroupByAndCount<TKey>: TDictionary<TKey, integer>;
+function TListEx<T>.GroupByAndCount<TKey>: TDictionary<TKey, integer>;
 var
   LGroupDict: TDictionary<TKey, integer>;
   LItem: T;
@@ -436,7 +447,7 @@ begin
   end
 end;
 
-function TListHelper<T>.IndexOfItem(
+function TListEx<T>.IndexOfItem(
   const APredicate: TFunc<T, boolean>): integer;
 var
   LIndex: Integer;
@@ -449,7 +460,7 @@ begin
   Result := -1;
 end;
 
-function TListHelper<T>.Intersect<T>(const List1, List2: TList<T>): TList<T>;
+function TListEx<T>.Intersect<T>(const List1, List2: TList<T>): TList<T>;
 var
   LItem: T;
 begin
@@ -461,12 +472,12 @@ begin
   end;
 end;
 
-function TListHelper<T>.IsEmpty: boolean;
+function TListEx<T>.IsEmpty: boolean;
 begin
   Result := Self.Count = 0;
 end;
 
-function TListHelper<T>.Join(const ASeparator: string): string;
+function TListEx<T>.Join(const ASeparator: string): string;
 var
   LItem: T;
 begin
@@ -479,7 +490,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Map<TResult>(const AMappingFunc: TFunc<T, TResult>): TList<TResult>;
+function TListEx<T>.Map<TResult>(const AMappingFunc: TFunc<T, TResult>): TList<TResult>;
 var
   LItem: T;
 begin
@@ -488,7 +499,7 @@ begin
     Result.Add(AMappingFunc(LItem));
 end;
 
-function TListHelper<T>.Max: T;
+function TListEx<T>.Max: T;
 var
   LItem: T;
   LIsFirst: Boolean;
@@ -508,7 +519,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Min: T;
+function TListEx<T>.Min: T;
 var
   LItem: T;
   LIsFirst: boolean;
@@ -530,7 +541,7 @@ begin
     raise Exception.Create('No minimum value found in the list.');
 end;
 
-function TListHelper<T>.Partition(const APredicate: TFunc<T, boolean>): TPairList<TList<T>, TList<T>>;
+function TListEx<T>.Partition(const APredicate: TFunc<T, boolean>): TPairList<TList<T>, TList<T>>;
 var
   LLeftList, LRightList: TList<T>;
   LItem: T;
@@ -549,7 +560,7 @@ begin
   Result.Right := LRightList;
 end;
 
-function TListHelper<T>.PartitionBy(const APredicate: TFunc<T, boolean>): TDictionary<boolean, TList<T>>;
+function TListEx<T>.PartitionBy(const APredicate: TFunc<T, boolean>): TDictionary<boolean, TList<T>>;
 var
   LPartitions: TDictionary<boolean, TList<T>>;
   LPartList: TList<T>;
@@ -575,7 +586,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Reduce(const AAccumulator: TFunc<T, T, T>): T;
+function TListEx<T>.Reduce(const AAccumulator: TFunc<T, T, T>): T;
 var
   LItem: T;
 begin
@@ -587,7 +598,7 @@ begin
     Result := AAccumulator(Result, LItem);
 end;
 
-procedure TListHelper<T>.Rotate(const Count: integer);
+procedure TListEx<T>.Rotate(const Count: integer);
 var
   LTotalCount, LFor, LShiftedIndex: integer;
   LTempList: TList<T>;
@@ -615,7 +626,7 @@ begin
   end
 end;
 
-procedure TListHelper<T>.Shuffle;
+procedure TListEx<T>.Shuffle;
 var
   LI, LJ: integer;
   LTemp: T;
@@ -630,7 +641,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Skip(const ACount: integer): TList<T>;
+function TListEx<T>.Skip(const ACount: integer): TList<T>;
 var
   LIndex: integer;
 begin
@@ -639,7 +650,7 @@ begin
     Result.Add(Self[LIndex]);
 end;
 
-function TListHelper<T>.SkipWhile(
+function TListEx<T>.SkipWhile(
   const APredicate: TFunc<T, boolean>): TList<T>;
 var
   LFor: integer;
@@ -657,7 +668,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Slice<T>(const AList: TList<T>; AStartIndex,
+function TListEx<T>.Slice<T>(const AList: TList<T>; AStartIndex,
   AEndIndex: integer): TList<T>;
 var
   LFor: integer;
@@ -667,7 +678,7 @@ begin
     Result.Add(AList[LFor]);
 end;
 
-procedure TListHelper<T>.SortBy(const ASelector: TFunc<T, TValue>);
+procedure TListEx<T>.SortBy(const ASelector: TFunc<T, TValue>);
 begin
   Sort(TComparer<T>.Construct(
     function(const Left, Right: T): integer
@@ -677,7 +688,7 @@ begin
   ));
 end;
 
-function TListHelper<T>.Take(const ACount: integer): TList<T>;
+function TListEx<T>.Take(const ACount: integer): TList<T>;
 var
   LIndex: integer;
 begin
@@ -690,7 +701,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.TakeWhile(
+function TListEx<T>.TakeWhile(
   const APredicate: TFunc<T, boolean>): TList<T>;
 var
   LFor: integer;
@@ -704,7 +715,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.ToString: string;
+function TListEx<T>.ToString: string;
 var
   LItem: T;
   LValue: TValue;
@@ -720,7 +731,7 @@ begin
   Result := Result + ']';
 end;
 
-procedure TListHelper<T>.Unique;
+procedure TListEx<T>.Unique;
 var
   LUniqueItems: TList<T>;
   LItem: T;
@@ -739,7 +750,7 @@ begin
   end;
 end;
 
-function TListHelper<T>.Zip<T1, T2, TResult>(const AList1: TList<T1>;
+function TListEx<T>.Zip<T1, T2, TResult>(const AList1: TList<T1>;
   const AList2: TList<T2>; const AFunc: TFunc<T1, T2, TResult>): TList<TResult>;
 var
   LFor: integer;
@@ -758,3 +769,4 @@ begin
 end;
 
 end.
+

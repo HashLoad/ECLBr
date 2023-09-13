@@ -30,6 +30,9 @@
         <Projects Include="PTestSysStream.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="PTestSysDirectory.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -119,14 +122,23 @@
     <Target Name="PTestSysStream:Make">
         <MSBuild Projects="PTestSysStream.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PTestSysDirectory">
+        <MSBuild Projects="PTestSysDirectory.dproj"/>
+    </Target>
+    <Target Name="PTestSysDirectory:Clean">
+        <MSBuild Projects="PTestSysDirectory.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestSysDirectory:Make">
+        <MSBuild Projects="PTestSysDirectory.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen;PTestSysStream"/>
+        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen;PTestSysStream;PTestSysDirectory"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean;PTestSysStream:Clean"/>
+        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean;PTestSysStream:Clean;PTestSysDirectory:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make;PTestSysStream:Make"/>
+        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make;PTestSysStream:Make;PTestSysDirectory:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

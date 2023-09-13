@@ -1,7 +1,7 @@
 {
              ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2022, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -637,14 +637,14 @@ begin
   if (LPos >= 0) and (Count > 0) then
   begin
     LEndPos := LPos + Count;
-    LSize:= Self.Size;
+    LSize := Self.Size;
     if LEndPos > LSize then
       raise EStreamError.Create('Out of memory while expanding memory stream');
     LMem := Self.Memory;
     System.Move(Buffer, Pointer(Longint(LMem) + LPos)^, Count);
     Self.Position := LPos;
     Result := Count;
-    Exit;
+    exit;
   end;
   Result := 0;
 end;

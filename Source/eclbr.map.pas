@@ -1,7 +1,7 @@
 {
              ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2022, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -60,8 +60,8 @@ type
         Value: V;
         constructor Create(const AKey: K; const AValue: V; const AHashCode: integer = -1);
       end;
-      PArrayPair = ^TArrayPair;
       TArrayPair = TArray<TItemPair>;
+      PArrayPair = ^TArrayPair;
 
       TMapEnumerator = class(TEnumerator<TPair<K,V>>)
       private
@@ -80,15 +80,13 @@ type
       end;
   private
     FMapItems: TArrayPair;
+    PMapItems: ^TArrayPair;
     FDefaultCapacity: TDefaultCapacity;
     FCapacity: integer;
     function _GetBucketIndex(const AKey: K; const AHashCode: integer = -1): integer;
-    function _GetLength: integer;
     procedure _SetNewLength(const ALength: integer);
     function _GetCount: integer;
-    function _GetDefaultCapacity: integer;
     function _Hash(const Key: K): integer;
-    function _ComparePairs(const ALeft, ARight: TPair<K, V>): integer;
     function _IsEquals<T>(const ALeft: T; ARight: T): boolean;
     procedure _DoAdd(const AKey: K; const AValue: V; const AIndex: integer);
   public
@@ -384,21 +382,6 @@ begin
   end;
 end;
 
-function TMap<K, V>._GetDefaultCapacity: integer;
-begin
-  Result := FDefaultCapacity.DefaultCapacity;
-end;
-
-function TMap<K, V>._GetLength: integer;
-begin
-  Result := Length(FMapItems);
-end;
-
-function TMap<K, V>._ComparePairs(const ALeft, ARight: TPair<K, V>): integer;
-begin
-  Result := TComparer<K>.Default.Compare(ALeft.Key, ARight.Key);
-end;
-
 function TMap<K, V>._GetBucketIndex(const AKey: K; const AHashCode: integer): integer;
 //var
 //  LLength: integer;
@@ -432,7 +415,7 @@ var
   LFor: integer;
 begin
   Result := -1;
-  for LFor := 0 to System.Length(FMapItems) - 1 do
+  for LFor := 0 to System.Length(FMapItems) -1 do
   begin
     if _IsEquals<K>(FMapItems[LFor].Key, AKey) and (FMapItems[LFor].HashCode > 0) then
     begin
@@ -900,3 +883,4 @@ initialization
   TDefaultCapacity.DefaultCapacity := 16;
 
 end.
+

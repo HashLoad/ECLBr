@@ -41,11 +41,12 @@ begin
 
 // ==========================Option 2
 //  LValue := TIfThen<Integer>.When(-1 > 0)
-//                            .ThenOf(42).ElseOf(0 > 1, 45)
+//                            .ThenOf(42)
+//                            .ElseOf(0 > 1, 45)
 //                            .ElseOf(1 > 0, 35)
 //                            .Return;
 
-// NATIVE
+// TRADICIONAL
 // =========================Option 1
 //if (-1 > 0) then LValue := 42 else if (0 > 1) then LValue := 45 else if (1 > 0) then LValue := 35;
 

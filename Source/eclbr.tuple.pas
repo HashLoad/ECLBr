@@ -1,3 +1,29 @@
+{
+             ECL Brasil - Essential Core Library for Delphi
+
+                   Copyright (c) 2022, Isaque Pinheiro
+                          All rights reserved.
+
+                    GNU Lesser General Public License
+                      Versão 3, 29 de junho de 2007
+
+       Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+       A todos é permitido copiar e distribuir cópias deste documento de
+       licença, mas mudá-lo não é permitido.
+
+       Esta versão da GNU Lesser General Public License incorpora
+       os termos e condições da versão 3 da GNU General Public License
+       Licença, complementado pelas permissões adicionais listadas no
+       arquivo LICENSE na pasta principal.
+}
+
+{
+  @abstract(ECLBr Library)
+  @created(23 Abr 2023)
+  @author(Isaque Pinheiro <isaquepsp@gmail.com>)
+  @Telegram(https://t.me/ormbr)
+}
+
 unit eclbr.tuple;
 
 interface
@@ -39,20 +65,6 @@ type
     ///   A new TTuple instance with the specified keys and values.
     /// </returns>
     class function New(const AKeys: array of K; const AValues: array of TValue): TTuple<K>; static;
-
-    /// <summary>
-    ///   Cria um objeto TTuple contendo as chaves especificadas no array AKeyArray.
-    /// </summary>
-    /// <param name="AKeyArray">Um array de chaves a serem usadas para inicializar o TTuple.</param>
-    /// <returns>Um objeto TTuple contendo as chaves especificadas.</returns>
-    function Keys(const AKeyArray: array of K): TTuple<K>;
-
-    /// <summary>
-    ///   Cria um objeto TTuple contendo os valores especificados no array AValueArray.
-    /// </summary>
-    /// <param name="AValueArray">Um array de valores a serem usados para inicializar o TTuple.</param>
-    /// <returns>Um objeto TTuple contendo os valores especificados.</returns>
-    function Values(const AValueArray: array of TValue): TTuple<K>;
 
     /// <summary>
     ///   Obtém o valor associado à chave especificada.
@@ -129,20 +141,6 @@ begin
   Result := P.FTuples;
 end;
 
-function TTuple<K>.Keys(const AKeyArray: array of K): TTuple<K>;
-var
-  LFor: integer;
-  LTuples: TArray<TPair<K, TValue>>;
-begin
-  SetLength(LTuples, Length(FTuples) + Length(AKeyArray));
-  for LFor := Low(FTuples) to High(FTuples) do
-    LTuples[LFor] := FTuples[LFor];
-  for LFor := 0 to High(AKeyArray) do
-    LTuples[High(FTuples) + LFor + 1] := TPair<K, TValue>.Create(AKeyArray[LFor], Default(TValue));
-  FTuples := LTuples;
-  Result := Self;
-end;
-
 class function TTuple<K>.New(const AKeys: array of K;
   const AValues: array of TValue): TTuple<K>;
 var
@@ -162,19 +160,6 @@ end;
 class operator TTuple<K>.NotEqual(const Left, Right: TTuple<K>): boolean;
 begin
   Result := not (Left = Right);
-end;
-
-function TTuple<K>.Values(const AValueArray: array of TValue): TTuple<K>;
-var
-  LFor: Integer;
-begin
-  if Length(FTuples) <> Length(AValueArray) then
-    raise Exception.Create('Number of values does not match the number of keys');
-  for LFor := Low(FTuples) to High(FTuples) do
-  begin
-    FTuples[LFor] := TPair<K, TValue>.Create(FTuples[LFor].Key, AValueArray[LFor]);
-  end;
-  Result := Self;
 end;
 
 end.

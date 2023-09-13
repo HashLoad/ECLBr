@@ -43,7 +43,7 @@ var
   LTuplaIntDouble: TTuple<Integer>;
   LValueDouble: Double;
 begin
-  LTuplaIntDouble.Keys([1, 2, 3]).Values([False, 2.2, 3.3]);
+  LTuplaIntDouble := TTuple<Integer>.New([1, 2, 3], [False, 2.2, 3.3]);
 
   Assert.IsTrue(LTuplaIntDouble.Get<Double>(2) > 0);
 
@@ -56,7 +56,7 @@ var
   LTuplaStrInt: TTuple<string>;
   LValueInt: Integer;
 begin
-  LTuplaStrInt.Keys(['A', 'B', 'C']).Values([1, 2, '3']);
+  LTuplaStrInt := TTuple<string>.New(['A', 'B', 'C'], [1, 2, '3']);
 
   Assert.IsTrue(LTuplaStrInt.Get<Integer>('B') > 0);
 
