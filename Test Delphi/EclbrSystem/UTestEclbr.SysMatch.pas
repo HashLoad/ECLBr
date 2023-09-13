@@ -99,6 +99,8 @@ type
     procedure TestMultipleCombines;
     [Test]
     procedure TestEnumPatternMatching;
+    [test]
+    procedure TestEnumPatternMatchingWithReturn;
     [Test]
     procedure TestPatternMatchingWithProduct;
     [Test]
@@ -632,19 +634,23 @@ begin
   EnumValue := TEnumType.Two;
 
   LResult := TMatch<TEnumType>.Value(EnumValue)
-    .CaseEq(TEnumType.One, procedure
+    .CaseEq(TEnumType.One,
+      procedure
       begin
         ResultString := 'EnumValue is One';
       end)
-    .CaseEq(TEnumType.Two, procedure
+    .CaseEq(TEnumType.Two,
+      procedure
       begin
         ResultString := 'EnumValue is Two';
       end)
-    .CaseEq(TEnumType.Three, procedure
+    .CaseEq(TEnumType.Three,
+      procedure
       begin
         ResultString := 'EnumValue is Three';
       end)
-    .Default(procedure
+    .Default(
+      procedure
       begin
         ResultString := 'EnumValue is not recognized';
       end)
@@ -652,6 +658,43 @@ begin
 
   try
     Assert.AreEqual('EnumValue is Two', ResultString);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestEnumPatternMatchingWithReturn;
+var
+  LResult: TResultPair<string, string>;
+  EnumValue: TEnumType;
+begin
+  EnumValue := TEnumType.Two;
+
+  LResult := TMatch<TEnumType>.Value(EnumValue)
+    .CaseEq<string>(TEnumType.One,
+      function: string
+      begin
+        Result := 'EnumValue is One';
+      end)
+    .CaseEq<string>(TEnumType.Two,
+      function(Value: TEnumType): string
+      begin
+        Result := 'EnumValue is Two';
+      end)
+    .CaseEq<string>(TEnumType.Three,
+      function(Value: TEnumType): string
+      begin
+        Result := 'EnumValue is Three';
+      end)
+    .Default<string>(
+      function(Value: TEnumType): string
+      begin
+        Result := 'EnumValue is not recognized';
+      end)
+    .Execute<string>;
+
+  try
+    Assert.AreEqual('EnumValue is Two', LResult.ValueSuccess);
   finally
     LResult.Dispose;
   end;

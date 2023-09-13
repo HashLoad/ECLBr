@@ -105,6 +105,8 @@ type
     function _IsArrayChar(const AValue: TValue): boolean;
     function _IsArrayString(const AValue: TValue): boolean;
     // Private methods for executing anonymous methods
+    function _ExecuteFuncMatchingCaseIf(const ProcValue: TValue): boolean;
+    procedure _ExecuteProcMatchingCaseIf(const ProcValue: TValue);
     procedure _ExecuteProcMatchingEq(const ProcValue: TValue);
     procedure _ExecuteFuncMatchingEq<R>(const FuncValue: TValue);
     procedure _ExecuteProcMatchingGt(const ProcValue: TValue);
@@ -117,8 +119,6 @@ type
     procedure _ExecuteFuncMatchingIs<R>(const FuncValue: TValue);
     procedure _ExecuteProcMatchingRange(const ProcValue: TValue);
     procedure _ExecuteFuncMatchingRange<R>(const FuncValue: TValue);
-    procedure _ExecuteProcMatchingCaseIf(const ProcValue: TValue);
-    function _ExecuteFuncMatchingCaseIf(const ProcValue: TValue): boolean;
     // Guards
     function _ExecuteProcCaseIf: boolean;
     function _ExecuteFuncCaseIf: boolean;
@@ -272,6 +272,7 @@ type
     /// </returns>
     {$ENDREGION}
     function CaseEq(const AValue: T; const AProc: TProc): TMatch<T>; overload;
+    function CaseEq<R>(const AValue: T; const AFunc: TFunc<R>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseEq'}
     /// <summary>
@@ -310,6 +311,7 @@ type
     /// </returns>
     {$ENDREGION}
     function CaseGt(const AValue: T; const AProc: TProc): TMatch<T>; overload;
+    function CaseGt<R>(const AValue: T; const AFunc: TFunc<R>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseGt'}
     /// <summary>
@@ -348,6 +350,7 @@ type
     /// </returns>
     {$ENDREGION}
     function CaseLt(const AValue: T; const AProc: TProc): TMatch<T>; overload;
+    function CaseLt<R>(const AValue: T; const AFunc: TFunc<R>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseLt'}
     /// <summary>
@@ -387,6 +390,7 @@ type
     /// </returns>
     {$ENDREGION}
     function CaseIn(const ARange: TArray<T>; const AProc: TProc): TMatch<T>; overload;
+    function CaseIn<R>(const ARange: TArray<T>; const AFunc: TFunc<R>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseIn'}
     /// <summary>
@@ -426,6 +430,7 @@ type
     /// </returns>
     {$ENDREGION}
     function CaseIs<Typ>(const AProc: TProc): TMatch<T>; overload;
+    function CaseIs<Typ, R>(const AFunc: TFunc<R>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseIs'}
     /// <summary>
@@ -467,6 +472,7 @@ type
     /// </returns>
     {$ENDREGION}
     function CaseRange(const AStart, AEnd: T; const AProc: TProc): TMatch<T>; overload;
+    function CaseRange<R>(const AStart, AEnd: T; const AFunc: TFunc<R>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseRange'}
     /// <summary>
@@ -542,7 +548,7 @@ type
     /// </returns>
     {$ENDREGION}
     function Default(const AValue: T; const AProc: TProc<T>): TMatch<T>; overload;
-    function Default<R>(const AValue: T; const AFunc: TFunc<T, R>): TMatch<T>; overload;
+    function Default<R>(const AFunc: TFunc<T, R>): TMatch<T>; overload;
 
     {$REGION 'Doc - Combine'}
     /// <summary>
@@ -630,8 +636,7 @@ begin
   Result.FSession := TMatchSession.sTryExcept;
 end;
 
-function TMatch<T>.CaseRange(const AStart, AEnd: T;
-  const AProc: TProc<T>): TMatch<T>;
+function TMatch<T>.CaseRange(const AStart, AEnd: T; const AProc: TProc<T>): TMatch<T>;
 var
   LRange: TPair<T, T>;
 begin
@@ -641,6 +646,19 @@ begin
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCaseDictionary['CaseRange_Proc'].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
                                                   TValue.From<TProc<T>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseRange<R>(const AStart, AEnd: T; const AFunc: TFunc<R>): TMatch<T>;
+var
+  LRange: TPair<T, T>;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  LRange := TPair<T, T>.Create(AStart, AEnd);
+  FCaseDictionary['CaseRange_Func'].AddOrSetValue(TValue.From<TPair<T , T>>(LRange),
+                                                  TValue.From<TFunc<R>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -684,6 +702,20 @@ begin
   Result.FSession := TMatchSession.sCase;
 end;
 
+function TMatch<T>.CaseIs<Typ, R>(const AFunc: TFunc<R>): TMatch<T>;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  if TypeInfo(Typ) = TypeInfo(TDateTime) then
+    FCaseDictionary['CaseIs_Func'].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
+                                                 TValue.From<TFunc<R>>(AFunc))
+  else
+    FCaseDictionary['CaseIs_Func'].AddOrSetValue(TValue.From<TTypeKind>(PTypeInfo(TypeInfo(Typ)).Kind),
+                                                 TValue.From<TFunc<R>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
 function TMatch<T>.CaseIs<Typ>(const AProc: TProc<Typ>): TMatch<T>;
 begin
   Result := Self;
@@ -715,6 +747,16 @@ begin
     exit;
   FCaseDictionary['CaseLt_Proc'].AddOrSetValue(TValue.From<T>(AValue),
                                                TValue.From<TProc<T>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseLt<R>(const AValue: T; const AFunc: TFunc<R>): TMatch<T>;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  FCaseDictionary['CaseLt_Func'].AddOrSetValue(TValue.From<T>(AValue),
+                                               TValue.From<TFunc<R>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -761,6 +803,16 @@ begin
   Result.FSession := TMatchSession.sCase;
 end;
 
+function TMatch<T>.CaseEq<R>(const AValue: T; const AFunc: TFunc<R>): TMatch<T>;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  FCaseDictionary['CaseEq_Func'].AddOrSetValue(TValue.From<T>(AValue),
+                                               TValue.From<TFunc<R>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
 function TMatch<T>.CaseEq<R>(const AValue: T; const AFunc: TFunc<T, R>): TMatch<T>;
 begin
   Result := Self;
@@ -788,6 +840,16 @@ begin
     exit;
   FCaseDictionary['CaseGt_Proc'].AddOrSetValue(TValue.From<T>(AValue),
                                                TValue.From<TProc<T>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseGt<R>(const AValue: T; const AFunc: TFunc<R>): TMatch<T>;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  FCaseDictionary['CaseGt_Func'].AddOrSetValue(TValue.From<T>(AValue),
+                                               TValue.From<TFunc<R>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -867,6 +929,19 @@ begin
   Result.FSession := TMatchSession.sCase;
 end;
 
+function TMatch<T>.CaseIn<R>(const ARange: TArray<T>; const AFunc: TFunc<R>): TMatch<T>;
+var
+  LFor: integer;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  for LFor := Low(ARange) to High(ARange) do
+    FCaseDictionary['CaseIn_Func'].AddOrSetValue(TValue.From<T>(ARange[LFor]),
+                                                 TValue.From<TFunc<R>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
 function TMatch<T>.CaseIn<R>(const ARange: TArray<T>; const AFunc: TFunc<T, R>): TMatch<T>;
 var
   LFor: integer;
@@ -904,12 +979,12 @@ begin
   Result.FSession := TMatchSession.sDefault;
 end;
 
-function TMatch<T>.Default<R>(const AValue: T; const AFunc: TFunc<T, R>): TMatch<T>;
+function TMatch<T>.Default<R>(const AFunc: TFunc<T, R>): TMatch<T>;
 begin
   Result := Self;
   if not (FSession in [sCase]) then
     exit;
-  FCaseDictionary['Default_Func'].AddOrSetValue(TValue.From<T>(AValue),
+  FCaseDictionary['Default_Func'].AddOrSetValue(TValue.From<boolean>(true),
                                                 TValue.From<TFunc<T, R>>(AFunc));
   Result.FSession := TMatchSession.sDefault;
 end;
@@ -1256,26 +1331,13 @@ begin
 end;
 
 procedure TMatch<T>._Dispose;
+var
+  LCaseGroup: TCaseGroup;
 begin
   if Assigned(FCaseDictionary) then
   begin
-    FCaseDictionary['CaseIf_Proc'].Free;
-    FCaseDictionary['CaseIf_Func'].Free;
-    FCaseDictionary['CaseEq_Proc'].Free;
-    FCaseDictionary['CaseEq_Func'].Free;
-    FCaseDictionary['CaseGt_Proc'].Free;
-    FCaseDictionary['CaseGt_Func'].Free;
-    FCaseDictionary['CaseLt_Proc'].Free;
-    FCaseDictionary['CaseLt_Func'].Free;
-    FCaseDictionary['CaseIn_Proc'].Free;
-    FCaseDictionary['CaseIn_Func'].Free;
-    FCaseDictionary['CaseIs_Proc'].Free;
-    FCaseDictionary['CaseIs_Func'].Free;
-    FCaseDictionary['CaseRange_Proc'].Free;
-    FCaseDictionary['CaseRange_Func'].Free;
-    FCaseDictionary['Default_Proc'].Free;
-    FCaseDictionary['Default_Func'].Free;
-    FCaseDictionary['TryExcept'].Free;
+    for LCaseGroup in FCaseDictionary.Values do
+      LCaseGroup.Free;
     FCaseDictionary.Free;
   end;
   // Private method for resetting variables.
@@ -1642,36 +1704,54 @@ end;
 
 procedure TMatch<T>._ExecuteFuncMatchingEq<R>(const FuncValue: TValue);
 begin
+  if FuncValue.IsType<TFunc<R>> then
+    FResult := TValue.From<R>(FuncValue.AsType<TFunc<R>>()())
+  else
   if FuncValue.IsType<TFunc<T, R>> then
     FResult := TValue.From<R>(FuncValue.AsType<TFunc<T, R>>()(FValue.AsType<T>));
 end;
 
 procedure TMatch<T>._ExecuteFuncMatchingGt<R>(const FuncValue: TValue);
 begin
+  if FuncValue.IsType<TFunc<R>> then
+    FResult := TValue.From<R>(FuncValue.AsType<TFunc<R>>()())
+  else
   if FuncValue.IsType<TFunc<T, R>> then
     FResult := TValue.From<R>(FuncValue.AsType<TFunc<T, R>>()(FValue.AsType<T>));
 end;
 
 procedure TMatch<T>._ExecuteFuncMatchingIn<R>(const FuncValue: TValue);
 begin
+  if FuncValue.IsType<TFunc<R>> then
+    FResult := TValue.From<R>(FuncValue.AsType<TFunc<R>>()())
+  else
   if FuncValue.IsType<TFunc<T, R>> then
     FResult := TValue.From<R>(FuncValue.AsType<TFunc<T, R>>()(FValue.AsType<T>));
 end;
 
 procedure TMatch<T>._ExecuteFuncMatchingIs<R>(const FuncValue: TValue);
 begin
+  if FuncValue.IsType<TFunc<R>> then
+    FResult := TValue.From<R>(FuncValue.AsType<Tfunc<R>>()())
+  else
   if FuncValue.IsType<TFunc<T, R>> then
     FResult := TValue.From<R>(FuncValue.AsType<Tfunc<T, R>>()(FValue.AsType<T>));
 end;
 
 procedure TMatch<T>._ExecuteFuncMatchingLt<R>(const FuncValue: TValue);
 begin
+  if FuncValue.IsType<TFunc<R>> then
+    FResult := TValue.From<R>(FuncValue.AsType<TFunc<R>>()())
+  else
   if FuncValue.IsType<TFunc<T, R>> then
     FResult := TValue.From<R>(FuncValue.AsType<TFunc<T, R>>()(FValue.AsType<T>));
 end;
 
 procedure TMatch<T>._ExecuteFuncMatchingRange<R>(const FuncValue: TValue);
 begin
+  if FuncValue.IsType<TFunc<R>> then
+    FResult := TValue.From<R>(FuncValue.AsType<TFunc<R>>()())
+  else
   if FuncValue.IsType<TFunc<T, R>> then
     FResult := TValue.From<R>(FuncValue.AsType<TFunc<T, R>>()(FValue.AsType<T>));
 end;
