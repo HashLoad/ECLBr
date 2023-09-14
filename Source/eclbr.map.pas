@@ -38,11 +38,17 @@ uses
   Generics.Collections;
 
 type
+  TMapPair<K,V> = record
+    Key: K;
+    Value: V;
+    constructor Create(const AKey: K; const AValue: V);
+  end;
+
   IMapEnumerator<K, V> = interface
     ['{5BC9B8F2-7503-4896-82C6-E8EFA27E9555}']
-    function _GetCurrent: TPair<K, V>;
+    function _GetCurrent: TMapPair<K, V>;
     function MoveNext: Boolean;
-    property Current: TPair<K, V> read _GetCurrent;
+    property Current: TMapPair<K, V> read _GetCurrent;
   end;
 
   TDefaultCapacity = class
@@ -63,20 +69,20 @@ type
       TArrayPair = TArray<TItemPair>;
       PArrayPair = ^TArrayPair;
 
-      TMapEnumerator = class(TEnumerator<TPair<K,V>>)
+      TMapEnumerator = class(TEnumerator<TMapPair<K,V>>)
       private
         FItems: PArrayPair;
         FIndex: integer;
-        function _GetCurrent: TPair<K, V>;
+        function _GetCurrent: TMapPair<K, V>;
         function _IsEquals<T>(const ALeft: T; ARight: T): boolean;
       protected
-        function DoGetCurrent: TPair<K,V>; override;
+        function DoGetCurrent: TMapPair<K,V>; override;
         function DoMoveNext: boolean; override;
       public
         constructor Create(const AItems: PArrayPair);
         destructor Destroy; override;
         function MoveNext: boolean;
-        property Current: TPair<K, V> read _GetCurrent;
+        property Current: TMapPair<K, V> read _GetCurrent;
       end;
   private
     FMapItems: TArrayPair;
@@ -163,7 +169,7 @@ type
     /// <summary>
     ///   Returns an enumerator for iterating through key-value pairs in the map.
     /// </summary>
-    function GetEnumerator: TEnumerator<TPair<K,V>>;
+    function GetEnumerator: TEnumerator<TMapPair<K,V>>;
 
     /// <summary>
     ///   Retrieves the value associated with the specified key.
@@ -203,7 +209,7 @@ type
     /// </summary>
     /// <param name="APair">The key-value pair to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
-    function Add(const APair: TPair<K, V>): integer; overload;
+    function Add(const APair: TMapPair<K, V>): integer; overload;
 
     /// <summary>
     ///   Adds a key-value pair to the map.
@@ -232,7 +238,7 @@ type
     /// </summary>
     /// <param name="ASourceArray">The array containing key-value pairs to merge.</param>
     /// <returns>The updated map with merged key-value pairs.</returns>
-    function Merge(const ASourceArray: TArray<TPair<K, V>>): TMap<K, V>;
+    function Merge(const ASourceArray: TArray<TMapPair<K, V>>): TMap<K, V>;
 
     /// <summary>
     ///   Filters key-value pairs in the map based on a specified predicate.
@@ -319,7 +325,7 @@ type
     ///   Retrieves the last key-value pair in the map.
     /// </summary>
     /// <returns>The last key-value pair in the map.</returns>
-    function Last: TPair<K, V>;
+    function Last: TMapPair<K, V>;
 
     /// <summary>
     ///   Converts the map to a JSON string.
@@ -495,7 +501,7 @@ begin
   FMapItems[AIndex] := AItem;
 end;
 
-function TMap<K, V>.GetEnumerator: TEnumerator<TPair<K,V>>;
+function TMap<K, V>.GetEnumerator: TEnumerator<TMapPair<K,V>>;
 begin
   Result := TMapEnumerator.Create(@FMapItems);
 end;
@@ -511,7 +517,7 @@ begin
     Result := TItemPair.Create(Default(K), Default(V));
 end;
 
-function TMap<K, V>.Add(const APair: TPair<K, V>): integer;
+function TMap<K, V>.Add(const APair: TMapPair<K, V>): integer;
 var
   LIndex: integer;
   LLength: integer;
@@ -535,7 +541,7 @@ end;
 
 function TMap<K, V>.Add(const AKey: K; const AValue: V): integer;
 begin
-  Result := Add(TPair<K, V>.Create(AKey, AValue));
+  Result := Add(TMapPair<K, V>.Create(AKey, AValue));
 end;
 
 procedure TMap<K, V>.AddOrUpdate(const AKey: K; const AValue: V);
@@ -546,7 +552,7 @@ begin
   if LIndex > -1 then
     FMapItems[LIndex] := TItemPair.Create(AKey, AValue, _Hash(AKey))
   else
-    Add(TPair<K, V>.Create(AKey, AValue));
+    Add(TMapPair<K, V>.Create(AKey, AValue));
 end;
 
 procedure TMap<K, V>._DoAdd(const AKey: K; const AValue: V; const AIndex: integer);
@@ -616,7 +622,7 @@ begin
     Delete(LIndex);
 end;
 
-function TMap<K, V>.Last: TPair<K, V>;
+function TMap<K, V>.Last: TMapPair<K, V>;
 var
   LFor: integer;
 begin
@@ -638,7 +644,7 @@ end;
 
 function TMap<K, V>.Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>;
 var
-  LPair: TPair<K, V>;
+  LPair: TMapPair<K, V>;
 begin
   Result := [];
   try
@@ -651,7 +657,7 @@ end;
 
 function TMap<K, V>.Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>;
 var
-  LPair: TPair<K, V>;
+  LPair: TMapPair<K, V>;
 begin
   Result := [];
   try
@@ -664,7 +670,7 @@ end;
 
 function TMap<K, V>.Map<R>(const AMappingFunc: TFunc<K, V, R>): TMap<K, R>;
 var
-  LPair: TPair<K, V>;
+  LPair: TMapPair<K, V>;
 begin
   Result := [];
   try
@@ -677,7 +683,7 @@ end;
 
 function TMap<K, V>.Map<R>(const AMappingFunc: TFunc<V, R>): TMap<K, R>;
 var
-  LPair: TPair<K, V>;
+  LPair: TMapPair<K, V>;
 begin
   Result := [];
   try
@@ -688,9 +694,9 @@ begin
   end;
 end;
 
-function TMap<K, V>.Merge(const ASourceArray: TArray<TPair<K, V>>): TMap<K, V>;
+function TMap<K, V>.Merge(const ASourceArray: TArray<TMapPair<K, V>>): TMap<K, V>;
 var
-  LItem: TPair<K, V>;
+  LItem: TMapPair<K, V>;
 begin
   for LItem in ASourceArray do
   begin
@@ -838,7 +844,7 @@ begin
   inherited;
 end;
 
-function TMap<K, V>.TMapEnumerator.DoGetCurrent: TPair<K, V>;
+function TMap<K, V>.TMapEnumerator.DoGetCurrent: TMapPair<K, V>;
 begin
   Result := _GetCurrent;
 end;
@@ -848,7 +854,7 @@ begin
   Result := MoveNext;
 end;
 
-function TMap<K, V>.TMapEnumerator._GetCurrent: TPair<K, V>;
+function TMap<K, V>.TMapEnumerator._GetCurrent: TMapPair<K, V>;
 begin
   Result.Key := FItems^[FIndex].Key;
   Result.Value := FItems^[FIndex].Value;
@@ -877,6 +883,14 @@ begin
   Key := AKey;
   Value := AValue;
   HashCode := AHashCode;
+end;
+
+{ TMapPair<K, V> }
+
+constructor TMapPair<K, V>.Create(const AKey: K; const AValue: V);
+begin
+  Key := AKey;
+  Value := AValue;
 end;
 
 initialization

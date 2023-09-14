@@ -86,7 +86,7 @@ end;
 
 procedure TMapTest.TestEnumerator;
 var
-  LPair: TPair<Integer, String>;
+  LPair: TMapPair<Integer, String>;
   LKey: Integer;
   LLast: String;
 begin
@@ -201,7 +201,7 @@ end;
 
 procedure TMapTest.TestLastItemEqualsLastAdded;
 var
-  LastItem: TPair<Integer, String>;
+  LastItem: TMapPair<Integer, String>;
 begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
@@ -218,8 +218,8 @@ begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
 
-  FMap.Merge([TPair<Integer, String>.Create(3, 'Three'),
-              TPair<Integer, String>.Create(4, 'Four')]);
+  FMap.Merge([TMapPair<Integer, String>.Create(3, 'Three'),
+              TMapPair<Integer, String>.Create(4, 'Four')]);
 
   Assert.IsTrue(FMap.Contains(3));
   Assert.IsTrue(FMap.Contains(4));

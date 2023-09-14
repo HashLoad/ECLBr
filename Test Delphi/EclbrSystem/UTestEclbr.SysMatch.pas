@@ -3,6 +3,7 @@ unit UTestEclbr.SysMatch;
 interface
 
 uses
+  Rtti,
   SysUtils,
   Classes,
   Generics.Collections,
@@ -670,31 +671,31 @@ var
 begin
   EnumValue := TEnumType.Two;
 
-  LResult := TMatch<TEnumType>.Value(EnumValue)
-    .CaseEq<string>(TEnumType.One,
-      function: string
-      begin
-        Result := 'EnumValue is One';
-      end)
-    .CaseEq<string>(TEnumType.Two,
-      function(Value: TEnumType): string
-      begin
-        Result := 'EnumValue is Two';
-      end)
-    .CaseEq<string>(TEnumType.Three,
-      function(Value: TEnumType): string
-      begin
-        Result := 'EnumValue is Three';
-      end)
-    .Default<string>(
-      function(Value: TEnumType): string
-      begin
-        Result := 'EnumValue is not recognized';
-      end)
-    .Execute<string>;
-
   try
-    Assert.AreEqual('EnumValue is Two', LResult.ValueSuccess);
+    LResult := TMatch<TEnumType>.Value(EnumValue)
+      .CaseEq(TEnumType.One,
+        function: TValue
+        begin
+          Result := 'EnumValue is One';
+        end)
+      .CaseEq(TEnumType.Two,
+        function: TValue
+        begin
+          Result := 'EnumValue is Two';
+        end)
+      .CaseEq(TEnumType.Three,
+        function: TValue
+        begin
+          Result := 'EnumValue is Three';
+        end)
+      .Default(
+        function: TValue
+        begin
+          Result := 'EnumValue is not recognized';
+        end)
+      .Execute<string>;
+
+      Assert.AreEqual('EnumValue is Two', LResult.ValueSuccess);
   finally
     LResult.Dispose;
   end;
