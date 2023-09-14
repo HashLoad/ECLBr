@@ -16,8 +16,9 @@ uses
   DUnitX.TestFramework,
   UTestEclbr.SysList in 'UTestEclbr.SysList.pas',
   eclbr.list in '..\..\Source\eclbr.list.pas',
+  eclbr.utils in '..\..\Source\eclbr.utils.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas';
+  eclbr.map in '..\..\Source\eclbr.map.pas';
 
 var
   runner : ITestRunner;

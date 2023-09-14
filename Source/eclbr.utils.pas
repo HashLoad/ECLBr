@@ -210,6 +210,10 @@ type
     /// <param name="AInput">The input stream to decode.</param>
     /// <param name="AOutput">The output stream to write the decoded result.</param>
     class procedure DecodeStream(const AInput, AOutput: TStream);
+
+    class function IsEAN13(const AEAN: string): boolean;
+    class function IsInteger(const AValue: string): boolean;
+    class function IsBoolean(const AValue: string): boolean;
   end;
 
 implementation
@@ -306,6 +310,48 @@ begin
     Result := ATrue
   else
     Result := AFalse;
+end;
+
+class function TUtils.IsBoolean(const AValue: string): boolean;
+var
+  LValue: boolean;
+begin
+  Result := TryStrToBool(AValue, LValue);
+end;
+
+class function TUtils.IsEAN13(const AEAN: string): boolean;
+var
+  LFor: integer;
+  LCheckSum: integer;
+  LDigit: integer;
+  LEANArray: array[0..12] of integer;
+begin
+  Result := false;
+  if Length(AEAN) <> 13 then
+    exit;
+  for LFor := 1 to 13 do
+  begin
+    if not (AEAN[LFor] in ['0'..'9']) then
+      exit;
+    LEANArray[LFor - 1] := Ord(AEAN[LFor]) - Ord('0');
+  end;
+  LCheckSum := 0;
+  for LFor := 1 to 12 do
+  begin
+    if LFor mod 2 = 0 then
+      LCheckSum := LCheckSum + LEANArray[LFor] * 3
+    else
+      LCheckSum := LCheckSum + LEANArray[LFor];
+  end;
+  LCheckSum := (10 - (LCheckSum mod 10)) mod 10;
+  Result := LCheckSum = LEANArray[12];
+end;
+
+class function TUtils.IsInteger(const AValue: string): boolean;
+var
+  LValue: integer;
+begin
+  Result := TryStrToInt(AValue, LValue);
 end;
 
 class function TUtils.Iso8601ToDateTime(const AValue: string;

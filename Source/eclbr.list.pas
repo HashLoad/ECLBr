@@ -32,7 +32,9 @@ uses
   Rtti,
   SysUtils,
   Generics.Defaults,
-  Generics.Collections;
+  Generics.Collections,
+  eclbr.map,
+  eclbr.vector;
 
 type
   TPairList<L, R> = record
@@ -79,7 +81,7 @@ type
     /// <summary>
     ///   Removes duplicate elements from the list, leaving only unique elements.
     /// </summary>
-    procedure Unique;
+    function Unique: TVector<T>;
 
     /// <summary>
     ///   Transforms each element in the list using a specified mapping function and returns a new list containing the results.
@@ -87,14 +89,14 @@ type
     /// <typeparam name="TResult">The type of elements in the resulting list.</typeparam>
     /// <param name="AMappingFunc">The mapping function used to transform each element.</param>
     /// <returns>A new list containing the transformed elements.</returns>
-    function Map<TResult>(const AMappingFunc: TFunc<T, TResult>): TList<TResult>;
+    function Map<R>(const AMappingFunc: TFunc<T, R>): TVector<R>;
 
     /// <summary>
     ///   Filters the elements in the list based on a specified predicate function and returns a new list containing the matching elements.
     /// </summary>
     /// <param name="APredicate">The predicate function used to filter elements.</param>
     /// <returns>A new list containing the elements that satisfy the predicate.</returns>
-    function Filter(const APredicate: TFunc<T, boolean>): TList<T>;
+    function Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
 
     /// <summary>
     ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
@@ -109,7 +111,7 @@ type
     /// <typeparam name="TKey">The type of keys used for grouping.</typeparam>
     /// <param name="AKeySelector">The key selector function used for grouping elements.</param>
     /// <returns>A dictionary of lists where keys represent groups of elements.</returns>
-    function GroupBy<TKey>(const AKeySelector: TFunc<T, TKey>): TDictionary<TKey, TList<T>>;
+    function GroupBy<K>(const AKeySelector: TFunc<T, K>): TMap<K, TVector<T>>;
 
     /// <summary>
     ///   Combines the elements in the list into a single string with each element separated by a specified separator.
@@ -123,21 +125,21 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate function used to partition elements.</param>
     /// <returns>A pair of lists representing the partitioned elements.</returns>
-    function Partition(const APredicate: TFunc<T, boolean>): TPairList<TList<T>, TList<T>>;
+    function Partition(const APredicate: TFunc<T, boolean>): TPairList<TVector<T>, TVector<T>>;
 
     /// <summary>
     ///   Returns a new list containing the first 'n' elements from the list, where 'n' is the specified count.
     /// </summary>
     /// <param name="ACount">The number of elements to take from the beginning of the list.</param>
     /// <returns>A new list containing the first 'n' elements.</returns>
-    function Take(const ACount: integer): TList<T>;
+    function Take(const ACount: integer): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing all elements in the list except the first 'n' elements, where 'n' is the specified count.
     /// </summary>
     /// <param name="ACount">The number of elements to skip from the beginning of the list.</param>
     /// <returns>A new list containing the remaining elements after skipping 'n' elements.</returns>
-    function Skip(const ACount: integer): TList<T>;
+    function Skip(const ACount: integer): TVector<T>;
 
     /// <summary>
     ///   Searches for an element in the list that satisfies a specified predicate and returns the first matching element.
@@ -154,7 +156,7 @@ type
     /// <param name="AStartIndex">The index of the first element to include in the slice.</param>
     /// <param name="AEndIndex">The index of the last element to include in the slice.</param>
     /// <returns>A new list containing the sliced elements.</returns>
-    function Slice<T>(const AList: TList<T>; AStartIndex, AEndIndex: integer): TList<T>;
+    function Slice<T>(const AList: TList<T>; AStartIndex, AEndIndex: integer): TVector<T>;
 
     /// <summary>
     ///   Combines the elements of two lists into a new list using a specified function and returns the resulting list of combined elements.
@@ -166,8 +168,8 @@ type
     /// <param name="AList2">The second list to combine.</param>
     /// <param name="AFunc">The function used to combine elements from both lists.</param>
     /// <returns>A new list containing elements resulting from the combination of elements from the source lists.</returns>
-    function Zip<T1, T2, TResult>(const AList1: TList<T1>; const AList2: TList<T2>;
-      const AFunc: TFunc<T1, T2, TResult>): TList<TResult>;
+    function Zip<T1, T2, R>(const AList1: TList<T1>; const AList2: TList<T2>;
+      const AFunc: TFunc<T1, T2, R>): TVector<R>;
 
     /// <summary>
     ///   Maps each element of the source list to an array of elements using a specified function and returns a new list containing the flattened elements.
@@ -177,8 +179,8 @@ type
     /// <param name="AList">The source list to flatmap.</param>
     /// <param name="AFunc">The function used to map each element to an array of elements.</param>
     /// <returns>A new list containing the flattened elements.</returns>
-    function FlatMap<T, TResult>(const AList: TList<T>;
-      const AFunc: TFunc<T, TArray<TResult>>): TList<TResult>;
+    function FlatMap<T, R>(const AList: TList<T>;
+      const AFunc: TFunc<T, TArray<R>>): TVector<R>;
 
     /// <summary>
     ///   Returns a new list containing the elements that are common between two lists.
@@ -187,7 +189,7 @@ type
     /// <param name="List1">The first list to intersect.</param>
     /// <param name="List2">The second list to intersect.</param>
     /// <returns>A new list containing the elements common to both input lists.</returns>
-    function Intersect<T>(const List1, List2: TList<T>): TList<T>;
+    function Intersect<T>(const List1, List2: TList<T>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing the elements from the first list that are not present in the second list.
@@ -196,7 +198,7 @@ type
     /// <param name="List1">The first list to extract elements from.</param>
     /// <param name="List2">The second list used for exclusion.</param>
     /// <returns>A new list containing the elements from the first list that are not found in the second list.</returns>
-    function &Except<T>(const List1, List2: TList<T>): TList<T>;
+    function &Except<T>(const List1, List2: TList<T>): TVector<T>;
 
     /// <summary>
     ///   Finds and returns the maximum element in the list based on their natural order.
@@ -220,47 +222,47 @@ type
     /// <typeparam name="TKey">The type of keys used for comparison.</typeparam>
     /// <param name="AKeySelector">The function used to extract keys from elements.</param>
     /// <returns>A new list containing distinct elements based on the specified key.</returns>
-    function DistinctBy<TKey>(const AKeySelector: TFunc<T, TKey>): TList<T>;
+    function DistinctBy<K>(const AKeySelector: TFunc<T, K>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing all elements from the source list that satisfy a given predicate.
     /// </summary>
     /// <param name="APredicate">The function used to determine whether an element should be included in the result.</param>
     /// <returns>A new list containing elements that satisfy the predicate.</returns>
-    function FindAll(const APredicate: TFunc<T, boolean>): TList<T>;
+    function FindAll(const APredicate: TFunc<T, boolean>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing elements from the beginning of the source list until the first element that does not satisfy a given predicate.
     /// </summary>
     /// <param name="APredicate">The function used to determine whether an element should be included in the result.</param>
     /// <returns>A new list containing elements from the beginning of the source list that satisfy the predicate.</returns>
-    function TakeWhile(const APredicate: TFunc<T, boolean>): TList<T>;
+    function TakeWhile(const APredicate: TFunc<T, boolean>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing elements from the source list after the first element that does not satisfy a given predicate.
     /// </summary>
     /// <param name="APredicate">The function used to determine whether an element should be included in the result.</param>
     /// <returns>A new list containing elements from the source list after the first element that does not satisfy the predicate.</returns>
-    function SkipWhile(const APredicate: TFunc<T, boolean>): TList<T>;
+    function SkipWhile(const APredicate: TFunc<T, boolean>): TVector<T>;
 
     /// <summary>
     ///   Groups the elements in the list by a specified key and returns a dictionary with key-to-count associations.
     /// </summary>
     /// <typeparam name="TKey">The type of keys used for grouping.</typeparam>
     /// <returns>A dictionary where keys are distinct elements from the list, and values are the counts of each element.</returns>
-    function GroupByAndCount<TKey>: TDictionary<TKey, integer>;
+    function GroupByAndCount<K>: TMap<K, integer>;
 
     /// <summary>
     ///   Partitions the elements in the list into two groups based on a given predicate and returns a dictionary where keys represent the partition status.
     /// </summary>
     /// <returns>A dictionary where keys indicate whether an element satisfies the predicate, and values are lists of elements for each partition.</returns>
-    function PartitionBy(const APredicate: TFunc<T, boolean>): TDictionary<boolean, TList<T>>;
+    function PartitionBy(const APredicate: TFunc<T, boolean>): TMap<boolean, TVector<T>>;
 
     /// <summary>
     ///   Returns a new list containing only the elements from the source list that are different from their immediate predecessors.
     /// </summary>
     /// <returns>A new list containing elements that are distinct from their immediate predecessors.</returns>
-    function DistinctUntilChanged: TList<T>;
+    function DistinctUntilChanged: TVector<T>;
 
     /// <summary>
     ///   Returns the index of the first element in the list that satisfies a given predicate or -1 if no such element is found.
@@ -295,27 +297,28 @@ uses
 
 { TListHelper<T> }
 
-function TListEx<T>.DistinctBy<TKey>(const AKeySelector: TFunc<T, TKey>): TList<T>;
+function TListEx<T>.DistinctBy<K>(const AKeySelector: TFunc<T, K>): TVector<T>;
 var
-  LDict: TDictionary<TKey, T>;
+  LDict: TDictionary<K, T>;
   LItem: T;
 begin
-  LDict := TDictionary<TKey, T>.Create;
+  Result := TVector<T>.Create([]);
+  LDict := TDictionary<K, T>.Create;
   try
     for LItem in Self do
       LDict.AddOrSetValue(AKeySelector(LItem), LItem);
-
-    Result := TList<T>.Create(LDict.Values);
+    for LItem in LDict.Values do
+      Result.Add(LItem);
   finally
     LDict.Free;
   end;
 end;
 
-function TListEx<T>.DistinctUntilChanged: TList<T>;
+function TListEx<T>.DistinctUntilChanged: TVector<T>;
 var
   LItem: T;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LItem in Self do
   begin
     if Result.Count = 0 then
@@ -326,11 +329,11 @@ begin
   end;
 end;
 
-function TListEx<T>.&Except<T>(const List1, List2: TList<T>): TList<T>;
+function TListEx<T>.&Except<T>(const List1, List2: TList<T>): TVector<T>;
 var
   LItem: T;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LItem in List1 do
   begin
     if not List2.Contains(LItem) then
@@ -338,11 +341,11 @@ begin
   end;
 end;
 
-function TListEx<T>.Filter(const APredicate: TFunc<T, boolean>): TList<T>;
+function TListEx<T>.Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
 var
   LItem: T;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LItem in Self do
     if APredicate(LItem) then
       Result.Add(LItem);
@@ -360,11 +363,11 @@ begin
   Result := Default(T);
 end;
 
-function TListEx<T>.FindAll(const APredicate: TFunc<T, boolean>): TList<T>;
+function TListEx<T>.FindAll(const APredicate: TFunc<T, boolean>): TVector<T>;
 var
   LItem: T;
 begin
-  Result := TListEx<T>.Create;
+  Result := TVector<T>.Create([]);
   for LItem in Self do
   begin
     if APredicate(LItem) then
@@ -372,14 +375,14 @@ begin
   end;
 end;
 
-function TListEx<T>.FlatMap<T, TResult>(const AList: TList<T>;
-  const AFunc: TFunc<T, TArray<TResult>>): TList<TResult>;
+function TListEx<T>.FlatMap<T, R>(const AList: TList<T>;
+  const AFunc: TFunc<T, TArray<R>>): TVector<R>;
 var
   LItem: T;
-  LResultArray: TArray<TResult>;
-  LResultItem: TResult;
+  LResultArray: TArray<R>;
+  LResultItem: R;
 begin
-  Result := TList<TResult>.Create;
+  Result := TVector<R>.Create([]);
   for LItem in AList do
   begin
     LResultArray := AFunc(LItem);
@@ -408,47 +411,49 @@ begin
   end;
 end;
 
-function TListEx<T>.GroupBy<TKey>(const AKeySelector: TFunc<T, TKey>): TDictionary<TKey, TList<T>>;
+function TListEx<T>.GroupBy<K>(const AKeySelector: TFunc<T, K>): TMap<K, TVector<T>>;
 var
   LItem: T;
-  LKey: TKey;
+  LKey: K;
+  LList: TVector<T>;
 begin
-  Result := TDictionary<TKey, TList<T>>.Create;
+  Result := TMap<K, TVector<T>>.Create([]);
   for LItem in Self do
   begin
     LKey := AKeySelector(LItem);
-    if not Result.ContainsKey(LKey) then
-      Result.Add(LKey, TList<T>.Create);
-    Result[LKey].Add(LItem);
+    if not Result.TryGetValue(LKey, LList) then
+    begin
+      LList := TVector<T>.Create([]);
+      Result.Add(LKey, LList);
+    end;
+    LList.Add(LItem);
+    Result[LKey] := LList;
   end;
 end;
 
-function TListEx<T>.GroupByAndCount<TKey>: TDictionary<TKey, integer>;
+function TListEx<T>.GroupByAndCount<K>: TMap<K, integer>;
 var
-  LGroupDict: TDictionary<TKey, integer>;
+  LGroupDict: TMap<K, integer>;
   LItem: T;
-  LKey: TKey;
+  LKey: K;
 begin
-  LGroupDict := TDictionary<TKey, integer>.Create;
+  LGroupDict := TMap<K, integer>.Create([]);
   try
     for LItem in Self do
     begin
-      LKey := TValue.From<T>(LItem).AsType<TKey>;
-
-      if LGroupDict.ContainsKey(LKey) then
+      LKey := TValue.From<T>(LItem).AsType<K>;
+      if LGroupDict.Contains(LKey) then
         LGroupDict[LKey] := LGroupDict[LKey] + 1
       else
         LGroupDict.Add(LKey, 1);
     end;
     Result := LGroupDict;
   except
-    LGroupDict.Free;
     raise;
   end
 end;
 
-function TListEx<T>.IndexOfItem(
-  const APredicate: TFunc<T, boolean>): integer;
+function TListEx<T>.IndexOfItem(const APredicate: TFunc<T, boolean>): integer;
 var
   LIndex: Integer;
 begin
@@ -460,11 +465,11 @@ begin
   Result := -1;
 end;
 
-function TListEx<T>.Intersect<T>(const List1, List2: TList<T>): TList<T>;
+function TListEx<T>.Intersect<T>(const List1, List2: TList<T>): TVector<T>;
 var
   LItem: T;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LItem in List1 do
   begin
     if List2.Contains(LItem) then
@@ -490,11 +495,11 @@ begin
   end;
 end;
 
-function TListEx<T>.Map<TResult>(const AMappingFunc: TFunc<T, TResult>): TList<TResult>;
+function TListEx<T>.Map<R>(const AMappingFunc: TFunc<T, R>): TVector<R>;
 var
   LItem: T;
 begin
-  Result := TList<TResult>.Create;
+  Result := TVector<R>.Create([]);
   for LItem in Self do
     Result.Add(AMappingFunc(LItem));
 end;
@@ -541,14 +546,13 @@ begin
     raise Exception.Create('No minimum value found in the list.');
 end;
 
-function TListEx<T>.Partition(const APredicate: TFunc<T, boolean>): TPairList<TList<T>, TList<T>>;
+function TListEx<T>.Partition(const APredicate: TFunc<T, boolean>): TPairList<TVector<T>, TVector<T>>;
 var
-  LLeftList, LRightList: TList<T>;
+  LLeftList, LRightList: TVector<T>;
   LItem: T;
 begin
-  LLeftList := TList<T>.Create;
-  LRightList := TList<T>.Create;
-
+  LLeftList := TVector<T>.Create([]);
+  LRightList := TVector<T>.Create([]);
   for LItem in Self do
   begin
     if APredicate(LItem) then
@@ -560,27 +564,23 @@ begin
   Result.Right := LRightList;
 end;
 
-function TListEx<T>.PartitionBy(const APredicate: TFunc<T, boolean>): TDictionary<boolean, TList<T>>;
+function TListEx<T>.PartitionBy(const APredicate: TFunc<T, boolean>): TMap<boolean, TVector<T>>;
 var
-  LPartitions: TDictionary<boolean, TList<T>>;
-  LPartList: TList<T>;
+  LPartitions: TMap<boolean, TVector<T>>;
   LItem: T;
 begin
-  LPartitions := TDictionary<boolean, TList<T>>.Create;
+  LPartitions := TMap<boolean, TVector<T>>.Create([]);
   try
     for LItem in Self do
     begin
-      if not LPartitions.ContainsKey(APredicate(LItem)) then
-        LPartitions[APredicate(LItem)] := TList<T>.Create;
+      if not LPartitions.Contains(APredicate(LItem)) then
+        LPartitions[APredicate(LItem)] := TVector<T>.Create([]);
       LPartitions[APredicate(LItem)].Add(LItem);
     end;
     Result := LPartitions;
   except
     on E: Exception do
     begin
-      for LPartList in LPartitions.Values do
-        LPartList.Free;
-      LPartitions.Free;
       raise;
     end;
   end;
@@ -641,26 +641,24 @@ begin
   end;
 end;
 
-function TListEx<T>.Skip(const ACount: integer): TList<T>;
+function TListEx<T>.Skip(const ACount: integer): TVector<T>;
 var
   LIndex: integer;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LIndex := Count to Self.Count - 1 do
     Result.Add(Self[LIndex]);
 end;
 
 function TListEx<T>.SkipWhile(
-  const APredicate: TFunc<T, boolean>): TList<T>;
+  const APredicate: TFunc<T, boolean>): TVector<T>;
 var
   LFor: integer;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   LFor := 0;
-
   while (LFor < Count) and APredicate(Items[LFor]) do
     Inc(LFor);
-
   while LFor < Count do
   begin
     Result.Add(Items[LFor]);
@@ -669,11 +667,11 @@ begin
 end;
 
 function TListEx<T>.Slice<T>(const AList: TList<T>; AStartIndex,
-  AEndIndex: integer): TList<T>;
+  AEndIndex: integer): TVector<T>;
 var
   LFor: integer;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LFor := AStartIndex to AEndIndex do
     Result.Add(AList[LFor]);
 end;
@@ -684,15 +682,14 @@ begin
     function(const Left, Right: T): integer
     begin
       Result := TComparer<TValue>.Default.Compare(ASelector(Left), ASelector(Right));
-    end
-  ));
+    end));
 end;
 
-function TListEx<T>.Take(const ACount: integer): TList<T>;
+function TListEx<T>.Take(const ACount: integer): TVector<T>;
 var
   LIndex: integer;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LIndex := 0 to TUtils.Min(Count - 1, Count - 1) do
   begin
     if LIndex >= Self.Count then
@@ -701,12 +698,11 @@ begin
   end;
 end;
 
-function TListEx<T>.TakeWhile(
-  const APredicate: TFunc<T, boolean>): TList<T>;
+function TListEx<T>.TakeWhile(const APredicate: TFunc<T, boolean>): TVector<T>;
 var
   LFor: integer;
 begin
-  Result := TList<T>.Create;
+  Result := TVector<T>.Create([]);
   for LFor := 0 to Count - 1 do
   begin
     if not APredicate(Items[LFor]) then
@@ -731,31 +727,24 @@ begin
   Result := Result + ']';
 end;
 
-procedure TListEx<T>.Unique;
+function TListEx<T>.Unique: TVector<T>;
 var
-  LUniqueItems: TList<T>;
   LItem: T;
 begin
-  LUniqueItems := TList<T>.Create;
-  try
-    for LItem in Self do
-    begin
-      if not LUniqueItems.Contains(LItem) then
-        LUniqueItems.Add(LItem);
-    end;
-    Self.Clear;
-    Self.AddRange(LUniqueItems);
-  finally
-    LUniqueItems.Free;
+  Result := TVector<T>.Create([]);
+  for LItem in Self do
+  begin
+    if not Result.Contains(LItem) then
+      Result.Add(LItem);
   end;
 end;
 
-function TListEx<T>.Zip<T1, T2, TResult>(const AList1: TList<T1>;
-  const AList2: TList<T2>; const AFunc: TFunc<T1, T2, TResult>): TList<TResult>;
+function TListEx<T>.Zip<T1, T2, R>(const AList1: TList<T1>;
+  const AList2: TList<T2>; const AFunc: TFunc<T1, T2, R>): TVector<R>;
 var
   LFor: integer;
 begin
-  Result := TList<TResult>.Create;
+  Result := TVector<R>.Create([]);
   for LFor := 0 to TUtils.Min(AList1.Count, AList2.Count) - 1 do
     Result.Add(AFunc(AList1[LFor], AList2[LFor]));
 end;

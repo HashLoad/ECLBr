@@ -29,6 +29,7 @@ unit eclbr.regexlib;
 interface
 
 uses
+  SysUtils,
   RegularExpressions;
 
 type
@@ -107,21 +108,31 @@ type
     /// </summary>
     /// <param name="AEmail">The string to check for valid email format.</param>
     /// <returns>True if the string is a valid email address; otherwise, False.</returns>
-    class function IsValidEmail(const AEmail: string): boolean;
+    class function IsMatchValidEmail(const AEmail: string): boolean;
 
     /// <summary>
     ///   Determines whether the specified string is a valid UUID (Universally Unique Identifier).
     /// </summary>
     /// <param name="AUUID">The string to check for valid UUID format.</param>
     /// <returns>True if the string is a valid UUID; otherwise, False.</returns>
-    class function IsUUID(const AUUID: string): boolean;
+    class function IsMatchUUID(const AUUID: string): boolean;
 
     /// <summary>
     ///   Determines whether the specified string is a valid IPv4 address.
     /// </summary>
     /// <param name="AIPV4">The string to check for valid IPv4 format.</param>
     /// <returns>True if the string is a valid IPv4 address; otherwise, False.</returns>
-    class function IsIPV4(const AIPV4: string): boolean;
+    class function IsMatchIPV4(const AIPV4: string): boolean;
+
+    class function IsMatchCEP(const ACEP: string): boolean;
+    class function IsMatchCPF(const ACPF: string): boolean;
+    class function IsMatchCNPJ(const ACNPJ: string): boolean;
+    class function IsMatchDDDPhone(const APhone: string): boolean;
+    class function IsMatchPlacaMercosul(const APlaca: string): boolean;
+    class function IsMatchPlaca(const APlaca: string): boolean;
+    class function IsMatchData(const ADate: string): boolean;
+    class function IsMatchCredCard(const ANumber: string): boolean;
+    class function IsMatchURL(const AURL: string): boolean;
   end;
 
 implementation
@@ -133,7 +144,37 @@ begin
   Result := TRegEx.IsMatch(AInput, APattern, [roIgnoreCase]);
 end;
 
-class function TRegExLib.IsIPV4(const AIPV4: string): boolean;
+class function TRegExLib.IsMatchCredCard(const ANumber: string): boolean;
+begin
+  Result := TRegEx.IsMatch(ANumber, '^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$');
+end;
+
+class function TRegExLib.IsMatchCEP(const ACEP: string): boolean;
+begin
+  Result := TRegEx.IsMatch(ACEP, '^\d{8}$');
+end;
+
+class function TRegExLib.IsMatchCNPJ(const ACNPJ: string): boolean;
+begin
+  Result := TRegEx.IsMatch(ACNPJ, '^\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}$');
+end;
+
+class function TRegExLib.IsMatchCPF(const ACPF: string): boolean;
+begin
+  Result := TRegEx.IsMatch(ACPF, '^\d{3}\.\d{3}\.\d{3}-\d{2}$');
+end;
+
+class function TRegExLib.IsMatchData(const ADate: string): boolean;
+begin
+  Result := TRegEx.IsMatch(ADate, '^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$');
+end;
+
+class function TRegExLib.IsMatchDDDPhone(const APhone: string): boolean;
+begin
+  Result := TRegEx.IsMatch(APhone, '^\(\d{2}\) 9\d{4}-\d{4}$|^\(\d{2}\) [2-5]\d{3}-\d{4}$');
+end;
+
+class function TRegExLib.IsMatchIPV4(const AIPV4: string): boolean;
 begin
   Result := TRegEx.IsMatch(AIPV4, '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$');
 end;
@@ -144,12 +185,27 @@ begin
   Result := TRegEx.IsMatch(AInput, APattern, AOptions);
 end;
 
-class function TRegExLib.IsUUID(const AUUID: string): boolean;
+class function TRegExLib.IsMatchPlaca(const APlaca: string): boolean;
+begin
+  Result := TRegEx.IsMatch(APlaca, '^[A-Z]{2,3}-\d{4}$');
+end;
+
+class function TRegExLib.IsMatchPlacaMercosul(const APlaca: string): boolean;
+begin
+  Result := TRegEx.IsMatch(APlaca, '^[A-Z]{3}\d{1}[A-Z]\d{2}$|^[A-Z]{2}\d{2}[A-Z]\d{1}$');
+end;
+
+class function TRegExLib.IsMatchURL(const AURL: string): boolean;
+begin
+  Result := TRegEx.IsMatch(AURL, '^(https?|ftp)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]', [roIgnoreCase]);
+end;
+
+class function TRegExLib.IsMatchUUID(const AUUID: string): boolean;
 begin
   Result := TRegEx.IsMatch(AUUID, '^(\{)?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(\})?$');
 end;
 
-class function TRegExLib.IsValidEmail(const AEmail: string): boolean;
+class function TRegExLib.IsMatchValidEmail(const AEmail: string): boolean;
 begin
   Result := TRegEx.IsMatch(AEmail, '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 end;

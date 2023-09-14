@@ -103,8 +103,9 @@
         </DelphiCompile>
         <DCCReference Include="UTestEclbr.SysList.pas"/>
         <DCCReference Include="..\..\Source\eclbr.list.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.utils.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.map.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

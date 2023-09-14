@@ -87,7 +87,7 @@ var
   LTotalPrice: Double;
   LResultPair: TResultPair<Double, string>;
 begin
-  // Comece com OK() porque o carrinho está vazio no início
+  // Comece com Success() porque o carrinho está vazio no início
   try
     LResultPair := TResultPair<Double, string>.New
       .Success(0.0)
@@ -123,7 +123,7 @@ var
   LResultPair: TResultPair<Boolean, string>;
 begin
   try
-    // Comece com OK() porque o carrinho não está vazio no início
+    // Comece com Success() porque o carrinho não está vazio no início
     LResultPair := TResultPair<Boolean, string>.New
       .Success(True)
       .ThenOf(
