@@ -11,9 +11,9 @@ type
   private
     class var FDirectory: string;
   public
-    class function New(const ADirectory: string): TDirectory;
-    class function Filter(const AFilterFunc: TFunc<string, boolean>): TArray<string>;
-    class function Map<T>(const AMapFunc: TFunc<string, T>): TArray<T>;
+    class function New(const ADirectory: string): TDirectory; static;
+    class function Filter(const AFilterFunc: TFunc<string, boolean>): TArray<string>; static;
+    class function Map<T>(const AMapFunc: TFunc<string, T>): TArray<T>; static;
   end;
 
 implementation

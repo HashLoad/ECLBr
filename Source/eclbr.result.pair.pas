@@ -516,7 +516,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after marking the step as successful.
     /// </returns>
-    function Ok(const ASuccess: S): TResultPair<S, F>;
+    function Ok(const ASuccessProc: TProc<S>): TResultPair<S, F>;
 
     /// <summary>
     ///   Marks the current step as a failure and provides a value AFailure to carry forward in the
@@ -528,7 +528,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after marking the step as a failure.
     /// </returns>
-    function Fail(const AFailure: F): TResultPair<S, F>;
+    function Fail(const AFailureProc: TProc<F>): TResultPair<S, F>;
 
     /// <summary>
     ///   Specifies a custom function AFunc to execute if the previous step was successful. It continues
@@ -635,9 +635,14 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.Fail(const AFailure: F): TResultPair<S, F>;
+function TResultPair<S, F>.Fail(const AFailureProc: TProc<F>): TResultPair<S, F>;
 begin
-  Result := Failure(AFailure);
+  Result := Self;
+  if not Assigned(AFailureProc) then
+    exit;
+  case FResultType of
+    TResultType.rtFailure: AFailureProc(FFailure^.GetValue);
+  end;
 end;
 
 function TResultPair<S, F>.Failure(const AFailure: F): TResultPair<S, F>;
@@ -841,10 +846,14 @@ begin
   Result := not (Left = Right);
 end;
 
-function TResultPair<S, F>.Ok(const ASuccess: S): TResultPair<S, F>;
+function TResultPair<S, F>.Ok(const ASuccessProc: TProc<S>): TResultPair<S, F>;
 begin
   Result := Self;
-  Result._SetSuccessValue(ASuccess)
+  if not Assigned(ASuccessProc) then
+    exit;
+  case FResultType of
+    TResultType.rtSuccess: ASuccessProc(FSuccess^.GetValue);
+  end;
 end;
 
 function TResultPair<S, F>.FlatMap<R>(
@@ -952,10 +961,10 @@ begin
     exit;
   LResult := AFunc();
   if LResult.isSuccess then
-    Result.Ok(LResult.FSuccess^.GetValue)
+    Result.Success(LResult.FSuccess^.GetValue)
   else
   if LResult.isFailure then
-    Result.Fail(LResult.FFailure^.GetValue);
+    Result.Failure(LResult.FFailure^.GetValue);
 end;
 
 function TResultPair<S, F>.GetFailureOrDefault: F;

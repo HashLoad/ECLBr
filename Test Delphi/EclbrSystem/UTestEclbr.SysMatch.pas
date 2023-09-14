@@ -670,32 +670,35 @@ var
   EnumValue: TEnumType;
 begin
   EnumValue := TEnumType.Two;
-
   try
     LResult := TMatch<TEnumType>.Value(EnumValue)
-      .CaseEq(TEnumType.One,
-        function: TValue
-        begin
-          Result := 'EnumValue is One';
-        end)
-      .CaseEq(TEnumType.Two,
-        function: TValue
-        begin
-          Result := 'EnumValue is Two';
-        end)
-      .CaseEq(TEnumType.Three,
-        function: TValue
-        begin
-          Result := 'EnumValue is Three';
-        end)
-      .Default(
-        function: TValue
-        begin
-          Result := 'EnumValue is not recognized';
-        end)
-      .Execute<string>;
+      .CaseEq(TEnumType.One, function: TValue
+                             begin
+                               Result := 'EnumValue is One';
+                             end)
+      .CaseEq(TEnumType.Two, function: TValue
+                             begin
+                               Result := 'EnumValue is Two';
+                             end)
+      .CaseEq(TEnumType.Three, function: TValue
+                               begin
+                                 Result := 'EnumValue is Three';
+                               end)
+      .Default(function: TValue
+               begin
+                 Result := 'EnumValue is not recognized';
+               end)
+      .Execute<string>
+      .Ok(procedure(Valeu: string)
+          begin
+            // Success (LResult.ValueSuccess)
+          end)
+      .Fail(procedure(Value: string)
+            begin
+              // Failure (LResult.ValueFailure)
+            end);
 
-      Assert.AreEqual('EnumValue is Two', LResult.ValueSuccess);
+    Assert.AreEqual('EnumValue is Two', LResult.ValueSuccess);
   finally
     LResult.Dispose;
   end;

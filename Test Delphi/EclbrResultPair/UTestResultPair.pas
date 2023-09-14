@@ -90,19 +90,19 @@ begin
   // Comece com OK() porque o carrinho está vazio no início
   try
     LResultPair := TResultPair<Double, string>.New
-      .Ok(0.0)
+      .Success(0.0)
       .ThenOf(
         function (const ASubtotal: Double): TResultPair<Double, string>
         begin
           // Adicione um item ao carrinho
-          Result := TResultPair<Double, string>.New.Ok(ASubtotal + 29.99);
+          Result := TResultPair<Double, string>.New.Success(ASubtotal + 29.99);
         end
       )
       .ThenOf(
         function (const ASubtotal: Double): TResultPair<Double, string>
         begin
           // Adicione outro item ao carrinho
-          Result := TResultPair<Double, string>.New.Ok(ASubtotal + 19.99);
+          Result := TResultPair<Double, string>.New.Success(ASubtotal + 19.99);
         end
       ).Return;
 
@@ -125,24 +125,24 @@ begin
   try
     // Comece com OK() porque o carrinho não está vazio no início
     LResultPair := TResultPair<Boolean, string>.New
-      .Ok(True)
+      .Success(True)
       .ThenOf(
         function (const CartNotEmpty: Boolean): TResultPair<Boolean, string>
         begin
           // Verifique se o item do carrinho está em estoque (simulação de falha)
           if not CartNotEmpty then
-            Result := TResultPair<Boolean, string>.New.Fail('Carrinho vazio!')
+            Result := TResultPair<Boolean, string>.New.Failure('Carrinho vazio!')
           else
-            Result := TResultPair<Boolean, string>.New.Ok(True);
+            Result := TResultPair<Boolean, string>.New.Success(True);
         end)
       .ThenOf(
         function (const ItemInStock: Boolean): TResultPair<Boolean, string>
         begin
           // Tente prosseguir com o pagamento se o item estiver em estoque
           if ItemInStock then
-            Result := TResultPair<Boolean, string>.New.Ok(True)
+            Result := TResultPair<Boolean, string>.New.Success(True)
           else
-            Result := TResultPair<Boolean, string>.New.Fail('Item fora de estoque!');
+            Result := TResultPair<Boolean, string>.New.Failure('Item fora de estoque!');
         end
       ).Return;
     // Verifique se o resultado é sucesso ou falha
