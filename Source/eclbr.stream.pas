@@ -29,9 +29,9 @@ unit eclbr.stream;
 interface
 
 uses
-  Generics.Collections,
   Classes,
   SysUtils,
+  Generics.Collections,
   eclbr.map,
   eclbr.vector;
 

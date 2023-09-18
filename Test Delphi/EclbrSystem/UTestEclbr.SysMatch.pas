@@ -667,11 +667,11 @@ end;
 procedure TestTMatch.TestEnumPatternMatchingWithReturn;
 var
   LResult: TResultPair<string, string>;
-  EnumValue: TEnumType;
+  LEnumValue: TEnumType;
 begin
-  EnumValue := TEnumType.Two;
+  LEnumValue := TEnumType.Two;
   try
-    LResult := TMatch<TEnumType>.Value(EnumValue)
+    LResult := TMatch<TEnumType>.Value(LEnumValue)
       .CaseEq(TEnumType.One, function: TValue
                              begin
                                Result := 'EnumValue is One';

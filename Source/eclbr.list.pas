@@ -96,7 +96,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate function used to filter elements.</param>
     /// <returns>A new list containing the elements that satisfy the predicate.</returns>
-    function Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
+    function Filter(const APredicate: TPredicate<T>): TVector<T>;
 
     /// <summary>
     ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
@@ -125,7 +125,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate function used to partition elements.</param>
     /// <returns>A pair of lists representing the partitioned elements.</returns>
-    function Partition(const APredicate: TFunc<T, boolean>): TPairList<TVector<T>, TVector<T>>;
+    function Partition(const APredicate: TPredicate<T>): TPairList<TVector<T>, TVector<T>>;
 
     /// <summary>
     ///   Returns a new list containing the first 'n' elements from the list, where 'n' is the specified count.
@@ -146,7 +146,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate function used to search for an element.</param>
     /// <returns>The first element that satisfies the predicate, or a default value if not found.</returns>
-    function Find(const APredicate: TFunc<T, boolean>): T;
+    function Find(const APredicate: TPredicate<T>): T;
 
     /// <summary>
     ///   Returns a new list containing a portion of elements from the source list, starting from the specified start index and ending at the specified end index.
@@ -229,21 +229,21 @@ type
     /// </summary>
     /// <param name="APredicate">The function used to determine whether an element should be included in the result.</param>
     /// <returns>A new list containing elements that satisfy the predicate.</returns>
-    function FindAll(const APredicate: TFunc<T, boolean>): TVector<T>;
+    function FindAll(const APredicate: TPredicate<T>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing elements from the beginning of the source list until the first element that does not satisfy a given predicate.
     /// </summary>
     /// <param name="APredicate">The function used to determine whether an element should be included in the result.</param>
     /// <returns>A new list containing elements from the beginning of the source list that satisfy the predicate.</returns>
-    function TakeWhile(const APredicate: TFunc<T, boolean>): TVector<T>;
+    function TakeWhile(const APredicate: TPredicate<T>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing elements from the source list after the first element that does not satisfy a given predicate.
     /// </summary>
     /// <param name="APredicate">The function used to determine whether an element should be included in the result.</param>
     /// <returns>A new list containing elements from the source list after the first element that does not satisfy the predicate.</returns>
-    function SkipWhile(const APredicate: TFunc<T, boolean>): TVector<T>;
+    function SkipWhile(const APredicate: TPredicate<T>): TVector<T>;
 
     /// <summary>
     ///   Groups the elements in the list by a specified key and returns a dictionary with key-to-count associations.
@@ -256,7 +256,7 @@ type
     ///   Partitions the elements in the list into two groups based on a given predicate and returns a dictionary where keys represent the partition status.
     /// </summary>
     /// <returns>A dictionary where keys indicate whether an element satisfies the predicate, and values are lists of elements for each partition.</returns>
-    function PartitionBy(const APredicate: TFunc<T, boolean>): TMap<boolean, TVector<T>>;
+    function PartitionBy(const APredicate: TPredicate<T>): TMap<boolean, TVector<T>>;
 
     /// <summary>
     ///   Returns a new list containing only the elements from the source list that are different from their immediate predecessors.
@@ -269,7 +269,7 @@ type
     /// </summary>
     /// <param name="APredicate">The function used to search for an element.</param>
     /// <returns>The index of the first element that satisfies the predicate or -1 if not found.</returns>
-    function IndexOfItem(const APredicate: TFunc<T, boolean>): integer;
+    function IndexOfItem(const APredicate: TPredicate<T>): integer;
 
     /// <summary>
     ///   Determines whether the list is empty.
@@ -341,7 +341,7 @@ begin
   end;
 end;
 
-function TListEx<T>.Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
+function TListEx<T>.Filter(const APredicate: TPredicate<T>): TVector<T>;
 var
   LItem: T;
 begin
@@ -351,7 +351,7 @@ begin
       Result.Add(LItem);
 end;
 
-function TListEx<T>.Find(const APredicate: TFunc<T, boolean>): T;
+function TListEx<T>.Find(const APredicate: TPredicate<T>): T;
 var
   LItem: T;
 begin
@@ -363,7 +363,7 @@ begin
   Result := Default(T);
 end;
 
-function TListEx<T>.FindAll(const APredicate: TFunc<T, boolean>): TVector<T>;
+function TListEx<T>.FindAll(const APredicate: TPredicate<T>): TVector<T>;
 var
   LItem: T;
 begin
@@ -453,7 +453,7 @@ begin
   end
 end;
 
-function TListEx<T>.IndexOfItem(const APredicate: TFunc<T, boolean>): integer;
+function TListEx<T>.IndexOfItem(const APredicate: TPredicate<T>): integer;
 var
   LIndex: Integer;
 begin
@@ -546,7 +546,7 @@ begin
     raise Exception.Create('No minimum value found in the list.');
 end;
 
-function TListEx<T>.Partition(const APredicate: TFunc<T, boolean>): TPairList<TVector<T>, TVector<T>>;
+function TListEx<T>.Partition(const APredicate: TPredicate<T>): TPairList<TVector<T>, TVector<T>>;
 var
   LLeftList, LRightList: TVector<T>;
   LItem: T;
@@ -564,7 +564,7 @@ begin
   Result.Right := LRightList;
 end;
 
-function TListEx<T>.PartitionBy(const APredicate: TFunc<T, boolean>): TMap<boolean, TVector<T>>;
+function TListEx<T>.PartitionBy(const APredicate: TPredicate<T>): TMap<boolean, TVector<T>>;
 var
   LPartitions: TMap<boolean, TVector<T>>;
   LItem: T;
@@ -651,7 +651,7 @@ begin
 end;
 
 function TListEx<T>.SkipWhile(
-  const APredicate: TFunc<T, boolean>): TVector<T>;
+  const APredicate: TPredicate<T>): TVector<T>;
 var
   LFor: integer;
 begin
@@ -698,7 +698,7 @@ begin
   end;
 end;
 
-function TListEx<T>.TakeWhile(const APredicate: TFunc<T, boolean>): TVector<T>;
+function TListEx<T>.TakeWhile(const APredicate: TPredicate<T>): TVector<T>;
 var
   LFor: integer;
 begin

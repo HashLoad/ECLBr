@@ -64,7 +64,7 @@ type
     /// <returns>
     ///   A new TTuple instance with the specified keys and values.
     /// </returns>
-    class function New(const AKeys: array of K; const AValues: array of TValue): TTuple<K>; static;
+    class function New(const AKeys: TArray<K>; const AValues: TArray<TValue>): TTuple<K>; static;
 
     /// <summary>
     ///   Obtém o valor associado à chave especificada.
@@ -141,8 +141,8 @@ begin
   Result := P.FTuples;
 end;
 
-class function TTuple<K>.New(const AKeys: array of K;
-  const AValues: array of TValue): TTuple<K>;
+class function TTuple<K>.New(const AKeys: TArray<K>;
+  const AValues: TArray<TValue>): TTuple<K>;
 var
   LPairs: TArray<TPair<K, TValue>>;
   LFor: Integer;

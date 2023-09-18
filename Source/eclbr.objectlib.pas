@@ -32,40 +32,88 @@ interface
 
 uses
   Rtti,
-  SysUtils,
-  eclbr.interfaces;
+  SysUtils;
 
 type
+  IECL = interface
+    ['{E3B4DFC3-25AD-46F5-947C-1509E802C047}']
+    function Factory(const AClass: TClass; const AMetadata: TArray<TValue> = [];
+      const AMethodName: string = 'Create'): TObject;
+  end;
+
   TObjectLib = class sealed(TInterfacedObject, IECL)
-  protected
-    function _FactoryInternal(const AClass: TClass; const AArgs: TArray<TValue>;
-      const AMethodName: string): TObject;
   public
     function Factory(const AClass: TClass;
       const AArgs: TArray<TValue> = []; const AMethodName: string = 'Create'): TObject;
     class function New: IECL;
   end;
 
+  IOption<T> = interface
+    ['{F1196B06-4C61-4512-B06D-1691199A073C}']
+    function Get: T;
+  end;
+
+  TOption<T: class> = class sealed(TInterfacedObject, IOption<T>)
+  private
+    FObjectInternal: T;
+  protected
+    constructor Create(const ACallbackNew: TFunc<T>); overload;
+    constructor Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
+      const AArgs: TArray<TValue>); overload;
+    destructor Destroy; override;
+  public
+    class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
+      const AArgs: TArray<TValue>): IOption<T>; overload;
+    class function New(const ACallbackNew: TFunc<T>): IOption<T>; overload;
+    function Get: T;
+  end;
+
 implementation
+
+{ TObject<T> }
+
+constructor TOption<T>.Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
+  const AArgs: TArray<TValue>);
+begin
+  FObjectInternal := ACallbackNew(AArgs);
+end;
+
+constructor TOption<T>.Create(const ACallbackNew: TFunc<T>);
+begin
+  FObjectInternal := ACallbackNew();
+end;
+
+destructor TOption<T>.Destroy;
+begin
+  if Assigned(FObjectInternal) then
+    FObjectInternal.Free;
+end;
+
+class function TOption<T>.New(const ACallbackNew: TFunc<T>): IOption<T>;
+begin
+  Result := TOption<T>.Create(ACallbackNew);
+end;
+
+class function TOption<T>.New(const ACallbackNew: TFunc<TArray<TValue>, T>;
+  const AArgs: TArray<TValue>): IOption<T>;
+begin
+  Result := TOption<T>.Create(ACallbackNew, AArgs);
+end;
+
+function TOption<T>.Get: T;
+begin
+  Result := FObjectInternal;
+end;
+
+{ TObjectLib }
 
 function TObjectLib.Factory(const AClass: TClass;
   const AArgs: TArray<TValue>; const AMethodName: string): TObject;
-begin
-  Result := _FactoryInternal(AClass, AArgs, AMethodName);
-end;
-
-class function TObjectLib.New: IECL;
-begin
-  Result := Self.Create;
-end;
-
-function TObjectLib._FactoryInternal(const AClass: TClass;
-  const AArgs: TArray<TValue>; const AMethodName: string): TObject;
 var
   LContext: TRttiContext;
-  LType: TRttiType;
-  LInstance: TValue;
   LConstructor: TRttiMethod;
+  LInstance: TValue;
+  LType: TRttiType;
 begin
   try
     LContext := TRttiContext.Create;
@@ -83,6 +131,11 @@ begin
     on E: Exception do
       raise Exception.CreateFmt('Error class [%s] : %s', [AClass.ClassName, E.Message]);
   end;
+end;
+
+class function TObjectLib.New: IECL;
+begin
+  Result := Self.Create;
 end;
 
 end.

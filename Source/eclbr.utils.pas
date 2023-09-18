@@ -53,167 +53,31 @@ type
     class procedure _EncodePacket(const Packet: TPacket; NumChars: Integer;
       OutBuf: PAnsiChar); static;
   public
-    /// <summary>
-    ///   Gets or sets the global format settings used for various formatting operations.
-    /// </summary>
     class var FormatSettings: TFormatSettings;
-
-    /// <summary>
-    ///   Merges two arrays of the same type and returns the merged array.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the arrays.</typeparam>
-    /// <param name="AArray1">The first array to merge.</param>
-    /// <param name="AArray2">The second array to merge.</param>
-    /// <returns>The merged array containing elements from both input arrays.</returns>
     class function ArrayMerge<T>(const AArray1: TArray<T>;
       const AArray2: TArray<T>): TArray<T>; inline;
-
-    /// <summary>
-    ///   Copies a portion of a string array to a new array, starting from the specified index and up to the specified count.
-    /// </summary>
-    /// <param name="ASource">The source string array.</param>
-    /// <param name="AIndex">The starting index of the copy operation.</param>
-    /// <param name="ACount">The number of elements to copy.</param>
-    /// <returns>A new string array containing the copied elements.</returns>
     class function ArrayCopy(const ASource: TArrayString; const AIndex: integer;
       const ACount: integer): TArrayString; inline;
-
-    /// <summary>
-    ///   Returns one of two values based on a specified condition.
-    /// </summary>
-    /// <typeparam name="T">The type of values to return.</typeparam>
-    /// <param name="AValue">The condition to evaluate.</param>
-    /// <param name="ATrue">The value to return if the condition is true.</param>
-    /// <param name="AFalse">The value to return if the condition is false.</param>
-    /// <returns>The value specified by either <paramref name="ATrue"/> or <paramref name="AFalse"/> based on the condition <paramref name="AValue"/>.</returns>
     class function IfThen<T>(AValue: boolean; const ATrue: T; const AFalse: T): T; inline;
-
-    /// <summary>
-    ///   Converts an array of elements into a generic list.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the array and list.</typeparam>
-    /// <param name="AArray">The array to convert into a list.</param>
-    /// <returns>A generic list containing the elements from the input array.</returns>
     class function AsList<T>(const AArray: TArray<T>): TList<T>; inline;
-
-    /// <summary>
-    ///   Joins an array of strings into a single string using the specified separator.
-    /// </summary>
-    /// <param name="AStrings">The array of strings to join.</param>
-    /// <param name="ASeparator">The separator to use between joined strings.</param>
-    /// <returns>The concatenated string with elements separated by <paramref name="ASeparator"/>.</returns>
     class function JoinStrings(const AStrings: TArrayString;
       const ASeparator: string): string; overload; inline;
-
-    /// <summary>
-    ///   Joins a list of strings into a single string using the specified separator.
-    /// </summary>
-    /// <param name="AStrings">The list of strings to join.</param>
-    /// <param name="ASeparator">The separator to use between joined strings.</param>
-    /// <returns>The concatenated string with elements separated by <paramref name="ASeparator"/>.</returns>
     class function JoinStrings(const AStrings: TListString;
       const ASeparator: string): string; overload; inline;
-
-    /// <summary>
-    ///   Removes trailing characters from a string.
-    /// </summary>
-    /// <param name="AStr">The input string to remove trailing characters from.</param>
-    /// <param name="AChars">The set of characters to remove from the end of the string.</param>
-    /// <returns>The input string with trailing characters removed.</returns>
     class function RemoveTrailingChars(const AStr: string; const AChars: TSysCharSet): string; inline;
-
-    /// <summary>
-    ///   Converts an ISO 8601 date/time string to a Delphi TDateTime value.
-    /// </summary>
-    /// <param name="AValue">The ISO 8601 date/time string to convert.</param>
-    /// <param name="AUseISO8601DateFormat">
-    ///   True to use ISO 8601 date format (YYYY-MM-DD), False to use the default format.
-    /// </param>
-    /// <returns>The corresponding TDateTime value.</returns>
     class function Iso8601ToDateTime(const AValue: string;
       const AUseISO8601DateFormat: Boolean): TDateTime; inline;
-
-    /// <summary>
-    ///   Converts a Delphi TDateTime value to an ISO 8601 date/time string.
-    /// </summary>
-    /// <param name="AValue">The TDateTime value to convert.</param>
-    /// <param name="AUseISO8601DateFormat">
-    ///   True to use ISO 8601 date format (YYYY-MM-DD), False to use the default format.
-    /// </param>
-    /// <returns>The ISO 8601 date/time string.</returns>
     class function DateTimeToIso8601(const AValue: TDateTime;
       const AUseISO8601DateFormat: Boolean): string; inline;
-
-    /// <summary>
-    ///   Decodes a base64-encoded string into a byte array.
-    /// </summary>
-    /// <param name="AInput">The base64-encoded input string.</param>
-    /// <returns>The decoded byte array.</returns>
     class function DecodeBase64(const AInput: string): TBytes;
-
-    /// <summary>
-    ///   Encodes a byte array into a base64-encoded string.
-    /// </summary>
-    /// <param name="AInput">The byte array to encode.</param>
-    /// <param name="ASize">The size of the byte array.</param>
-    /// <returns>The base64-encoded string.</returns>
     class function EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
-
-    /// <summary>
-    ///   Encodes a string to make it safe for storage or transmission.
-    /// </summary>
-    /// <param name="AInput">The input string to encode.</param>
-    /// <returns>The encoded string.</returns>
     class function EncodeString(const AInput: string): string;
-
-    /// <summary>
-    ///   Decodes an encoded string to its original form.
-    /// </summary>
-    /// <param name="AInput">The encoded input string.</param>
-    /// <returns>The decoded string.</returns>
     class function DecodeString(const AInput: string): string;
-
-    /// <summary>
-    ///   Returns the minimum of two integers.
-    /// </summary>
-    /// <param name="A">The first integer value.</param>
-    /// <param name="B">The second integer value.</param>
-    /// <returns>The smaller of the two integer values.</returns>
-    class function Min(const A, B: Integer): Integer; overload;
-
-    /// <summary>
-    ///   Returns the minimum of two floating-point numbers.
-    /// </summary>
-    /// <param name="A">The first floating-point value.</param>
-    /// <param name="B">The second floating-point value.</param>
-    /// <returns>The smaller of the two floating-point values.</returns>
-    class function Min(const A, B: Double): Double; overload;
-
-    /// <summary>
-    ///   Returns the minimum of two currency values.
-    /// </summary>
-    /// <param name="A">The first currency value.</param>
-    /// <param name="B">The second currency value.</param>
-    /// <returns>The smaller of the two currency values.</returns>
-    class function Min(const A, B: Currency): Currency; overload;
-
-    /// <summary>
-    ///   Encodes a stream using base64 encoding and writes the result to another stream.
-    /// </summary>
-    /// <param name="AInput">The input stream to encode.</param>
-    /// <param name="AOutput">The output stream to write the encoded result.</param>
     class procedure EncodeStream(const AInput, AOutput: TStream);
-
-    /// <summary>
-    ///   Decodes a base64-encoded stream and writes the result to another stream.
-    /// </summary>
-    /// <param name="AInput">The input stream to decode.</param>
-    /// <param name="AOutput">The output stream to write the decoded result.</param>
     class procedure DecodeStream(const AInput, AOutput: TStream);
-
-    class function IsEAN13(const AEAN: string): boolean;
-    class function IsInteger(const AValue: string): boolean;
-    class function IsBoolean(const AValue: string): boolean;
+    class function Min(const A, B: Integer): Integer; overload;
+    class function Min(const A, B: Double): Double; overload;
+    class function Min(const A, B: Currency): Currency; overload;
   end;
 
 implementation
@@ -310,48 +174,6 @@ begin
     Result := ATrue
   else
     Result := AFalse;
-end;
-
-class function TUtils.IsBoolean(const AValue: string): boolean;
-var
-  LValue: boolean;
-begin
-  Result := TryStrToBool(AValue, LValue);
-end;
-
-class function TUtils.IsEAN13(const AEAN: string): boolean;
-var
-  LFor: integer;
-  LCheckSum: integer;
-  LDigit: integer;
-  LEANArray: array[0..12] of integer;
-begin
-  Result := false;
-  if Length(AEAN) <> 13 then
-    exit;
-  for LFor := 1 to 13 do
-  begin
-    if not (AEAN[LFor] in ['0'..'9']) then
-      exit;
-    LEANArray[LFor - 1] := Ord(AEAN[LFor]) - Ord('0');
-  end;
-  LCheckSum := 0;
-  for LFor := 1 to 12 do
-  begin
-    if LFor mod 2 = 0 then
-      LCheckSum := LCheckSum + LEANArray[LFor] * 3
-    else
-      LCheckSum := LCheckSum + LEANArray[LFor];
-  end;
-  LCheckSum := (10 - (LCheckSum mod 10)) mod 10;
-  Result := LCheckSum = LEANArray[12];
-end;
-
-class function TUtils.IsInteger(const AValue: string): boolean;
-var
-  LValue: integer;
-begin
-  Result := TryStrToInt(AValue, LValue);
 end;
 
 class function TUtils.Iso8601ToDateTime(const AValue: string;

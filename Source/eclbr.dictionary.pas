@@ -180,7 +180,7 @@ type
     ///   A pair of dictionaries where the first dictionary contains key-value pairs that satisfy the predicate,
     ///   and the second dictionary contains key-value pairs that do not satisfy the predicate.
     /// </returns>
-    function Partition(const APredicate: TFunc<V, boolean>): TPair<TMap<K, V>, TMap<K, V>>;
+    function Partition(const APredicate: TPredicate<V>): TPair<TMap<K, V>, TMap<K, V>>;
 
     /// <summary>
     ///   Takes a specified number of key-value pairs from the beginning of the dictionary.
@@ -264,7 +264,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate used to filter key-value pairs.</param>
     /// <returns>A new dictionary containing filtered key-value pairs.</returns>
-    function FindAll(const APredicate: TFunc<V, boolean>): TMap<K, V>;
+    function FindAll(const APredicate: TPredicate<V>): TMap<K, V>;
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs from the beginning of the dictionary
@@ -272,7 +272,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate used to take key-value pairs.</param>
     /// <returns>A new dictionary containing key-value pairs that match the predicate.</returns>
-    function TakeWhile(const APredicate: TFunc<K, boolean>): TMap<K, V>;
+    function TakeWhile(const APredicate: TPredicate<K>): TMap<K, V>;
 
     /// <summary>
     ///   Skips key-value pairs from the beginning of the dictionary while the specified predicate is true
@@ -280,7 +280,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate used to skip key-value pairs.</param>
     /// <returns>A new dictionary containing key-value pairs after skipping while the predicate is true.</returns>
-    function SkipWhile(const APredicate: TFunc<K, boolean>): TMap<K, V>;
+    function SkipWhile(const APredicate: TPredicate<K>): TMap<K, V>;
 
     /// <summary>
     ///   Partitions the dictionary into two groups based on the given predicate.
@@ -290,7 +290,7 @@ type
     /// <returns>
     ///   A new dictionary with two entries: one entry for keys that satisfy the predicate (true) and another for keys that do not (false).
     /// </returns>
-    function PartitionBy(const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
+    function PartitionBy(const APredicate: TPredicate<V>): TMap<boolean, TVector<V>>;
 
     /// <summary>
     ///   Returns the maximum value in the dictionary.
@@ -365,7 +365,7 @@ begin
 end;
 
 function TDictEx<K, V>.FindAll(
-  const APredicate: TFunc<V, boolean>): TMap<K, V>;
+  const APredicate: TPredicate<V>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin
@@ -597,7 +597,7 @@ begin
 end;
 
 function TDictEx<K, V>.Partition(
-  const APredicate: TFunc<V, boolean>): TPair<TMap<K, V>, TMap<K, V>>;
+  const APredicate: TPredicate<V>): TPair<TMap<K, V>, TMap<K, V>>;
 var
   LPair: TPair<K, V>;
   LTrueMap, LFalseMap: TMap<K, V>;
@@ -615,7 +615,7 @@ begin
 end;
 
 function TDictEx<K, V>.PartitionBy(
-  const APredicate: TFunc<V, boolean>): TMap<boolean, TVector<V>>;
+  const APredicate: TPredicate<V>): TMap<boolean, TVector<V>>;
 var
   LSortedKeys: TArray<K>;
   LKey: K;
@@ -693,7 +693,7 @@ begin
 end;
 
 function TDictEx<K, V>.SkipWhile(
-  const APredicate: TFunc<K, boolean>): TMap<K, V>;
+  const APredicate: TPredicate<K>): TMap<K, V>;
 var
   LKey: K;
   LFound: boolean;
@@ -754,7 +754,7 @@ end;
 
 
 function TDictEx<K, V>.TakeWhile(
-  const APredicate: TFunc<K, boolean>): TMap<K, V>;
+  const APredicate: TPredicate<K>): TMap<K, V>;
 var
   LPair: TPair<K, V>;
 begin

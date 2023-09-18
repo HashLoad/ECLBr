@@ -207,7 +207,7 @@ type
     /// </summary>
     /// <param name="APredicate">A function that determines whether an element should be included in the filtered vector.</param>
     /// <returns>A new vector containing the elements that satisfy the predicate.</returns>
-    function Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
+    function Filter(const APredicate: TPredicate<T>): TVector<T>;
 
     /// <summary>
     ///   Mapeia os elementos desta coleção para uma nova coleção de tipo TResult usando a função de mapeamento fornecida.
@@ -441,7 +441,7 @@ begin
   TArrayManager.Delete(FItems, AIndex);
 end;
 
-function TVector<T>.Filter(const APredicate: TFunc<T, boolean>): TVector<T>;
+function TVector<T>.Filter(const APredicate: TPredicate<T>): TVector<T>;
 var
   LFiltered: TArrayType;
   LItem: T;
