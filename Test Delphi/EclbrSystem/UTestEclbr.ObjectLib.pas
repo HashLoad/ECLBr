@@ -3,7 +3,8 @@ unit UTestEclbr.ObjectLib;
 interface
 
 uses
-  DUnitX.TestFramework;
+  DUnitX.TestFramework,
+  eclbr.objectlib;
 
 type
   TMyClass = class
@@ -25,9 +26,6 @@ type
 
 implementation
 
-uses
-  eclbr.objectlib;
-
 procedure TTestObectLib.Setup;
 begin
 
@@ -35,13 +33,14 @@ end;
 
 procedure TTestObectLib.TearDown;
 begin
+
 end;
 
 procedure TTestObectLib.TestOption;
 var
-  LOption: IOption<TMyClass>;
+  LOption: IAutoRef<TMyClass>;
 begin
-  LOption := TOption<TMyClass>.New(TMyClass.New);
+  LOption := TAutoRef<TMyClass>.New(TMyClass.New);
 
   Assert.IsNotNull(LOption.Get);
   Assert.AreEqual('Hello word', LOption.Get.GetMessage);

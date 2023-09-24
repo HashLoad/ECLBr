@@ -227,7 +227,9 @@ var
   LResult: Double;
 begin
   try
-    LResultPair := TResultPair<Double, string>.New.Success(FDividend div FDivisor)
+    LResultPair := TResultPair<Double, string>
+               .New
+               .Success(FDividend div FDivisor)
                .Map<Double>(function(Value: Double): Double
                             begin
                               Result := Value * 2.5;
@@ -350,9 +352,10 @@ var
 begin
   LSuccessCalled := False;
   LFailureCalled := False;
-
   try
-    LResultPair := TResultPair<Integer, string>.New.Success(42).TryException(
+    LResultPair := TResultPair<Integer, string>.New
+                                               .Success(42)
+                                               .TryException(
       procedure (Value: Integer)
       begin
         LSuccessCalled := True;

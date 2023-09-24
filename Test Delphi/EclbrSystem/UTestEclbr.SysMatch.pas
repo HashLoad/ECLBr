@@ -118,6 +118,10 @@ type
     procedure TestDefaultExecutionFailure;
     [Test]
     procedure TestMatchWithTTuple;
+    [Test]
+    procedure TestMatchTupla;
+    [Test]
+    procedure TestMatchTuplaAsterisco;
 end;
 
 implementation
@@ -960,6 +964,44 @@ begin
   try
     Assert.AreEqual(10, FValue1);
     Assert.AreEqual(2, FValue2);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchTupla;
+var
+  LTuple: TTuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := ['Idade', 25];
+  LResult := TMatch<TTuple>.Value(LTuple)
+    .CaseEq(['_', 'Alice'], function(Value: TTuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_', 25],      function(Value: TTuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', false],   function(Value: TTuple): TValue begin Result := 'Fria'; end)
+    .Default(               function:                TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchTuplaAsterisco;
+var
+  LTuple: TTuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := ['Idade', 25];
+  LResult := TMatch<TTuple>.Value(LTuple)
+    .CaseEq(['Nome', '*'],   function(Value: TTuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['Idade', '*'],  function(Value: TTuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['Cidade', '*'], function(Value: TTuple): TValue begin Result := 'Fria'; end)
+    .Default(                function:                TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally
     LResult.Dispose;
   end;

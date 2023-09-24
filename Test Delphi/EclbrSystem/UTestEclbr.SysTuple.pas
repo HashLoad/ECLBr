@@ -3,7 +3,11 @@ unit UTestEclbr.SysTuple;
 interface
 
 uses
-  DUnitX.TestFramework, eclbr.tuple;
+  DUnitX.TestFramework,
+  Rtti,
+  eclbr.match,
+  eclbr.result.pair,
+  eclbr.tuple;
 
 type
   [TestFixture]

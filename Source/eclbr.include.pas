@@ -28,6 +28,12 @@ unit eclbr.include;
 
 interface
 
+uses
+  Rtti;
+
+type
+  TTuple = array of TValue;
+
 implementation
 
 end.

@@ -48,12 +48,12 @@ type
     class function New: IECL;
   end;
 
-  IOption<T> = interface
+  IAutoRef<T> = interface
     ['{F1196B06-4C61-4512-B06D-1691199A073C}']
     function Get: T;
   end;
 
-  TOption<T: class> = class sealed(TInterfacedObject, IOption<T>)
+  TAutoRef<T: class> = class sealed(TInterfacedObject, IAutoRef<T>)
   private
     FObjectInternal: T;
   protected
@@ -63,8 +63,8 @@ type
     destructor Destroy; override;
   public
     class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
-      const AArgs: TArray<TValue>): IOption<T>; overload;
-    class function New(const ACallbackNew: TFunc<T>): IOption<T>; overload;
+      const AArgs: TArray<TValue>): IAutoRef<T>; overload;
+    class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
     function Get: T;
   end;
 
@@ -72,35 +72,35 @@ implementation
 
 { TObject<T> }
 
-constructor TOption<T>.Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
+constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
   const AArgs: TArray<TValue>);
 begin
   FObjectInternal := ACallbackNew(AArgs);
 end;
 
-constructor TOption<T>.Create(const ACallbackNew: TFunc<T>);
+constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<T>);
 begin
   FObjectInternal := ACallbackNew();
 end;
 
-destructor TOption<T>.Destroy;
+destructor TAutoRef<T>.Destroy;
 begin
   if Assigned(FObjectInternal) then
     FObjectInternal.Free;
 end;
 
-class function TOption<T>.New(const ACallbackNew: TFunc<T>): IOption<T>;
+class function TAutoRef<T>.New(const ACallbackNew: TFunc<T>): IAutoRef<T>;
 begin
-  Result := TOption<T>.Create(ACallbackNew);
+  Result := TAutoRef<T>.Create(ACallbackNew);
 end;
 
-class function TOption<T>.New(const ACallbackNew: TFunc<TArray<TValue>, T>;
-  const AArgs: TArray<TValue>): IOption<T>;
+class function TAutoRef<T>.New(const ACallbackNew: TFunc<TArray<TValue>, T>;
+  const AArgs: TArray<TValue>): IAutoRef<T>;
 begin
-  Result := TOption<T>.Create(ACallbackNew, AArgs);
+  Result := TAutoRef<T>.Create(ACallbackNew, AArgs);
 end;
 
-function TOption<T>.Get: T;
+function TAutoRef<T>.Get: T;
 begin
   Result := FObjectInternal;
 end;

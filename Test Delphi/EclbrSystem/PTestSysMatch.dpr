@@ -18,7 +18,8 @@ uses
   eclbr.match in '..\..\Source\eclbr.match.pas',
   eclbr.regexlib in '..\..\Source\eclbr.regexlib.pas',
   eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
-  eclbr.tuple in '..\..\Source\eclbr.tuple.pas';
+  eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
+  eclbr.include in '..\..\Source\eclbr.include.pas';
 
 var
   runner : ITestRunner;

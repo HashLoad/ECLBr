@@ -35,6 +35,7 @@ uses
   Variants,
   Generics.Collections,
   Generics.Defaults,
+  eclbr.include,
   eclbr.regexlib,
   eclbr.result.pair;
 
@@ -61,6 +62,8 @@ type
   ///  </remarks>
   {$ENDREGION}
   TCaseGroup = TDictionary<TValue, TValue>;
+
+  TTuple = eclbr.include.TTuple;
 
   // Class implementing the pattern matching
   TMatch<T> = record
@@ -99,11 +102,13 @@ type
     function _ArraysAreEqualInteger(const Arr1: TValue; const Arr2: TValue): boolean;
     function _ArraysAreEqualChar(const Arr1: TValue; const Arr2: TValue): boolean;
     function _ArraysAreEqualString(const Arr1: TValue; const Arr2: TValue): boolean;
+    function _ArraysAreEqualTuple(const Arr1: TValue; const Arr2: TValue): boolean;
     function _ArraysAreNotEqualCaseIf(const APair: TPair<TValue, TValue>): boolean;
     // Private methods for checking array types
     function _IsArrayInteger(const AValue: TValue): boolean;
     function _IsArrayChar(const AValue: TValue): boolean;
     function _IsArrayString(const AValue: TValue): boolean;
+    function _IsArrayTuplePair(const AValue: TValue): boolean;
     // Private methods for executing anonymous methods
     function _ExecuteFuncMatchingCaseIf(const ProcValue: TValue): boolean;
     procedure _ExecuteProcMatchingCaseIf(const ProcValue: TValue);
@@ -293,6 +298,7 @@ type
     {$ENDREGION}
     function CaseEq(const AValue: T; const AProc: TProc<T>): TMatch<T>; overload;
     function CaseEq(const AValue: T; const AFunc: TFunc<T, TValue>): TMatch<T>; overload;
+    function CaseEq(const AValue: TTuple; const AFunc: TFunc<TTuple, TValue>): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseGt'}
     /// <summary>
@@ -1282,6 +1288,9 @@ begin
   else
   if _IsArrayChar(Arr1) then
     Result := _ArraysAreEqualChar(Arr1, Arr2)
+  else
+  if _IsArrayTuplePair(Arr1) then
+    Result := _ArraysAreEqualTuple(Arr1, Arr2)
 end;
 
 function TMatch<T>._ArraysAreEqualChar(const Arr1, Arr2: TValue): boolean;
@@ -1341,6 +1350,29 @@ begin
   Result := true;
 end;
 
+function TMatch<T>._ArraysAreEqualTuple(const Arr1, Arr2: TValue): boolean;
+var
+  LArray1: TTuple;
+  LArray2: TTuple;
+  LFor: integer;
+begin
+  Result := false;
+  LArray1 := Arr1.AsType<TTuple>;
+  LArray2 := Arr2.AsType<TTuple>;
+  if Length(LArray1) <> Length(LArray2) then
+    exit;
+  for LFor := Low(LArray1) to High(LArray1) do
+  begin
+    if LArray2[LFor].ToString = '_' then
+      continue;
+    if LArray2[LFor].ToString = '*' then
+      continue;
+    if LArray1[LFor].ToString <> LArray2[LFor].ToString then
+      exit;
+  end;
+  Result := true;
+end;
+
 procedure TMatch<T>._Dispose;
 var
   LCaseGroup: TCaseGroup;
@@ -1368,6 +1400,11 @@ end;
 function TMatch<T>._IsArrayString(const AValue: TValue): boolean;
 begin
   Result := LowerCase(string(AValue.TypeInfo.Name)) = LowerCase('TArray<System.String>');
+end;
+
+function TMatch<T>._IsArrayTuplePair(const AValue: TValue): boolean;
+begin
+  Result := AValue.IsType<TTuple>;
 end;
 
 function TMatch<T>._IsEquals<I>(const ALeft: I; ARight: I): boolean;
@@ -1698,10 +1735,10 @@ begin
   for LFuncPair in FCaseDictionary['Default_Func'] do
   begin
     if LFuncPair.Value.IsType<TFunc<TValue>> then
-      FResult := TValue.From<TValue>(LFuncPair.Value.AsType<TFunc<TValue>>()())
+      FResult := LFuncPair.Value.AsType<TFunc<TValue>>()()
     else
     if LFuncPair.Value.IsType<TFunc<T, TValue>> then
-      FResult := TValue.From<TValue>(LFuncPair.Value.AsType<TFunc<T, TValue>>()(LFuncPair.Key.AsType<T>));
+      FResult := LFuncPair.Value.AsType<TFunc<T, TValue>>()(LFuncPair.Key.AsType<T>);
     Result := true;
   end;
 end;
@@ -1836,6 +1873,17 @@ begin
   // After transferring, clear all received TMatch instances
   AMatch._Dispose;
   // Set the type after clearing everything
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseEq(const AValue: TTuple;
+  const AFunc: TFunc<TTuple, TValue>): TMatch<T>;
+begin
+  Result := Self;
+  if not (FSession in [sMatch, sGuard, sCase]) then
+    exit;
+  FCaseDictionary['CaseEq_Func'].AddOrSetValue(TValue.From<TTuple>(AValue),
+                                               TValue.From<TFunc<TTuple, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
