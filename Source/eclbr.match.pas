@@ -63,6 +63,7 @@ type
   {$ENDREGION}
   TCaseGroup = TDictionary<TValue, TValue>;
 
+  PTuple = ^Tuple;
   Tuple = eclbr.include.Tuple;
 
   // Class implementing the pattern matching
@@ -76,7 +77,7 @@ type
     FUseRegex: boolean;                       // Indicates if regex is being used
     FGuardCount: integer;                     // Counter for guard
     FRegexCount: integer;                     // Counter for regex
-    FCaseDictionary: TDictionary<string, TCaseGroup>; // Dictionary of simple cases
+    FCaseDictionary: TDictionary<string, TCaseGroup>;  // Dictionary of simple cases
   private
     // Private Guards
     function _MatchingProcCaseIf: boolean;
@@ -153,6 +154,7 @@ type
     procedure _StartVariables;
     // Private method for releasing variables
     procedure _Dispose;
+    procedure _CheckTupleWildcard(LTuple1: PTuple; var LTuple2: Tuple);
     constructor Create(const AValue: T);
   public
     {$REGION 'Doc - Match'}
@@ -1352,25 +1354,43 @@ end;
 
 function TMatch<T>._ArraysAreEqualTuple(const Arr1, Arr2: TValue): boolean;
 var
-  LArray1: Tuple;
-  LArray2: Tuple;
+  LTuple1: Tuple;
+  LTuple2: Tuple;
   LFor: integer;
 begin
   Result := false;
-  LArray1 := Arr1.AsType<Tuple>;
-  LArray2 := Arr2.AsType<Tuple>;
-  if Length(LArray1) <> Length(LArray2) then
+  LTuple1 := Arr1.AsType<Tuple>;
+  LTuple2 := Arr2.AsType<Tuple>;
+  //
+  _CheckTupleWildcard(@LTuple1, LTuple2);
+  //
+  if Length(LTuple1) <> Length(LTuple2) then
     exit;
-  for LFor := Low(LArray1) to High(LArray1) do
+  for LFor := Low(LTuple1) to High(LTuple1) do
   begin
-    if LArray2[LFor].ToString = '_' then
+    if LTuple2[LFor].ToString = '_' then
       continue;
-    if LArray2[LFor].ToString = '*' then
+    if LTuple2[LFor].ToString = '_*' then
       continue;
-    if LArray1[LFor].ToString <> LArray2[LFor].ToString then
+    if LTuple1[LFor].ToString <> LTuple2[LFor].ToString then
       exit;
   end;
   Result := true;
+end;
+
+procedure TMatch<T>._CheckTupleWildcard(LTuple1: PTuple; var LTuple2: Tuple);
+var
+  LValue: TValue;
+  LFor: Integer;
+begin
+  if (LTuple2[0].ToString = '_*') and (Length(LTuple2) < Length(LTuple1^)) then
+  begin
+    LValue := LTuple2[Length(LTuple2) - 1];
+    SetLength(LTuple2, Length(LTuple1^));
+    for LFor := Low(LTuple2) to High(LTuple2) do
+      LTuple2[LFor] := '_';
+    LTuple2[Length(LTuple2) - 1] := LValue;
+  end;
 end;
 
 procedure TMatch<T>._Dispose;

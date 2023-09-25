@@ -78,6 +78,7 @@ type
     class function Min(const A, B: Integer): Integer; overload;
     class function Min(const A, B: Double): Double; overload;
     class function Min(const A, B: Currency): Currency; overload;
+    class function Split(const S: string): TArray<string>;
   end;
 
 implementation
@@ -247,6 +248,15 @@ begin
   while (LLastCharIndex > 0) and not CharInSet(AStr[LLastCharIndex], AChars) do
     Dec(LLastCharIndex);
   Result := Copy(AStr, 1, LLastCharIndex);
+end;
+
+class function TUtils.Split(const S: string): TArray<string>;
+var
+  LFor: integer;
+begin
+  SetLength(Result, Length(S));
+  for LFor := 1 to Length(S) do
+    Result[LFor - 1] := S[LFor];
 end;
 
 class function TUtils.JoinStrings(const AStrings: TArrayString;

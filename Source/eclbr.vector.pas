@@ -210,7 +210,8 @@ type
     /// </summary>
     /// <param name="APredicate">A function that determines whether an element should be included in the filtered vector.</param>
     /// <returns>A new vector containing the elements that satisfy the predicate.</returns>
-    function Filter(const APredicate: TPredicate<T>): TVector<T>;
+    function Filter(const APredicate: TPredicate<T>): TVector<T>; overload;
+    function Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>; overload;
 
     /// <summary>
     ///   Mapeia os elementos desta coleção para uma nova coleção de tipo TResult usando a função de mapeamento fornecida.
@@ -465,6 +466,26 @@ begin
       System.SetLength(LFiltered, System.Length(LFiltered) + 1);
       LFiltered[High(LFiltered)] := LItem;
     end;
+  end;
+  Result := TVector<T>.Create(LFiltered);
+end;
+
+function TVector<T>.Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>;
+var
+  LFiltered: TArrayType;
+  LItem: T;
+  LIndex: integer;
+begin
+  LFiltered := [];
+  LIndex := 0;
+  for LItem in FItems do
+  begin
+    if APredicate(LItem, LIndex) then
+    begin
+      System.SetLength(LFiltered, System.Length(LFiltered) + 1);
+      LFiltered[High(LFiltered)] := LItem;
+    end;
+    Inc(LIndex);
   end;
   Result := TVector<T>.Create(LFiltered);
 end;

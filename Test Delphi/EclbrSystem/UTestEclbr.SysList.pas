@@ -204,29 +204,27 @@ end;
 procedure TListTest.TestListReducerAvg;
 var
   LList: TListEx<integer>;
-  LResult: Tuple;
   LValorEsperado: Double;
-  LValorAvg: Double;
+  LResult: Tuple;
 begin
   LList := TListEx<integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   try
     LResult := LList.Reduce(function(Arg1: integer; Arg2: Tuple): Tuple
                             var
-                              LSum: Integer;
-                              LCount: Integer;
+                              LSum, LCount: integer;
                               LAvg: Double;
                             begin
-                              LSum := Arg1 + Arg2[0].AsType<Integer>;
-                              LCount := Arg2[1].AsType<Integer> + 1;
-                              LAvg := LSum / LCount;
+                              LSum   := Arg2[0].AsType<integer> + Arg1;
+                              LCount := Arg2[1].AsType<integer> + 1;
+                              LAvg   := LSum / LCount;
 
                               Result := [LSum, LCount, LAvg];
                             end,
                             [0, 0, 0]);
     // Sum
-    Assert.AreEqual(55, LResult[0].AsType<Integer>);
+    Assert.AreEqual(55, LResult[0].AsType<integer>);
     // Count
-    Assert.AreEqual(10, LResult[1].AsType<Integer>);
+    Assert.AreEqual(10, LResult[1].AsType<integer>);
     // Avg
     LValorEsperado := 5.5;
     Assert.AreEqual(LValorEsperado, LResult[2].AsType<Double>);

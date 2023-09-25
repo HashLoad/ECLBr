@@ -4,7 +4,11 @@ interface
 
 uses
   DUnitX.TestFramework,
+  SysUtils,
+  StrUtils,
   Generics.Collections,
+  eclbr.utils,
+  eclbr.ifthen,
   eclbr.vector;
 
 type
@@ -54,6 +58,8 @@ type
     procedure TestToString;
     [Test]
     procedure TestEnumerator;
+    [Test]
+    procedure TestFormatCPF;
   end;
 
 implementation
@@ -281,6 +287,36 @@ begin
   LVector.Add(30);
 
   Assert.AreEqual(10, LVector.First);
+end;
+
+procedure TVectorTest.TestFormatCPF;
+var
+  LNumbers: TVector<string>;
+  LResult: Tuple;
+begin
+  LNumbers := TVector<string>.Create(TUtils.Split('12345678900'));
+  LResult := LNumbers.Filter(function(Value: string): boolean
+                             begin
+                               Result := Pos(Value, '0123456789') > 0;
+                             end)
+                     .Filter(function(Value: string; Index: integer): boolean
+                             begin
+                               Result := Index <= 10;
+                             end)
+                     .Reduce(function(Arg1: string; Arg2: Tuple): Tuple
+                             var
+                               LPonto, LTraco, LCpf: string;
+                             begin
+                               LPonto := TUtils.IfThen<string>((Arg2[1].AsType<integer> = 3) or
+                                                               (Arg2[1].AsType<integer> = 6), '.', '');
+                               LTraco := TUtils.IfThen<string>((Arg2[1].AsType<integer> = 9), '-', '');
+                               LCpf := Arg2[0].AsType<String> + LPonto + LTraco + Arg1;
+
+                               Result := [LCpf, Arg2[1].AsType<integer> + 1];
+                             end,
+                             ['', 0]);
+
+  Assert.AreEqual('123.456.789-00', LResult[0].AsType<String>);
 end;
 
 procedure TVectorTest.TestLast;

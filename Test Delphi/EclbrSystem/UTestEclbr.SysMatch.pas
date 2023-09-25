@@ -122,6 +122,10 @@ type
     procedure TestMatchTupla;
     [Test]
     procedure TestMatchTuplaAsterisco;
+    [Test]
+    procedure TestMatchTuplaAsterisco2;
+    [Test]
+    procedure TestMatchTuplaAsterisco3;
 end;
 
 implementation
@@ -995,10 +999,48 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['Nome', '*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['Idade', '*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['Cidade', '*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                function:               TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchTuplaAsterisco2;
+var
+  LTuple: Tuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := ['Idade', 25, true];
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_*', true],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(              function:               TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchTuplaAsterisco3;
+var
+  LTuple: Tuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := ['Idade', 25, true];
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_', '_', true],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(              function:                   TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
