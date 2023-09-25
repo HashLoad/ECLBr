@@ -527,13 +527,6 @@ begin
   end;
 end;
 
-{ TMyClass }
-
-class function TMyClass.New: TMyClass;
-begin
-  Result := TMyClass.Create;
-end;
-
 initialization
   TDUnitX.RegisterTestFixture(TTestTResultPair);
 end.

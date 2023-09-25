@@ -18,7 +18,8 @@ uses
   eclbr.list in '..\..\Source\eclbr.list.pas',
   eclbr.utils in '..\..\Source\eclbr.utils.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.map in '..\..\Source\eclbr.map.pas';
+  eclbr.map in '..\..\Source\eclbr.map.pas',
+  eclbr.include in '..\..\Source\eclbr.include.pas';
 
 var
   runner : ITestRunner;

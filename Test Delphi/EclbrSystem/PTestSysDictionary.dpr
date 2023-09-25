@@ -19,7 +19,8 @@ uses
   eclbr.map in '..\..\Source\eclbr.map.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
   eclbr.list in '..\..\Source\eclbr.list.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas';
+  eclbr.utils in '..\..\Source\eclbr.utils.pas',
+  eclbr.include in '..\..\Source\eclbr.include.pas';
 
 var
   runner : ITestRunner;

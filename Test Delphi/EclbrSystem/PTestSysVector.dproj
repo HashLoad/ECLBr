@@ -103,6 +103,7 @@
         </DelphiCompile>
         <DCCReference Include="UTestEclbr.SysVector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.include.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

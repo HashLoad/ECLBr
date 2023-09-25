@@ -15,7 +15,8 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   UTestEclbr.SysVector in 'UTestEclbr.SysVector.pas',
-  eclbr.vector in '..\..\Source\eclbr.vector.pas';
+  eclbr.vector in '..\..\Source\eclbr.vector.pas',
+  eclbr.include in '..\..\Source\eclbr.include.pas';
 
 var
   runner : ITestRunner;

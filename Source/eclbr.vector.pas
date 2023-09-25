@@ -34,9 +34,12 @@ uses
   StrUtils,
   TypInfo,
   Generics.Defaults,
-  Generics.Collections;
+  Generics.Collections,
+  eclbr.include;
 
 type
+  Tuple = eclbr.include.Tuple;
+
   IVectorEnumerator<T> = interface
     ['{1E9F92D8-4EF1-4D15-9160-9B00013BA97D}']
     function GetCurrent: T;
@@ -218,7 +221,16 @@ type
     /// <returns>
     ///   Uma nova coleção contendo os elementos resultantes da aplicação da função de mapeamento.
     /// </returns>
-    function Map<TResult: class>(const AMappingFunc: TFunc<T, TResult>): TVector<TResult>;
+    function Map<R>(const AMappingFunc: TFunc<T, R>): TVector<R>;
+
+    /// <summary>
+    ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
+    /// </summary>
+    /// <param name="AAccumulator">The accumulator function used to combine elements.</param>
+    /// <returns>The accumulated result.</returns>
+    function Reduce(const AAccumulator: TFunc<T, T, T>): T; overload;
+
+    function Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>; const ATuple: Tuple): Tuple; overload;
 
     /// <summary>
     ///   Returns the first element in the vector.
@@ -404,12 +416,11 @@ begin
   raise Exception.Create('No non-empty elements found');
 end;
 
-function TVector<T>.Map<TResult>(
-  const AMappingFunc: TFunc<T, TResult>): TVector<TResult>;
+function TVector<T>.Map<R>(const AMappingFunc: TFunc<T, R>): TVector<R>;
 var
   LItem: T;
 begin
-  Result := TVector<TResult>.Create([]);
+  Result := TVector<R>.Create([]);
   for LItem in Self do
     Result.Add(AMappingFunc(LItem));
 end;
@@ -477,6 +488,31 @@ var
 begin
   for LItem in FItems do
     Action(LItem);
+end;
+
+function TVector<T>.Reduce(const AAccumulator: TFunc<T, T, T>): T;
+var
+  LItem: T;
+begin
+  if Self.Count = 0 then
+    raise Exception.Create('Vector is empty, cannot reduce.');
+
+  Result := Default(T);
+  for LItem in Self do
+    Result := AAccumulator(Result, LItem);
+end;
+
+function TVector<T>.Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>;
+  const ATuple: Tuple): Tuple;
+var
+  LItem: T;
+begin
+  if Self.Count = 0 then
+    raise Exception.Create('List is empty, cannot reduce.');
+
+  Result := ATuple;
+  for LItem in Self do
+    Result := AAccumulator(LItem, Result);
 end;
 
 procedure TVector<T>.Remove(const AItem: T);

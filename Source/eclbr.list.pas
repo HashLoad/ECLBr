@@ -34,9 +34,12 @@ uses
   Generics.Defaults,
   Generics.Collections,
   eclbr.map,
+  eclbr.include,
   eclbr.vector;
 
 type
+  Tuple = eclbr.include.Tuple;
+
   TPairList<L, R> = record
     Left: L;
     Right: R;
@@ -103,7 +106,9 @@ type
     /// </summary>
     /// <param name="AAccumulator">The accumulator function used to combine elements.</param>
     /// <returns>The accumulated result.</returns>
-    function Reduce(const AAccumulator: TFunc<T, T, T>): T;
+    function Reduce(const AAccumulator: TFunc<T, T, T>): T; overload;
+
+    function Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>; const ATuple: Tuple): Tuple; overload;
 
     /// <summary>
     ///   Groups elements in the list based on a specified key selector function and returns a dictionary of lists where each key corresponds to a group of elements.
@@ -593,9 +598,22 @@ begin
   if Self.Count = 0 then
     raise Exception.Create('List is empty, cannot reduce.');
 
-  Result := Self[0];
+  Result := Default(T);
   for LItem in Self do
     Result := AAccumulator(Result, LItem);
+end;
+
+function TListEx<T>.Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>;
+  const ATuple: Tuple): Tuple;
+var
+  LItem: T;
+begin
+  if Self.Count = 0 then
+    raise Exception.Create('List is empty, cannot reduce.');
+
+  Result := ATuple;
+  for LItem in Self do
+    Result := AAccumulator(LItem, Result);
 end;
 
 procedure TListEx<T>.Rotate(const Count: integer);
