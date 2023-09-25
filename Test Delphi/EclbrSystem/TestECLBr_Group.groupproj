@@ -24,9 +24,6 @@
         <Projects Include="PTestSysList.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysIfThen.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="PTestSysStream.dproj">
             <Dependencies/>
         </Projects>
@@ -107,15 +104,6 @@
     <Target Name="PTestSysList:Make">
         <MSBuild Projects="PTestSysList.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysIfThen">
-        <MSBuild Projects="PTestSysIfThen.dproj"/>
-    </Target>
-    <Target Name="PTestSysIfThen:Clean">
-        <MSBuild Projects="PTestSysIfThen.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="PTestSysIfThen:Make">
-        <MSBuild Projects="PTestSysIfThen.dproj" Targets="Make"/>
-    </Target>
     <Target Name="PTestSysStream">
         <MSBuild Projects="PTestSysStream.dproj"/>
     </Target>
@@ -144,13 +132,13 @@
         <MSBuild Projects="PTestObjectLib.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysIfThen;PTestSysStream;PTestSysDirectory;PTestObjectLib"/>
+        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysStream;PTestSysDirectory;PTestObjectLib"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysIfThen:Clean;PTestSysStream:Clean;PTestSysDirectory:Clean;PTestObjectLib:Clean"/>
+        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysStream:Clean;PTestSysDirectory:Clean;PTestObjectLib:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysIfThen:Make;PTestSysStream:Make;PTestSysDirectory:Make;PTestObjectLib:Make"/>
+        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysStream:Make;PTestSysDirectory:Make;PTestObjectLib:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

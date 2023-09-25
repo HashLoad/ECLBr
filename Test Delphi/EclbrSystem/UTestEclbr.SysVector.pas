@@ -8,7 +8,6 @@ uses
   StrUtils,
   Generics.Collections,
   eclbr.utils,
-  eclbr.ifthen,
   eclbr.vector;
 
 type
