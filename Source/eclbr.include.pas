@@ -32,7 +32,7 @@ uses
   Rtti;
 
 type
-  TTuple = array of TValue;
+  Tuple = array of TValue;
 
 implementation
 

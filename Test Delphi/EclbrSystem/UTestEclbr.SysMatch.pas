@@ -971,15 +971,15 @@ end;
 
 procedure TestTMatch.TestMatchTupla;
 var
-  LTuple: TTuple;
+  LTuple: Tuple;
   LResult: TResultPair<string, string>;
 begin
   LTuple := ['Idade', 25];
-  LResult := TMatch<TTuple>.Value(LTuple)
-    .CaseEq(['_', 'Alice'], function(Value: TTuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', 25],      function(Value: TTuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['_', false],   function(Value: TTuple): TValue begin Result := 'Fria'; end)
-    .Default(               function:                TValue begin Result := 'Default'; end)
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq(['_', 'Alice'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_', 25],      function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', false],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(               function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
@@ -990,15 +990,15 @@ end;
 
 procedure TestTMatch.TestMatchTuplaAsterisco;
 var
-  LTuple: TTuple;
+  LTuple: Tuple;
   LResult: TResultPair<string, string>;
 begin
   LTuple := ['Idade', 25];
-  LResult := TMatch<TTuple>.Value(LTuple)
-    .CaseEq(['Nome', '*'],   function(Value: TTuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['Idade', '*'],  function(Value: TTuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['Cidade', '*'], function(Value: TTuple): TValue begin Result := 'Fria'; end)
-    .Default(                function:                TValue begin Result := 'Default'; end)
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq(['Nome', '*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['Idade', '*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['Cidade', '*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(                function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
