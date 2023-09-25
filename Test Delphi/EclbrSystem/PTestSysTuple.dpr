@@ -17,6 +17,7 @@ uses
   UTestEclbr.SysTuple in 'UTestEclbr.SysTuple.pas',
   eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
   eclbr.match in '..\..\Source\eclbr.match.pas',
+  eclbr.include in '..\..\Source\eclbr.include.pas',
   eclbr.regexlib in '..\..\Source\eclbr.regexlib.pas',
   eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas';
 

@@ -5,9 +5,9 @@ interface
 uses
   DUnitX.TestFramework,
   Rtti,
+  eclbr.tuple,
   eclbr.match,
-  eclbr.result.pair,
-  eclbr.tuple;
+  eclbr.result.pair;
 
 type
   [TestFixture]
@@ -26,6 +26,10 @@ type
     procedure TestStrIntTuplaNew;
     [Test]
     procedure TestIntDoubleTuplaNew;
+    [Test]
+    procedure TestMatchTupla;
+    [Test]
+    procedure TestMatchTuplaAsterisco;
   end;
 
 implementation
@@ -79,6 +83,44 @@ begin
 
   LValueDouble := LTuplaIntDouble.Get<Double>(2);
   Assert.AreEqual(2.2, LValueDouble, 0.01);
+end;
+
+procedure TestTuple.TestMatchTupla;
+var
+  LTuple: Tuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := ['Idade', 25];
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq(['_', 'Alice'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_', 25],      function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', false],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(               function:               TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTuple.TestMatchTuplaAsterisco;
+var
+  LTuple: Tuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := ['Idade', 25];
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq(['Nome', '*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['Idade', '*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['Cidade', '*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(                function:               TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
 end;
 
 procedure TestTuple.TestStrIntTuplaNew;
