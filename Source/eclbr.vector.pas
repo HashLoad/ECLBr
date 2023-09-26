@@ -244,6 +244,13 @@ type
     function Reduce(const AAccumulator: TFunc<T, T, T>): T; overload;
 
     /// <summary>
+    ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
+    /// </summary>
+    /// <param name="AAccumulator">The accumulator function used to combine elements.</param>
+    /// <returns>The accumulated result.</returns>
+    function Reduce(const AAccumulator: TFunc<T, T, T>; const AInitial: T): T; overload;
+
+    /// <summary>
     ///   Reduces a tuple based on a provided accumulator function.
     /// </summary>
     /// <param name="AAccumulator">
@@ -550,6 +557,19 @@ begin
   Result := ATuple;
   for LItem in Self do
     Result := AAccumulator(LItem, Result);
+end;
+
+function TVector<T>.Reduce(const AAccumulator: TFunc<T, T, T>;
+  const AInitial: T): T;
+var
+  LItem: T;
+begin
+  if Self.Count = 0 then
+    raise Exception.Create('Vector is empty, cannot reduce.');
+
+  Result := AInitial;
+  for LItem in Self do
+    Result := AAccumulator(Result, LItem);
 end;
 
 procedure TVector<T>.Remove(const AItem: T);

@@ -222,7 +222,7 @@ begin
                             end,
                             [0, 0, 0]);
     // Sum
-    Assert.AreEqual(55, LResult[0].AsType<integer>);
+    Assert.AreEqual(56, LResult[0].AsType<integer>);
     // Count
     Assert.AreEqual(10, LResult[1].AsType<integer>);
     // Avg

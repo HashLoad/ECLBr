@@ -16,7 +16,7 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   UTestEclbr.ObjectLib in 'UTestEclbr.ObjectLib.pas',
-  eclbr.objectlib in '..\..\Source\eclbr.objectlib.pas';
+  eclbr.objects in '..\..\Source\eclbr.objects.pas';
 
 var
   runner : ITestRunner;

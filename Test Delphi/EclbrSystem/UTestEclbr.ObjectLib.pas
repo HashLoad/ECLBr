@@ -4,7 +4,7 @@ interface
 
 uses
   DUnitX.TestFramework,
-  eclbr.objectlib;
+  eclbr.objects;
 
 type
   TMyClass = class

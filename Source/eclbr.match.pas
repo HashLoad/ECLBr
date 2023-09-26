@@ -70,13 +70,13 @@ type
   TMatch<T> = record
   private
     // Class variables to store relevant matching information
-    FValue: TValue;                           // Value to be matched
-    FResult: TValue;                          // Result to be matched
-    FSession: TMatchSession;                  // Current state of the matching session
-    FUseGuard: boolean;                       // Indicates if guard is being used
-    FUseRegex: boolean;                       // Indicates if regex is being used
-    FGuardCount: integer;                     // Counter for guard
-    FRegexCount: integer;                     // Counter for regex
+    FValue: TValue;           // Value to be matched
+    FResult: TValue;          // Result to be matched
+    FSession: TMatchSession;  // Current state of the matching session
+    FUseGuard: boolean;       // Indicates if guard is being used
+    FUseRegex: boolean;       // Indicates if regex is being used
+    FGuardCount: integer;     // Counter for guard
+    FRegexCount: integer;     // Counter for regex
     FCaseDictionary: TDictionary<string, TCaseGroup>;  // Dictionary of simple cases
   private
     // Private Guards

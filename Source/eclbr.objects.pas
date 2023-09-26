@@ -24,7 +24,7 @@
   @Telegram(https://t.me/ormbr)
 }
 
-unit eclbr.objectlib;
+unit eclbr.objects;
 
 {$I ..\eclbr.inc}
 
@@ -69,12 +69,14 @@ type
     constructor Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
       const AArgs: TArray<TValue>); overload;
     constructor Create; overload;
+    constructor Create(const AObject: T); overload;
     destructor Destroy; override;
   public
     class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
       const AArgs: TArray<TValue>): IAutoRef<T>; overload;
     class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
     class function New: IAutoRef<T>; overload;
+    class function New(const AObject: T): IAutoRef<T>; overload;
     function Get: T;
   end;
 
@@ -101,6 +103,11 @@ begin
   FObjectInternal := LNewT.Factory(T, []) as T;
 end;
 
+constructor TAutoRef<T>.Create(const AObject: T);
+begin
+  FObjectInternal := AObject;
+end;
+
 destructor TAutoRef<T>.Destroy;
 begin
   if Assigned(FObjectInternal) then
@@ -121,6 +128,11 @@ end;
 function TAutoRef<T>.Get: T;
 begin
   Result := FObjectInternal;
+end;
+
+class function TAutoRef<T>.New(const AObject: T): IAutoRef<T>;
+begin
+  Result := TAutoRef<T>.Create(AObject);
 end;
 
 class function TAutoRef<T>.New: IAutoRef<T>;

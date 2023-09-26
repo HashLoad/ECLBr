@@ -106,6 +106,7 @@
         <DCCReference Include="..\..\Source\eclbr.map.pas"/>
         <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.include.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.objects.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

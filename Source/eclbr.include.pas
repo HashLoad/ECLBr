@@ -36,4 +36,9 @@ type
 
 implementation
 
+const CASE_IF_PROC = 'CaseIf_Proc';
+const CASE_IF_FUNC = 'CaseIf_Func';
+const CASE_EQ_PROC = 'CaseEq_Proc';
+const CASE_EQ_FUNC = 'CaseEq_Func';
+
 end.

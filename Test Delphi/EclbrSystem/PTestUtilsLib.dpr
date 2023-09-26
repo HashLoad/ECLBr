@@ -17,7 +17,7 @@ uses
   DUnitX.TestFramework,
   UTestEclbr.UtilsLib in 'UTestEclbr.UtilsLib.pas',
   eclbr.utils in '..\..\Source\eclbr.utils.pas',
-  eclbr.objectlib in '..\..\Source\eclbr.objectlib.pas';
+  eclbr.objects in '..\..\Source\eclbr.objects.pas';
 
 var
   runner : ITestRunner;

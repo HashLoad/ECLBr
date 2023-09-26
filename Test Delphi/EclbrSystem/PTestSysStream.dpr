@@ -18,7 +18,8 @@ uses
   UTestEclbr.StreamReader in 'UTestEclbr.StreamReader.pas',
   eclbr.map in '..\..\Source\eclbr.map.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas';
+  eclbr.include in '..\..\Source\eclbr.include.pas',
+  eclbr.objects in '..\..\Source\eclbr.objects.pas';
 
 var
   runner : ITestRunner;

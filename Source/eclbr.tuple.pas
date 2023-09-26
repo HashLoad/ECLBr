@@ -32,9 +32,12 @@ uses
   Rtti,
   SysUtils,
   Generics.Collections,
-  Generics.Defaults;
+  Generics.Defaults,
+  eclbr.include;
 
 type
+  Tuple = eclbr.include.Tuple;
+
   TTuple<K> = packed record
   private
     FTuplesPair: TArray<TPair<K, TValue>>;

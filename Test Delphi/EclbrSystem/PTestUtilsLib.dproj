@@ -97,7 +97,7 @@
         </DelphiCompile>
         <DCCReference Include="UTestEclbr.UtilsLib.pas"/>
         <DCCReference Include="..\..\Source\eclbr.utils.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.objectlib.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.objects.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

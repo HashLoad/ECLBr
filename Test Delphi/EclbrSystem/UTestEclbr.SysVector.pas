@@ -49,8 +49,6 @@ type
     procedure TestLast;
     [Test]
     procedure TestAsType;
-//    [Test]
-//    procedure TestAsPointer;
     [Test]
     procedure TestAsList;
     [Test]
@@ -59,6 +57,8 @@ type
     procedure TestEnumerator;
     [Test]
     procedure TestFormatCPF;
+    [Test]
+    procedure TestFactorialCalculation;
   end;
 
 implementation
@@ -253,10 +253,27 @@ begin
   Assert.AreEqual(50, LVector[4]);
 end;
 
+procedure TVectorTest.TestFactorialCalculation;
+var
+  LVector: TVector<integer>;
+  LFactorial: integer;
+begin
+  // Arrange
+  LVector := TVector<integer>.Create([1, 2, 3, 4, 5, 6, 7]);
+
+  // Act
+  LFactorial := LVector.Reduce(function(Acc: integer; Item: integer): integer
+                               begin
+                                 Result := Acc * Item;
+                               end, 1);
+  // Assert
+  Assert.AreEqual(5040, LFactorial, 'Factorial calculation is incorrect.');
+end;
+
 procedure TVectorTest.TestFilter;
 var
-  LVector: TVector<Integer>;
-  LArrayFiltered: TVector<Integer>;
+  LVector: TVector<integer>;
+  LArrayFiltered: TVector<integer>;
 begin
   LVector.Add(10);
   LVector.Add(20);
@@ -339,16 +356,6 @@ begin
   Assert.IsNotNull(PTypeInfo);
 end;
 
-//procedure TArrayDataTest.TestAsPointer;
-//var
-//  LDataArray: PPairArray<Integer>;
-//begin
-//  LDataArray := FDataArray.AsPointer;
-//
-//  Assert.IsNotNull(PDataArray);
-//  Assert.AreEqual(FDataArray, PDataArray^);
-//end;
-
 procedure TVectorTest.TestAsList;
 var
   LVector: TVector<Integer>;
@@ -401,7 +408,6 @@ begin
 
   Assert.AreEqual('Three', Last);
 end;
-
 
 initialization
   TDUnitX.RegisterTestFixture(TVectorTest);
