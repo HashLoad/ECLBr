@@ -9,6 +9,7 @@ uses
 type
   TMyClass = class
   public
+    destructor Destroy; override;
     class function New: TMyClass;
     function GetMessage: string;
   end;
@@ -21,7 +22,9 @@ type
     [TearDown]
     procedure TearDown;
     [Test]
-    procedure TestOption;
+    procedure TestAutoRef_New;
+    [Test]
+    procedure TestAutoRef_Create;
   end;
 
 implementation
@@ -36,7 +39,17 @@ begin
 
 end;
 
-procedure TTestObectLib.TestOption;
+procedure TTestObectLib.TestAutoRef_Create;
+var
+  LOption: IAutoRef<TMyClass>;
+begin
+  LOption := TAutoRef<TMyClass>.New;
+
+  Assert.IsNotNull(LOption.Get);
+  Assert.AreEqual('Hello word', LOption.Get.GetMessage);
+end;
+
+procedure TTestObectLib.TestAutoRef_New;
 var
   LOption: IAutoRef<TMyClass>;
 begin
@@ -47,6 +60,12 @@ begin
 end;
 
 { TMyClass }
+
+destructor TMyClass.Destroy;
+begin
+  // Debugar aqui para verificar se está sendo liberado.
+  inherited;
+end;
 
 function TMyClass.GetMessage: string;
 begin

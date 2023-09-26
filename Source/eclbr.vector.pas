@@ -211,6 +211,18 @@ type
     /// <param name="APredicate">A function that determines whether an element should be included in the filtered vector.</param>
     /// <returns>A new vector containing the elements that satisfy the predicate.</returns>
     function Filter(const APredicate: TPredicate<T>): TVector<T>; overload;
+
+    /// <summary>
+    ///   Filters the elements of the vector based on a provided predicate.
+    /// </summary>
+    /// <param name="APredicate">
+    ///   A function that determines whether an element should be included in the filtered vector.
+    ///   The function takes two parameters: the element of the vector and its index, and should return True
+    ///   if the element should be included in the filtered vector, or False if it should be excluded.
+    /// </param>
+    /// <returns>
+    ///   A new vector containing the elements that satisfy the predicate.
+    /// </returns>
     function Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>; overload;
 
     /// <summary>
@@ -231,6 +243,20 @@ type
     /// <returns>The accumulated result.</returns>
     function Reduce(const AAccumulator: TFunc<T, T, T>): T; overload;
 
+    /// <summary>
+    ///   Reduces a tuple based on a provided accumulator function.
+    /// </summary>
+    /// <param name="AAccumulator">
+    ///   A function that accumulates values in the tuple.
+    ///   The function takes two parameters: the current value of the tuple and the accumulated value,
+    ///   and should return a new accumulated value.
+    /// </param>
+    /// <param name="ATuple">
+    ///   The initial tuple to start the reduction process.
+    /// </param>
+    /// <returns>
+    ///   A new tuple resulting from the reduction process.
+    /// </returns>
     function Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>; const ATuple: Tuple): Tuple; overload;
 
     /// <summary>
@@ -455,39 +481,29 @@ end;
 
 function TVector<T>.Filter(const APredicate: TPredicate<T>): TVector<T>;
 var
-  LFiltered: TArrayType;
   LItem: T;
 begin
-  LFiltered := [];
+  Result := TVector<T>.Create([]);
   for LItem in FItems do
   begin
     if APredicate(LItem) then
-    begin
-      System.SetLength(LFiltered, System.Length(LFiltered) + 1);
-      LFiltered[High(LFiltered)] := LItem;
-    end;
+      Result.Add(LItem);
   end;
-  Result := TVector<T>.Create(LFiltered);
 end;
 
 function TVector<T>.Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>;
 var
-  LFiltered: TArrayType;
   LItem: T;
   LIndex: integer;
 begin
-  LFiltered := [];
+  Result := TVector<T>.Create([]);
   LIndex := 0;
   for LItem in FItems do
   begin
     if APredicate(LItem, LIndex) then
-    begin
-      System.SetLength(LFiltered, System.Length(LFiltered) + 1);
-      LFiltered[High(LFiltered)] := LItem;
-    end;
+      Result.Add(LItem);
     Inc(LIndex);
   end;
-  Result := TVector<T>.Create(LFiltered);
 end;
 
 function TVector<T>.First: T;

@@ -121,11 +121,15 @@ type
     [Test]
     procedure TestMatchTupla;
     [Test]
-    procedure TestMatchTuplaAsterisco;
+    procedure TestMatchTupla_1;
     [Test]
-    procedure TestMatchTuplaAsterisco2;
+    procedure TestMatchTupla_2;
     [Test]
-    procedure TestMatchTuplaAsterisco3;
+    procedure TestMatchTupla_3;
+    [Test]
+    procedure TestMatchTupla_4;
+    [Test]
+    procedure TestMatchHttpStatus;
 end;
 
 implementation
@@ -973,6 +977,28 @@ begin
   end;
 end;
 
+procedure TestTMatch.TestMatchHttpStatus;
+var
+  LMatchResult: TResultPair<string, string>;
+  LStatus: integer;
+begin
+  LStatus := 400;
+
+  LMatchResult := TMatch<integer>.Value(LStatus)
+                       .CaseEq(200, function: TValue begin Result := 'OK'; end)
+                       .CaseEq(400, function: TValue begin Result := 'Bad request'; end)
+                       .CaseEq(404, function: TValue begin Result := 'Not found'; end)
+                       .CaseEq(418, function: TValue begin Result := 'I´m a teapot'; end)
+                       .Default(    function: TValue begin Result := 'Something´s wrong with the Internet'; end)
+                       .Execute<string>;
+  try
+    Assert.IsTrue(LMatchResult.isSuccess, 'Expected match to be successful');
+    Assert.AreEqual(LMatchResult.ValueSuccess, 'Bad request');
+  finally
+    LMatchResult.Dispose;
+  end;
+end;
+
 procedure TestTMatch.TestMatchTupla;
 var
   LTuple: Tuple;
@@ -992,7 +1018,7 @@ begin
   end;
 end;
 
-procedure TestTMatch.TestMatchTuplaAsterisco;
+procedure TestTMatch.TestMatchTupla_1;
 var
   LTuple: Tuple;
   LResult: TResultPair<string, string>;
@@ -1002,7 +1028,7 @@ begin
     .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
     .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
-    .Default(                function:               TValue begin Result := 'Default'; end)
+    .Default(                 function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
@@ -1011,7 +1037,7 @@ begin
   end;
 end;
 
-procedure TestTMatch.TestMatchTuplaAsterisco2;
+procedure TestTMatch.TestMatchTupla_2;
 var
   LTuple: Tuple;
   LResult: TResultPair<string, string>;
@@ -1030,7 +1056,7 @@ begin
   end;
 end;
 
-procedure TestTMatch.TestMatchTuplaAsterisco3;
+procedure TestTMatch.TestMatchTupla_3;
 var
   LTuple: Tuple;
   LResult: TResultPair<string, string>;
@@ -1041,6 +1067,25 @@ begin
     .CaseEq(['_', '_', true],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
     .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:                   TValue begin Result := 'Default'; end)
+    .Execute<string>;
+  try
+    Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchTupla_4;
+var
+  LTuple: Tuple;
+  LResult: TResultPair<string, string>;
+begin
+  LTuple := [1, 2, 3];
+  LResult := TMatch<Tuple>.Value(LTuple)
+    .CaseEq([0, '_', '_'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_', 2, '_'], function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq([2, '_', '_'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);

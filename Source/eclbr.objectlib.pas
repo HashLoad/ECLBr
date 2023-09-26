@@ -32,7 +32,10 @@ interface
 
 uses
   Rtti,
-  SysUtils;
+  SysUtils,
+  Classes,
+  Variants,
+  Generics.Collections;
 
 type
   IECL = interface
@@ -41,30 +44,37 @@ type
       const AMethodName: string = 'Create'): TObject;
   end;
 
-  TObjectLib = class sealed(TInterfacedObject, IECL)
+  TObjectEx = class sealed(TInterfacedObject, IECL)
+  private
+    FContext: TRttiContext;
+  protected
+    constructor Create;
+    destructor Destroy;
   public
+    class function New: IECL;
     function Factory(const AClass: TClass;
       const AArgs: TArray<TValue> = []; const AMethodName: string = 'Create'): TObject;
-    class function New: IECL;
   end;
 
-  IAutoRef<T> = interface
+  IAutoRef<T: class, constructor> = interface
     ['{F1196B06-4C61-4512-B06D-1691199A073C}']
     function Get: T;
   end;
 
-  TAutoRef<T: class> = class sealed(TInterfacedObject, IAutoRef<T>)
+  TAutoRef<T: class, constructor> = class sealed(TInterfacedObject, IAutoRef<T>)
   private
     FObjectInternal: T;
   protected
     constructor Create(const ACallbackNew: TFunc<T>); overload;
     constructor Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
       const AArgs: TArray<TValue>); overload;
+    constructor Create; overload;
     destructor Destroy; override;
   public
     class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
       const AArgs: TArray<TValue>): IAutoRef<T>; overload;
     class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
+    class function New: IAutoRef<T>; overload;
     function Get: T;
   end;
 
@@ -81,6 +91,14 @@ end;
 constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<T>);
 begin
   FObjectInternal := ACallbackNew();
+end;
+
+constructor TAutoRef<T>.Create;
+var
+  LNewT: IECL;
+begin
+  LNewT := TObjectEx.New;
+  FObjectInternal := LNewT.Factory(T, []) as T;
 end;
 
 destructor TAutoRef<T>.Destroy;
@@ -105,35 +123,42 @@ begin
   Result := FObjectInternal;
 end;
 
-{ TObjectLib }
+class function TAutoRef<T>.New: IAutoRef<T>;
+begin
+  Result := TAutoRef<T>.Create;
+end;
 
-function TObjectLib.Factory(const AClass: TClass;
+constructor TObjectEx.Create;
+begin
+  FContext := TRttiContext.Create;
+end;
+
+destructor TObjectEx.Destroy;
+begin
+  FContext.Free;
+end;
+
+function TObjectEx.Factory(const AClass: TClass;
   const AArgs: TArray<TValue>; const AMethodName: string): TObject;
 var
-  LContext: TRttiContext;
   LConstructor: TRttiMethod;
   LInstance: TValue;
   LType: TRttiType;
 begin
   try
-    LContext := TRttiContext.Create;
-    try
-      LType := LContext.GetType(AClass);
-      LConstructor := LType.GetMethod(AMethodName);
-      if not LConstructor.IsConstructor then
-        raise Exception.CreateFmt('Constructor method %s not found in class %s', [AMethodName, AClass.ClassName]);
-      LInstance := LConstructor.Invoke(LType.AsInstance.MetaClassType, AArgs);
-      Result := LInstance.AsObject;
-    finally
-      LContext.Free;
-    end;
+    LType := FContext.GetType(AClass);
+    LConstructor := LType.GetMethod(AMethodName);
+    if not LConstructor.IsConstructor then
+      raise Exception.CreateFmt('Constructor method %s not found in class %s', [AMethodName, AClass.ClassName]);
+    LInstance := LConstructor.Invoke(LType.AsInstance.MetaClassType, AArgs);
+    Result := LInstance.AsObject;
   except
     on E: Exception do
       raise Exception.CreateFmt('Error class [%s] : %s', [AClass.ClassName, E.Message]);
   end;
 end;
 
-class function TObjectLib.New: IECL;
+class function TObjectEx.New: IECL;
 begin
   Result := Self.Create;
 end;

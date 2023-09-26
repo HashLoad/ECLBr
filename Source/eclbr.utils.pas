@@ -32,6 +32,7 @@ uses
   Rtti,
   Classes,
   SysUtils,
+  DateUtils,
   Generics.Collections;
 
 type
@@ -180,25 +181,25 @@ end;
 class function TUtils.Iso8601ToDateTime(const AValue: string;
   const AUseISO8601DateFormat: Boolean): TDateTime;
 var
-  LYYYY, LMM, LDD, LHH, LMI, LSS: Cardinal;
+  LYYYY, LMM, LDD, LHH, LMI, LSS, LMS: integer;
 begin
-  if AUseISO8601DateFormat then
-    Result := StrToDateTimeDef(AValue, 0)
-  else
-    Result := StrToDateTimeDef(AValue, 0, FormatSettings);
-
-  if Length(AValue) = 19 then
+  if not AUseISO8601DateFormat then
   begin
-    LYYYY := StrToIntDef(Copy(AValue, 1, 4), 0);
-    LMM := StrToIntDef(Copy(AValue, 6, 2), 0);
-    LDD := StrToIntDef(Copy(AValue, 9, 2), 0);
-    LHH := StrToIntDef(Copy(AValue, 12, 2), 0);
-    LMI := StrToIntDef(Copy(AValue, 15, 2), 0);
-    LSS := StrToIntDef(Copy(AValue, 18, 2), 0);
-    if (LYYYY <= 9999) and (LMM <= 12) and (LDD <= 31) and
-       (LHH < 24) and (LMI < 60) and (LSS < 60) then
-      Result := EncodeDate(LYYYY, LMM, LDD) + EncodeTime(LHH, LMI, LSS, 0);
+    Result := StrToDateTimeDef(AValue, 0);
+    exit;
   end;
+  LYYYY := 0; LMM := 0; LDD := 0; LHH := 0; LMI := 0; LSS := 0; LMS := 0;
+  if TryStrToInt(Copy(AValue, 1, 4), LYYYY) and
+     TryStrToInt(Copy(AValue, 6, 2), LMM) and
+     TryStrToInt(Copy(AValue, 9, 2), LDD) and
+     TryStrToInt(Copy(AValue, 12, 2), LHH) and
+     TryStrToInt(Copy(AValue, 15, 2), LMI) and
+     TryStrToInt(Copy(AValue, 18, 2), LSS) then
+  begin
+    Result := EncodeDateTime(LYYYY, LMM, LDD, LHH, LMI, LSS, LMS);
+  end
+  else
+    Result := 0;
 end;
 
 class function TUtils.JoinStrings(const AStrings: TListString;
@@ -245,7 +246,7 @@ var
   LLastCharIndex: integer;
 begin
   LLastCharIndex := Length(AStr);
-  while (LLastCharIndex > 0) and not CharInSet(AStr[LLastCharIndex], AChars) do
+  while (LLastCharIndex > 0) and CharInSet(AStr[LLastCharIndex], AChars) do
     Dec(LLastCharIndex);
   Result := Copy(AStr, 1, LLastCharIndex);
 end;
@@ -275,24 +276,29 @@ end;
 
 class function TUtils.DecodeBase64(const AInput: string): TBytes;
 var
-  LInStr: TPointerStream;
+  LInStr: TMemoryStream;
   LOutStr: TBytesStream;
+  LStream: TStringStream;
   LSize: Integer;
 begin
-  LInStr := TPointerStream.Create(PAnsiChar(AInput), Length(AInput));
+  LInStr := TMemoryStream.Create;
+  LStream := TStringStream.Create(AInput, TEncoding.ASCII);
   try
+    LInStr.LoadFromStream(LStream);
     LOutStr := TBytesStream.Create;
     try
       DecodeStream(LInStr, LOutStr);
-      Result := LOutStr.Bytes;
       LSize := LOutStr.Size;
+      SetLength(Result, LSize);
+      LOutStr.Position := 0;
+      LOutStr.Read(Result[0], LSize);
     finally
       LOutStr.Free;
     end;
   finally
+    LStream.Free;
     LInStr.Free;
   end;
-  SetLength(Result, LSize);
 end;
 
 class procedure TUtils._EncodePacket(const Packet: TPacket; NumChars: Integer; OutBuf: PAnsiChar);
@@ -354,12 +360,16 @@ begin
       _EncodePacket(LPacket, LJ, LBufferPtr);
       Inc(LI, 3);
       Inc(LBufferPtr, 4);
-
-      if LBufferPtr - @LOutBuffer[0] > LineBreakInterval then
+      if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - LineBreakInterval then
+      begin
         WriteLineBreak;
+        AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
+        LBufferPtr := @LOutBuffer[0];
+      end;
     end;
-    AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
   until BytesRead = 0;
+  if LBufferPtr <> @LOutBuffer[0] then
+    AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
 end;
 
 class procedure TUtils.DecodeStream(const AInput, AOutput: TStream);
@@ -482,20 +492,21 @@ end;
 
 class function TUtils.EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
 var
-  LInStr: TPointerStream;
-  LOutStr: TBytesStream;
+  LInStream, LOutStream: TMemoryStream;
 begin
-  LInStr := TPointerStream.Create(AInput, ASize);
+  LInStream := TMemoryStream.Create;
   try
-    LOutStr := TBytesStream.Create;
+    LInStream.WriteBuffer(AInput^, ASize);
+    LInStream.Position := 0;
+    LOutStream := TMemoryStream.Create;
     try
-      EncodeStream(LInStr, LOutStr);
-      SetString(Result, PAnsiChar(LOutStr.Memory), LOutStr.Size);
+      EncodeStream(LInStream, LOutStream);
+      SetString(Result, PAnsiChar(LOutStream.Memory), LOutStream.Size);
     finally
-      LOutStr.Free;
+      LOutStream.Free;
     end;
   finally
-    LInStr.Free;
+    LInStream.Free;
   end;
 end;
 

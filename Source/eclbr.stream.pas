@@ -500,9 +500,10 @@ begin
           LRightStream.WriteString(LLine + sLineBreak);
       end;
       LLeftStream.DataString;
-      LRightStream.DataString;
       LLeftStreamReader := TStreamReaderEx.New(LLeftStream);
       LLeftStreamReader._SetDataInternal;
+
+      LRightStream.DataString;
       LRightStreamReader := TStreamReaderEx.New(LRightStream);
       LRightStreamReader._SetDataInternal;
     except
