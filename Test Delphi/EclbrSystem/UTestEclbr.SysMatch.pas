@@ -984,13 +984,24 @@ var
 begin
   LStatus := 400;
 
+//  Tradicional
+//  LMatchResult := TMatch<integer>.Value(LStatus)
+//                     .CaseEq(200, function: TValue begin Result := 'OK'; end)
+//                     .CaseEq(400, function: TValue begin Result := 'Bad request'; end)
+//                     .CaseEq(404, function: TValue begin Result := 'Not found'; end)
+//                     .CaseEq(418, function: TValue begin Result := 'I´m a teapot'; end)
+//                     .Default(    function: TValue begin Result := 'Something´s wrong with the Internet'; end)
+//                     .Execute<string>;
+
+  // Com TArrow.Fn
   LMatchResult := TMatch<integer>.Value(LStatus)
-                       .CaseEq(200, function: TValue begin Result := 'OK'; end)
-                       .CaseEq(400, function: TValue begin Result := 'Bad request'; end)
-                       .CaseEq(404, function: TValue begin Result := 'Not found'; end)
-                       .CaseEq(418, function: TValue begin Result := 'I´m a teapot'; end)
-                       .Default(    function: TValue begin Result := 'Something´s wrong with the Internet'; end)
+                       .CaseEq(200, TArrow.Fn<TValue>('Ok'))
+                       .CaseEq(400, TArrow.Fn<TValue>('Bad request'))
+                       .CaseEq(404, TArrow.Fn<TValue>('Not found'))
+                       .CaseEq(418, TArrow.Fn<TValue>('I´m a teapot'))
+                       .Default(    TArrow.Fn<TValue>('Something´s wrong with the Internet'))
                        .Execute<string>;
+
   try
     Assert.IsTrue(LMatchResult.isSuccess, 'Expected match to be successful');
     Assert.AreEqual(LMatchResult.ValueSuccess, 'Bad request');

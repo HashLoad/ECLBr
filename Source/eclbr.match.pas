@@ -40,6 +40,9 @@ uses
   eclbr.result.pair;
 
 type
+  Tuple = eclbr.include.Tuple;
+  TArrow = eclbr.include.TArrow;
+
   // Enumeration to represent different states of the match session
   TMatchSession = (sMatch, sGuard, sCase, sDefault, sTryExcept);
 
@@ -64,7 +67,6 @@ type
   TCaseGroup = TDictionary<TValue, TValue>;
 
   PTuple = ^Tuple;
-  Tuple = eclbr.include.Tuple;
 
   // Class implementing the pattern matching
   TMatch<T> = record

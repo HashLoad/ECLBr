@@ -128,8 +128,8 @@ end;
 
 function TStreamReaderEx.Distinct: TStreamReaderEx;
 var
-  LUniqueLines: TVector<string>;
   LResultBuilder: IAutoRef<TStringBuilder>;
+  LUniqueLines: TVector<string>;
   LLine: string;
 begin
   LUniqueLines := TVector<string>.Create([]);

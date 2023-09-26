@@ -29,16 +29,32 @@ unit eclbr.include;
 interface
 
 uses
-  Rtti;
-
-type
-  Tuple = array of TValue;
-
-implementation
+  Rtti,
+  SysUtils;
 
 const CASE_IF_PROC = 'CaseIf_Proc';
 const CASE_IF_FUNC = 'CaseIf_Func';
 const CASE_EQ_PROC = 'CaseEq_Proc';
 const CASE_EQ_FUNC = 'CaseEq_Func';
+
+type
+  Tuple = array of TValue;
+
+  TArrow = class
+  public
+    class function Fn<TResult>(const Value: TResult): TFunc<TResult>; inline;
+  end;
+
+implementation
+
+{ TArrowFn }
+
+class function TArrow.Fn<TResult>(const Value: TResult): TFunc<TResult>;
+begin
+  Result := function: TResult
+            begin
+              Result := Value;
+            end;
+end;
 
 end.
