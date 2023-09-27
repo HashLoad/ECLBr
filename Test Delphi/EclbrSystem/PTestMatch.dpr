@@ -1,4 +1,4 @@
-program PTestSysDictionary;
+program PTestMatch;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,12 +14,11 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.SysDictionary in 'UTestEclbr.SysDictionary.pas',
-  eclbr.dictionary in '..\..\Source\eclbr.dictionary.pas',
-  eclbr.map in '..\..\Source\eclbr.map.pas',
-  eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.list in '..\..\Source\eclbr.list.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas',
+  UTestEclbr.SysMatch in 'UTestEclbr.SysMatch.pas',
+  eclbr.match in '..\..\Source\eclbr.match.pas',
+  eclbr.regexlib in '..\..\Source\eclbr.regexlib.pas',
+  eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
+  eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
   eclbr.include in '..\..\Source\eclbr.include.pas';
 
 var

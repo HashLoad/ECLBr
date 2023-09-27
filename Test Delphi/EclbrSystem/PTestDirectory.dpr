@@ -1,4 +1,4 @@
-program PTestSysVector;
+program PTestDirectory;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,10 +14,8 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.SysVector in 'UTestEclbr.SysVector.pas',
-  eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas';
+  UTestEclbr.Directory in 'UTestEclbr.Directory.pas',
+  eclbr.directory in '..\..\Source\eclbr.directory.pas';
 
 var
   runner : ITestRunner;

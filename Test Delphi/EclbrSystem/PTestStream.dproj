@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{A0B86B78-6631-4B6A-A4B3-3FE152BECD68}</ProjectGuid>
+        <ProjectGuid>{A7D81071-97DD-484B-993C-DFDFDE33C6CF}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
@@ -8,7 +8,7 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
-        <MainSource>PTestSysMatch.dpr</MainSource>
+        <MainSource>PTestStream.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -57,7 +57,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>PTestSysMatch</SanitizedProjectName>
+        <SanitizedProjectName>PTestStream</SanitizedProjectName>
         <VerInfo_Locale>1046</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_Define>FullDebugMode; EnableMemoryLeakReporting;$(DCC_Define)</DCC_Define>
@@ -101,12 +101,12 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="UTestEclbr.SysMatch.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.match.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.regexlib.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.result.pair.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.tuple.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.stream.pas"/>
+        <DCCReference Include="UTestEclbr.StreamReader.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.map.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.include.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.objects.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -125,7 +125,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">PTestSysMatch.dpr</Source>
+                    <Source Name="MainSource">PTestStream.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\gitide280.bpl">Embarcadero Git Integration</Excluded_Packages>
@@ -153,9 +153,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\PTestSysMatch.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\PTestStream.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>PTestSysMatch.exe</RemoteName>
+                        <RemoteName>PTestStream.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

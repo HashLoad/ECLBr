@@ -3,37 +3,37 @@
         <ProjectGuid>{EF844C65-F513-421D-B3D0-B4D5EABA97EC}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="PTestSysDictionary.dproj">
+        <Projects Include="PTestDictionary.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysMatch.dproj">
+        <Projects Include="PTestMatch.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysTuple.dproj">
+        <Projects Include="PTestTuple.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="..\EclbrResultPair\PTestResultPair.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysVector.dproj">
+        <Projects Include="PTestVector.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysMap.dproj">
+        <Projects Include="PTestMap.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysList.dproj">
+        <Projects Include="PTestList.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysStream.dproj">
+        <Projects Include="PTestStream.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestSysDirectory.dproj">
+        <Projects Include="PTestDirectory.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestObjectLib.dproj">
+        <Projects Include="PTestObjects.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="PTestUtilsLib.dproj">
+        <Projects Include="PTestUtils.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -44,32 +44,32 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="PTestSysDictionary">
-        <MSBuild Projects="PTestSysDictionary.dproj"/>
+    <Target Name="PTestDictionary">
+        <MSBuild Projects="PTestDictionary.dproj"/>
     </Target>
-    <Target Name="PTestSysDictionary:Clean">
-        <MSBuild Projects="PTestSysDictionary.dproj" Targets="Clean"/>
+    <Target Name="PTestDictionary:Clean">
+        <MSBuild Projects="PTestDictionary.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysDictionary:Make">
-        <MSBuild Projects="PTestSysDictionary.dproj" Targets="Make"/>
+    <Target Name="PTestDictionary:Make">
+        <MSBuild Projects="PTestDictionary.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysMatch">
-        <MSBuild Projects="PTestSysMatch.dproj"/>
+    <Target Name="PTestMatch">
+        <MSBuild Projects="PTestMatch.dproj"/>
     </Target>
-    <Target Name="PTestSysMatch:Clean">
-        <MSBuild Projects="PTestSysMatch.dproj" Targets="Clean"/>
+    <Target Name="PTestMatch:Clean">
+        <MSBuild Projects="PTestMatch.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysMatch:Make">
-        <MSBuild Projects="PTestSysMatch.dproj" Targets="Make"/>
+    <Target Name="PTestMatch:Make">
+        <MSBuild Projects="PTestMatch.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysTuple">
-        <MSBuild Projects="PTestSysTuple.dproj"/>
+    <Target Name="PTestTuple">
+        <MSBuild Projects="PTestTuple.dproj"/>
     </Target>
-    <Target Name="PTestSysTuple:Clean">
-        <MSBuild Projects="PTestSysTuple.dproj" Targets="Clean"/>
+    <Target Name="PTestTuple:Clean">
+        <MSBuild Projects="PTestTuple.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysTuple:Make">
-        <MSBuild Projects="PTestSysTuple.dproj" Targets="Make"/>
+    <Target Name="PTestTuple:Make">
+        <MSBuild Projects="PTestTuple.dproj" Targets="Make"/>
     </Target>
     <Target Name="PTestResultPair">
         <MSBuild Projects="..\EclbrResultPair\PTestResultPair.dproj"/>
@@ -80,77 +80,77 @@
     <Target Name="PTestResultPair:Make">
         <MSBuild Projects="..\EclbrResultPair\PTestResultPair.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysVector">
-        <MSBuild Projects="PTestSysVector.dproj"/>
+    <Target Name="PTestVector">
+        <MSBuild Projects="PTestVector.dproj"/>
     </Target>
-    <Target Name="PTestSysVector:Clean">
-        <MSBuild Projects="PTestSysVector.dproj" Targets="Clean"/>
+    <Target Name="PTestVector:Clean">
+        <MSBuild Projects="PTestVector.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysVector:Make">
-        <MSBuild Projects="PTestSysVector.dproj" Targets="Make"/>
+    <Target Name="PTestVector:Make">
+        <MSBuild Projects="PTestVector.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysMap">
-        <MSBuild Projects="PTestSysMap.dproj"/>
+    <Target Name="PTestMap">
+        <MSBuild Projects="PTestMap.dproj"/>
     </Target>
-    <Target Name="PTestSysMap:Clean">
-        <MSBuild Projects="PTestSysMap.dproj" Targets="Clean"/>
+    <Target Name="PTestMap:Clean">
+        <MSBuild Projects="PTestMap.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysMap:Make">
-        <MSBuild Projects="PTestSysMap.dproj" Targets="Make"/>
+    <Target Name="PTestMap:Make">
+        <MSBuild Projects="PTestMap.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysList">
-        <MSBuild Projects="PTestSysList.dproj"/>
+    <Target Name="PTestList">
+        <MSBuild Projects="PTestList.dproj"/>
     </Target>
-    <Target Name="PTestSysList:Clean">
-        <MSBuild Projects="PTestSysList.dproj" Targets="Clean"/>
+    <Target Name="PTestList:Clean">
+        <MSBuild Projects="PTestList.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysList:Make">
-        <MSBuild Projects="PTestSysList.dproj" Targets="Make"/>
+    <Target Name="PTestList:Make">
+        <MSBuild Projects="PTestList.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysStream">
-        <MSBuild Projects="PTestSysStream.dproj"/>
+    <Target Name="PTestStream">
+        <MSBuild Projects="PTestStream.dproj"/>
     </Target>
-    <Target Name="PTestSysStream:Clean">
-        <MSBuild Projects="PTestSysStream.dproj" Targets="Clean"/>
+    <Target Name="PTestStream:Clean">
+        <MSBuild Projects="PTestStream.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysStream:Make">
-        <MSBuild Projects="PTestSysStream.dproj" Targets="Make"/>
+    <Target Name="PTestStream:Make">
+        <MSBuild Projects="PTestStream.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestSysDirectory">
-        <MSBuild Projects="PTestSysDirectory.dproj"/>
+    <Target Name="PTestDirectory">
+        <MSBuild Projects="PTestDirectory.dproj"/>
     </Target>
-    <Target Name="PTestSysDirectory:Clean">
-        <MSBuild Projects="PTestSysDirectory.dproj" Targets="Clean"/>
+    <Target Name="PTestDirectory:Clean">
+        <MSBuild Projects="PTestDirectory.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestSysDirectory:Make">
-        <MSBuild Projects="PTestSysDirectory.dproj" Targets="Make"/>
+    <Target Name="PTestDirectory:Make">
+        <MSBuild Projects="PTestDirectory.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestObjectLib">
-        <MSBuild Projects="PTestObjectLib.dproj"/>
+    <Target Name="PTestObjects">
+        <MSBuild Projects="PTestObjects.dproj"/>
     </Target>
-    <Target Name="PTestObjectLib:Clean">
-        <MSBuild Projects="PTestObjectLib.dproj" Targets="Clean"/>
+    <Target Name="PTestObjects:Clean">
+        <MSBuild Projects="PTestObjects.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestObjectLib:Make">
-        <MSBuild Projects="PTestObjectLib.dproj" Targets="Make"/>
+    <Target Name="PTestObjects:Make">
+        <MSBuild Projects="PTestObjects.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PTestUtilsLib">
-        <MSBuild Projects="PTestUtilsLib.dproj"/>
+    <Target Name="PTestUtils">
+        <MSBuild Projects="PTestUtils.dproj"/>
     </Target>
-    <Target Name="PTestUtilsLib:Clean">
-        <MSBuild Projects="PTestUtilsLib.dproj" Targets="Clean"/>
+    <Target Name="PTestUtils:Clean">
+        <MSBuild Projects="PTestUtils.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="PTestUtilsLib:Make">
-        <MSBuild Projects="PTestUtilsLib.dproj" Targets="Make"/>
+    <Target Name="PTestUtils:Make">
+        <MSBuild Projects="PTestUtils.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestSysDictionary;PTestSysMatch;PTestSysTuple;PTestResultPair;PTestSysVector;PTestSysMap;PTestSysList;PTestSysStream;PTestSysDirectory;PTestObjectLib;PTestUtilsLib"/>
+        <CallTarget Targets="PTestDictionary;PTestMatch;PTestTuple;PTestResultPair;PTestVector;PTestMap;PTestList;PTestStream;PTestDirectory;PTestObjects;PTestUtils"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestSysDictionary:Clean;PTestSysMatch:Clean;PTestSysTuple:Clean;PTestResultPair:Clean;PTestSysVector:Clean;PTestSysMap:Clean;PTestSysList:Clean;PTestSysStream:Clean;PTestSysDirectory:Clean;PTestObjectLib:Clean;PTestUtilsLib:Clean"/>
+        <CallTarget Targets="PTestDictionary:Clean;PTestMatch:Clean;PTestTuple:Clean;PTestResultPair:Clean;PTestVector:Clean;PTestMap:Clean;PTestList:Clean;PTestStream:Clean;PTestDirectory:Clean;PTestObjects:Clean;PTestUtils:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestSysDictionary:Make;PTestSysMatch:Make;PTestSysTuple:Make;PTestResultPair:Make;PTestSysVector:Make;PTestSysMap:Make;PTestSysList:Make;PTestSysStream:Make;PTestSysDirectory:Make;PTestObjectLib:Make;PTestUtilsLib:Make"/>
+        <CallTarget Targets="PTestDictionary:Make;PTestMatch:Make;PTestTuple:Make;PTestResultPair:Make;PTestVector:Make;PTestMap:Make;PTestList:Make;PTestStream:Make;PTestDirectory:Make;PTestObjects:Make;PTestUtils:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

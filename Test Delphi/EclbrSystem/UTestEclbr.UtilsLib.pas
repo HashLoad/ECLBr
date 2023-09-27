@@ -8,7 +8,7 @@ uses
   DateUtils,
   Classes,
   Generics.Collections,
-  eclbr.objectlib,
+  eclbr.objects,
   eclbr.utils;
 
 type

@@ -1,4 +1,4 @@
-program PTestUtilsLib;
+program PTestUtils;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}

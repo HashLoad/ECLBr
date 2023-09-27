@@ -1,4 +1,4 @@
-program PTestSysStream;
+program PTestStream;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}

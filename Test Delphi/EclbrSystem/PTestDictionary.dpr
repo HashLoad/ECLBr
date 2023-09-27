@@ -1,4 +1,4 @@
-program PTestSysMap;
+program PTestDictionary;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,8 +14,13 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.SysMap in 'UTestEclbr.SysMap.pas',
-  eclbr.map in '..\..\Source\eclbr.map.pas';
+  UTestEclbr.SysDictionary in 'UTestEclbr.SysDictionary.pas',
+  eclbr.dictionary in '..\..\Source\eclbr.dictionary.pas',
+  eclbr.map in '..\..\Source\eclbr.map.pas',
+  eclbr.vector in '..\..\Source\eclbr.vector.pas',
+  eclbr.list in '..\..\Source\eclbr.list.pas',
+  eclbr.utils in '..\..\Source\eclbr.utils.pas',
+  eclbr.include in '..\..\Source\eclbr.include.pas';
 
 var
   runner : ITestRunner;

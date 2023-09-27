@@ -865,18 +865,18 @@ begin
 
   // Padrão de combinação 1
   LStrPattern1 := TMatch<String>.Value(LValueString)
-    .CaseIf(Length(LValueString) > 3)
-    .CaseIs<Integer>(procedure
-      begin
-        LResultString := 'Type is a String';
-      end);
+                                .CaseIf(Length(LValueString) > 3)
+                                .CaseIs<Integer>(procedure
+                                        begin
+                                          LResultString := 'Type is a String';
+                                        end);
 
   // Padrão de combinação 2
   LStrPattern2 := TMatch<String>.Value(LValueString)
-    .CaseEq('Hello', procedure
-      begin
-        LResultString := 'Value is "Hello"';
-      end);
+                                .CaseEq('Hello', procedure
+                                          begin
+                                            LResultString := 'Value is "Hello"';
+                                          end);
 
   // Padrão combinado
   try
@@ -884,9 +884,9 @@ begin
       .Combine(LStrPattern1)
       .Combine(LStrPattern2)
       .Default(procedure
-        begin
-          LResultString := 'Value is of an unknown type';
-        end)
+               begin
+                 LResultString := 'Value is of an unknown type';
+               end)
       .Execute;
 
     Assert.AreEqual('Value is "Hello"', LResultString);
@@ -907,16 +907,16 @@ begin
   // Padrão de combinação 1
   LStrPattern1 := TMatch<String>.Value(LValueString)
     .CaseIs<Integer>(procedure
-      begin
-        LResultString := 'Type is a String';
-      end);
+                     begin
+                       LResultString := 'Type is a String';
+                     end);
 
   // Padrão de combinação 2
   LStrPattern2 := TMatch<String>.Value(LValueString)
     .CaseEq('World', procedure
-      begin
-        LResultString := 'Value is "World"';
-      end);
+                     begin
+                       LResultString := 'Value is "World"';
+                     end);
 
   // Padrão combinado
   try
@@ -924,9 +924,9 @@ begin
       .Combine(LStrPattern1)
       .Combine(LStrPattern2)
       .Default(procedure
-        begin
-          LResultString := 'Value is not matched by any pattern';
-        end)
+               begin
+                 LResultString := 'Value is not matched by any pattern';
+               end)
       .Execute;
 
     Assert.AreEqual('Value is not matched by any pattern', LResultString);
@@ -945,13 +945,13 @@ begin
   try
     LResult := TMatch<Integer>.Value(LValue)
       .CaseEq(42, procedure
-        begin
-          // Caso correspondente
-        end)
+                  begin
+                    // Caso correspondente
+                  end)
       .CaseLt(50, procedure
-        begin
-          // Caso correspondente
-        end)
+                  begin
+                    // Caso correspondente
+                  end)
       .Execute;
 
     Assert.IsFalse(LResult.isSuccess, 'Expected match to fail');
@@ -966,9 +966,9 @@ var
   LResult: TResultPair<boolean, string>;
 begin
   LResult := TMatch<Integer>.Value(FValue1)
-                           .CaseEq(1, ProcWithParam)
-                           .CaseEq(2, Proc2)
-                           .Execute;
+                            .CaseEq(1, ProcWithParam)
+                            .CaseEq(2, Proc2)
+                            .Execute;
   try
     Assert.AreEqual(10, FValue1);
     Assert.AreEqual(2, FValue2);
@@ -1017,8 +1017,8 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['_', 'Alice'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', 25],      function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', 'Alice'], TArrow.Fn<TValue>('Personagem'))
+    .CaseEq(['_', 25],      TArrow.Fn<TValue>('Jovem'))
     .CaseEq(['_', false],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(               function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
@@ -1056,7 +1056,7 @@ begin
   LTuple := ['Idade', 25, true];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_*', true],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_*', true],  TArrow.Fn<TValue>('Jovem'))
     .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
@@ -1075,9 +1075,9 @@ begin
   LTuple := ['Idade', 25, true];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', '_', true],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', '_', true],  TArrow.Fn<TValue>('Jovem'))
     .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
-    .Default(              function:                   TValue begin Result := 'Default'; end)
+    .Default(                  function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
@@ -1094,7 +1094,7 @@ begin
   LTuple := [1, 2, 3];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq([0, '_', '_'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', 2, '_'], function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['_', 2, '_'], TArrow.Fn<TValue>('Jovem'))
     .CaseEq([2, '_', '_'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
