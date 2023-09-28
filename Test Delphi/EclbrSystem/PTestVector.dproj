@@ -101,7 +101,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="UTestEclbr.SysVector.pas"/>
+        <DCCReference Include="UTestEclbr.Vector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.include.pas"/>
         <DCCReference Include="..\..\Source\eclbr.utils.pas"/>

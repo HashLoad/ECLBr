@@ -95,7 +95,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="UTestEclbr.ObjectLib.pas"/>
+        <DCCReference Include="UTestEclbr.Objects.pas"/>
         <DCCReference Include="..\..\Source\eclbr.objects.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

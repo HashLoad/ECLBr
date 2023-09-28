@@ -1,4 +1,4 @@
-unit UTestEclbr.UtilsLib;
+unit UTestEclbr.Utils;
 
 interface
 

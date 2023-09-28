@@ -12,7 +12,7 @@ uses
   DUnitX.Loggers.Console,
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
-  UTestResultPair in 'UTestResultPair.pas',
+  UTestEclbr.ResultPair in 'UTestEclbr.ResultPair.pas',
   eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas';
 
 var

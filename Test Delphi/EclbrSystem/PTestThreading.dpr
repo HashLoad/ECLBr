@@ -1,4 +1,4 @@
-program PTestUtils;
+program PTestThreading;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -15,9 +15,8 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.Utils in 'UTestEclbr.Utils.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas',
-  eclbr.objects in '..\..\Source\eclbr.objects.pas';
+  UTestEclbr.Threading in 'UTestEclbr.Threading.pas',
+  eclbr.threading in '..\..\Source\eclbr.threading.pas';
 
 var
   runner : ITestRunner;

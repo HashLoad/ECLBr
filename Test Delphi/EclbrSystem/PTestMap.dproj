@@ -101,7 +101,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="UTestEclbr.SysMap.pas"/>
+        <DCCReference Include="UTestEclbr.Map.pas"/>
         <DCCReference Include="..\..\Source\eclbr.map.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

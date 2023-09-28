@@ -1,4 +1,4 @@
-unit UTestEclbr.SysDictionary;
+unit UTestEclbr.Dictionary;
 
 interface
 

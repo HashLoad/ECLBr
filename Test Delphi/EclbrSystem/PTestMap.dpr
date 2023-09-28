@@ -14,7 +14,7 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.SysMap in 'UTestEclbr.SysMap.pas',
+  UTestEclbr.Map in 'UTestEclbr.Map.pas',
   eclbr.map in '..\..\Source\eclbr.map.pas';
 
 var

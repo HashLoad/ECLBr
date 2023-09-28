@@ -1,4 +1,4 @@
-unit UTestEclbr.ObjectLib;
+unit UTestEclbr.Objects;
 
 interface
 

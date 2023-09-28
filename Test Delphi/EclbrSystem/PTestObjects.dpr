@@ -15,7 +15,7 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.ObjectLib in 'UTestEclbr.ObjectLib.pas',
+  UTestEclbr.Objects in 'UTestEclbr.Objects.pas',
   eclbr.objects in '..\..\Source\eclbr.objects.pas';
 
 var

@@ -1,4 +1,4 @@
-unit UTestEclbr.SysMap;
+unit UTestEclbr.Map;
 
 interface
 

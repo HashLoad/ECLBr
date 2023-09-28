@@ -1,4 +1,4 @@
-unit UTestEclbr.SysTuple;
+unit UTestEclbr.Tuple;
 
 interface
 
@@ -111,9 +111,9 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['Nome', '*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['Idade', '*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['Cidade', '*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
+    .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
   try

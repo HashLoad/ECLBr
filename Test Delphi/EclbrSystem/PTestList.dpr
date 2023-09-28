@@ -14,7 +14,7 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.SysList in 'UTestEclbr.SysList.pas',
+  UTestEclbr.List in 'UTestEclbr.List.pas',
   eclbr.list in '..\..\Source\eclbr.list.pas',
   eclbr.utils in '..\..\Source\eclbr.utils.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
