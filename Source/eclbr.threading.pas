@@ -9,7 +9,9 @@ uses
   Threading;
 
 type
-  TFuture = packed record
+  TValue = Rtti.TValue;
+
+  TFuture = record
   private
     FValue: TValue;
     FErr: string;
@@ -39,17 +41,17 @@ type
     constructor Create(const AProc: TProc); overload;
     constructor Create(const AFunc: TFunc<TValue>); overload;
   public
-    function Await(const AContinue: TProc; const ATimeout: Cardinal = INFINITE): TFuture; overload;
-    function Await(const ATimeout: Cardinal = INFINITE): TFuture; overload;
-    function Run: TFuture;
-    function Status: TTaskStatus;
-    function GetId: Integer;
-    procedure Cancel;
-    procedure CheckCanceled;
+    function Await(const AContinue: TProc; const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
+    function Await(const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
+    function Run: TFuture; inline;
+    function Status: TTaskStatus; inline;
+    function GetId: Integer; inline;
+    procedure Cancel; inline;
+    procedure CheckCanceled; inline;
   end;
 
-function Async(const AProc: TProc): TAsync; overload;
-function Async(const AFunc: TFunc<TValue>): TAsync; overload;
+function Async(const AProc: TProc): TAsync; overload; inline;
+function Async(const AFunc: TFunc<TValue>): TAsync; overload; inline;
 
 implementation
 

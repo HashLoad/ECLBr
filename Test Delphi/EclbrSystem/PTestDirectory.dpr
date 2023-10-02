@@ -15,7 +15,9 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   UTestEclbr.Directory in 'UTestEclbr.Directory.pas',
-  eclbr.directory in '..\..\Source\eclbr.directory.pas';
+  eclbr.directory in '..\..\Source\eclbr.directory.pas',
+  eclbr.vector in '..\..\Source\eclbr.vector.pas',
+  eclbr.core in '..\..\Source\eclbr.core.pas';
 
 var
   runner : ITestRunner;

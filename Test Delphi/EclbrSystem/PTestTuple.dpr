@@ -17,9 +17,10 @@ uses
   UTestEclbr.Tuple in 'UTestEclbr.Tuple.pas',
   eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
   eclbr.match in '..\..\Source\eclbr.match.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas',
+  eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',
   eclbr.regexlib in '..\..\Source\eclbr.regexlib.pas',
-  eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas';
+  eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
+  eclbr.core in '..\..\Source\eclbr.core.pas';
 
 var
   runner : ITestRunner;

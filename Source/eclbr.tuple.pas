@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.tuple;
@@ -33,12 +33,12 @@ uses
   SysUtils,
   Generics.Collections,
   Generics.Defaults,
-  eclbr.include;
+  eclbr.core;
 
 type
-  Tuple = eclbr.include.Tuple;
+  Tuple = eclbr.core.Tuple;
 
-  TTuple<K> = packed record
+  TTuple<K> = record
   private
     FTuplesPair: TArray<TPair<K, TValue>>;
   private
@@ -50,10 +50,10 @@ type
     /// </param>
     constructor Create(const ATuples: TArray<TPair<K, TValue>>);
   public
-    class operator Implicit(const P: TTuple<K>): TArray<TPair<K, TValue>>;
-    class operator Implicit(const P: TArray<TPair<K, TValue>>): TTuple<K>;
-    class operator Equal(const Left, Right: TTuple<K>): boolean;
-    class operator NotEqual(const Left, Right: TTuple<K>): boolean;
+    class operator Implicit(const P: TTuple<K>): TArray<TPair<K, TValue>>; inline;
+    class operator Implicit(const P: TArray<TPair<K, TValue>>): TTuple<K>; inline;
+    class operator Equal(const Left, Right: TTuple<K>): boolean; inline;
+    class operator NotEqual(const Left, Right: TTuple<K>): boolean; inline;
 
     /// <summary>
     ///   Creates a new instance of the TTuple class with the specified keys and values.
@@ -67,14 +67,26 @@ type
     /// <returns>
     ///   A new TTuple instance with the specified keys and values.
     /// </returns>
-    class function New(const AKeys: TArray<K>; const AValues: TArray<TValue>): TTuple<K>; static;
+    class function New(const AKeys: TArray<K>; const AValues: TArray<TValue>): TTuple<K>; static; inline;
 
     /// <summary>
-    ///   Obtém o valor associado à chave especificada.
+    ///   Retrieves the value associated with a specified key from a dictionary.
     /// </summary>
-    /// <param name="AKey">A chave para a qual se deseja obter o valor correspondente.</param>
-    /// <returns>O valor associado à chave especificada.</returns>
-    function Get<T>(const AKey: K): T;
+    /// <typeparam name="T">
+    ///   The type of the value to retrieve.
+    /// </typeparam>
+    /// <param name="AKey">
+    ///   The key of type K for which to retrieve the associated value.
+    /// </param>
+    /// <returns>
+    ///   The value of type T associated with the specified key in the dictionary.
+    /// </returns>
+    /// <remarks>
+    ///   The Get function allows you to retrieve the value associated with a specified
+    ///   key from a dictionary. It returns the value of type T associated with the
+    ///   specified key, or a default value if the key is not found in the dictionary.
+    /// </remarks>
+    function Get<T>(const AKey: K): T; inline;
 
     /// <summary>
     ///   Returns the number of elements in the collection.
@@ -85,10 +97,11 @@ type
     /// <returns>
     ///   An integer value representing the number of elements in the collection.
     /// </returns>
-    function Count: integer;
+    function Count: integer; inline;
   end;
 
-  TTuple = packed record
+  PTuple = ^TTuple;
+  TTuple = record
   private
     FTuples: TArray<TValue>;
   private
@@ -100,43 +113,10 @@ type
     /// </param>
     constructor Create(const ATuples: TArray<TValue>);
   public
-    /// <summary>
-    ///   Implicitly converts an instance of TTuple into an array of TValue.
-    /// </summary>
-    /// <param name="P">
-    ///   The TTuple instance to be converted into an array of TValue.
-    /// </param>
-    class operator Implicit(const P: TTuple): TArray<TValue>;
-
-    /// <summary>
-    ///   Implicitly converts an array of TValue into an instance of TTuple.
-    /// </summary>
-    /// <param name="P">
-    ///   The array of TValue to be converted into an instance of TTuple.
-    /// </param>
-    class operator Implicit(const P: TArray<TValue>): TTuple;
-
-    /// <summary>
-    ///   Checks if two instances of TTuple are equal.
-    /// </summary>
-    /// <param name="Left">
-    ///   The first TTuple instance to be compared.
-    /// </param>
-    /// <param name="Right">
-    ///   The second TTuple instance to be compared.
-    /// </param>
-    class operator Equal(const Left, Right: TTuple): boolean;
-
-    /// <summary>
-    ///   Checks if two instances of TTuple are not equal.
-    /// </summary>
-    /// <param name="Left">
-    ///   The first TTuple instance to be compared.
-    /// </param>
-    /// <param name="Right">
-    ///   The second TTuple instance to be compared.
-    /// </param>
-    class operator NotEqual(const Left, Right: TTuple): boolean;
+    class operator Implicit(const P: TTuple): TArray<TValue>; inline;
+    class operator Implicit(const P: TArray<TValue>): TTuple; inline;
+    class operator Equal(const Left, Right: TTuple): boolean; inline;
+    class operator NotEqual(const Left, Right: TTuple): boolean; inline;
 
     /// <summary>
     ///   Creates a new instance of TTuple with the values provided in AValues.
@@ -144,7 +124,7 @@ type
     /// <param name="AValues">
     ///   An array of TValue containing the values to be stored in the new tuple.
     /// </param>
-    class function New(const AValues: TArray<TValue>): TTuple; static;
+    class function New(const AValues: TArray<TValue>): TTuple; static; inline;
 
     /// <summary>
     ///   Retrieves the value at the specified index as a generic type T.
@@ -155,7 +135,7 @@ type
     /// <returns>
     ///   The value stored at the specified index, converted to the generic type T.
     /// </returns>
-    function Get<T>(const AIndex: integer): T;
+    function Get<T>(const AIndex: integer): T; inline;
 
     /// <summary>
     ///   Returns the number of elements in the tuple.
@@ -163,7 +143,7 @@ type
     /// <returns>
     ///   The number of elements in the tuple.
     /// </returns>
-    function Count: integer;
+    function Count: integer; inline;
   end;
 
 implementation
@@ -182,15 +162,19 @@ end;
 
 class operator TTuple<K>.Equal(const Left, Right: TTuple<K>): boolean;
 var
+  LComp1: IEqualityComparer<K>;
+  LComp2: IEqualityComparer<TValue>;
   LFor: Integer;
 begin
   Result := false;
   if Length(Left.FTuplesPair) <> Length(Right.FTuplesPair) then
     exit;
+  LComp1 := TEqualityComparer<K>.Default;
+  LComp2 := TEqualityComparer<TValue>.Default;
   for LFor := 0 to High(Left.FTuplesPair) do
   begin
-    if not TEqualityComparer<K>.Default.Equals(Left.FTuplesPair[LFor].Key, Right.FTuplesPair[LFor].Key) or
-       not TEqualityComparer<TValue>.Default.Equals(Left.FTuplesPair[LFor].Value, Right.FTuplesPair[LFor].Value) then
+    if not LComp1.Equals(Left.FTuplesPair[LFor].Key, Right.FTuplesPair[LFor].Key) or
+       not LComp2.Equals(Left.FTuplesPair[LFor].Value, Right.FTuplesPair[LFor].Value) then
     begin
       exit;
     end;
@@ -200,11 +184,13 @@ end;
 
 function TTuple<K>.Get<T>(const AKey: K): T;
 var
+  LComp: IEqualityComparer<K>;
   LPair: TPair<K, TValue>;
 begin
+  LComp := TEqualityComparer<K>.Default;
   for LPair in FTuplesPair do
   begin
-    if not TEqualityComparer<K>.Default.Equals(LPair.Key, AKey) then
+    if not LComp.Equals(LPair.Key, AKey) then
       continue;
     Result := LPair.Value.AsType<T>;
     exit;
@@ -226,7 +212,7 @@ class function TTuple<K>.New(const AKeys: TArray<K>;
   const AValues: TArray<TValue>): TTuple<K>;
 var
   LPairs: TArray<TPair<K, TValue>>;
-  LFor: Integer;
+  LFor: integer;
 begin
   if Length(AKeys) <> Length(AValues) then
     raise Exception.Create('Number of keys and values must match');
@@ -257,15 +243,17 @@ end;
 
 class operator TTuple.Equal(const Left, Right: TTuple): boolean;
 var
+  LComp: IEqualityComparer<TValue>;
   LFor: Integer;
 begin
   Result := false;
+  LComp := TEqualityComparer<TValue>.Default;
   for LFor := 0 to High(Left.FTuples) do
   begin
-    if not TEqualityComparer<TValue>.Default.Equals(Left.FTuples[LFor], Right.FTuples[LFor]) then
+    if not LComp.Equals(Left.FTuples[LFor], Right.FTuples[LFor]) then
       exit;
   end;
-  Result := True;
+  Result := true;
 end;
 
 function TTuple.Get<T>(const AIndex: integer): T;

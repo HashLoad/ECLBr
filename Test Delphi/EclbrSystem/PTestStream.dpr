@@ -18,8 +18,9 @@ uses
   UTestEclbr.StreamReader in 'UTestEclbr.StreamReader.pas',
   eclbr.map in '..\..\Source\eclbr.map.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas',
-  eclbr.objects in '..\..\Source\eclbr.objects.pas';
+  eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',
+  eclbr.objects in '..\..\Source\eclbr.objects.pas',
+  eclbr.core in '..\..\Source\eclbr.core.pas';
 
 var
   runner : ITestRunner;

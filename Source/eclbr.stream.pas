@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.stream;
@@ -461,6 +461,8 @@ var
 begin
   LLeftStream := TAutoRef<TStringStream>.New(TStringStream.Create('', TEncoding.UTF8));
   LRightStream := TAutoRef<TStringStream>.New(TStringStream.Create('', TEncoding.UTF8));
+  LLeftStreamReader := nil;
+  LRightStreamReader := nil;
   try
     while not FDataInternal.EndOfStream do
     begin
@@ -500,4 +502,6 @@ begin
 end;
 
 end.
+
+
 

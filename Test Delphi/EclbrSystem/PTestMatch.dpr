@@ -19,7 +19,8 @@ uses
   eclbr.regexlib in '..\..\Source\eclbr.regexlib.pas',
   eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
   eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas';
+  eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',
+  eclbr.core in '..\..\Source\eclbr.core.pas';
 
 var
   runner : ITestRunner;

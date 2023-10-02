@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.utils;
@@ -82,16 +82,34 @@ type
     class function Split(const S: string): TArray<string>;
   end;
 
+{$IFDEF DEBUG}
+procedure DebugPrint(const AMessage: string);
+{$ENDIF}
+
 implementation
 
-const
-  BufferSize = 510; // Tamanho do buffer de leitura
-  LineBreakInterval = 75; // Intervalo para quebra de linha
+uses
+  Winapi.Windows;
 
-  EncodeTable: array[0..63] of AnsiChar =
+{$IFDEF DEBUG}
+procedure DebugPrint(const AMessage: string);
+begin
+  TThread.Queue(nil,
+          procedure
+          begin
+            OutputDebugstring(PWideChar('[ECLBr] - ' + FormatDateTime('mm/dd/yyyy, hh:mm:ss am/pm', Now) + ' LOG ' + AMessage));
+          end);
+end;
+{$ENDIF}
+
+const
+  BUFFERSIZE = 510;
+  LINEBREAKINTERVAL = 75;
+
+  ENCODETABLE: array[0..63] of AnsiChar =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-  DecodeTable: array[#0..#127] of Integer = (
+  DECODETABLE: array[#0..#127] of Integer = (
     Byte('='), 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
            64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
            64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 62, 64, 64, 64, 63,
@@ -303,30 +321,30 @@ end;
 
 class procedure TUtils._EncodePacket(const Packet: TPacket; NumChars: Integer; OutBuf: PAnsiChar);
 begin
-  OutBuf[0] := EnCodeTable[Packet.a[0] shr 2];
-  OutBuf[1] := EnCodeTable[((Packet.a[0] shl 4) or (Packet.a[1] shr 4)) and $0000003f];
+  OutBuf[0] := ENCODETABLE[Packet.a[0] shr 2];
+  OutBuf[1] := ENCODETABLE[((Packet.a[0] shl 4) or (Packet.a[1] shr 4)) and $0000003f];
   if NumChars < 2 then
     OutBuf[2] := '='
-  else OutBuf[2] := EnCodeTable[((Packet.a[1] shl 2) or (Packet.a[2] shr 6)) and $0000003f];
+  else OutBuf[2] := ENCODETABLE[((Packet.a[1] shl 2) or (Packet.a[2] shr 6)) and $0000003f];
   if NumChars < 3 then
     OutBuf[3] := '='
-  else OutBuf[3] := EnCodeTable[Packet.a[2] and $0000003f];
+  else OutBuf[3] := ENCODETABLE[Packet.a[2] and $0000003f];
 end;
 
 class function TUtils._DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket;
 begin
-  Result.a[0] := (DecodeTable[InBuf[0]] shl 2) or
-    (DecodeTable[InBuf[1]] shr 4);
+  Result.a[0] := (DECODETABLE[InBuf[0]] shl 2) or
+    (DECODETABLE[InBuf[1]] shr 4);
   NChars := 1;
   if InBuf[2] <> '=' then
   begin
     Inc(NChars);
-    Result.a[1] := Byte((DecodeTable[InBuf[1]] shl 4) or (DecodeTable[InBuf[2]] shr 2));
+    Result.a[1] := Byte((DECODETABLE[InBuf[1]] shl 4) or (DECODETABLE[InBuf[2]] shr 2));
   end;
   if InBuf[3] <> '=' then
   begin
     Inc(NChars);
-    Result.a[2] := Byte((DecodeTable[InBuf[2]] shl 6) or DecodeTable[InBuf[3]]);
+    Result.a[2] := Byte((DECODETABLE[InBuf[2]] shl 6) or DECODETABLE[InBuf[3]]);
   end;
 end;
 
@@ -334,7 +352,7 @@ class procedure TUtils.EncodeStream(const AInput, AOutput: TStream);
 type
   PInteger = ^Integer;
 var
-  LInBuffer: array[0..BufferSize] of Byte;
+  LInBuffer: array[0..BUFFERSIZE] of Byte;
   LOutBuffer: array[0..1023] of AnsiChar;
   LBufferPtr: PAnsiChar;
   LI, LJ, BytesRead: Integer;
@@ -360,7 +378,7 @@ begin
       _EncodePacket(LPacket, LJ, LBufferPtr);
       Inc(LI, 3);
       Inc(LBufferPtr, 4);
-      if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - LineBreakInterval then
+      if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - LINEBREAKINTERVAL then
       begin
         WriteLineBreak;
         AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);

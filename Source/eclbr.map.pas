@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.map;
@@ -86,7 +86,6 @@ type
       end;
   private
     FMapItems: TArrayPair;
-    PMapItems: ^TArrayPair;
     FDefaultCapacity: TDefaultCapacity;
     FCapacity: integer;
     function _GetBucketIndex(const AKey: K; const AHashCode: integer = -1): integer;
@@ -109,7 +108,7 @@ type
     ///   This static function creates and returns a new empty dictionary of type TMap<K, V>.
     ///   The dictionary is ready for use and contains no key-value pairs.
     /// </remarks>
-    class function Empty: TMap<K, V>; static;
+    class function Empty: TMap<K, V>; static; inline;
 
     /// <summary>
     ///   Creates a new map instance initialized with the key-value pairs provided in AValue.
@@ -128,55 +127,55 @@ type
     ///   Iterates through the key-value pairs in the map, applying the specified action to each pair.
     /// </summary>
     /// <param name="AAction">The action to apply to each key-value pair.</param>
-    procedure ForEach(const AAction: TProc<K, V>);
+    procedure ForEach(const AAction: TProc<K, V>); inline;
 
     /// <summary>
     ///   Adds all key-value pairs from the specified map to this map.
     /// </summary>
     /// <param name="ACollection">The map containing key-value pairs to add.</param>
-    procedure AddRange(const ACollection: TMap<K, V>);
+    procedure AddRange(const ACollection: TMap<K, V>); inline;
 
     /// <summary>
     ///   Sets the capacity of the map, allowing it to hold a specified number of key-value pairs.
     /// </summary>
     /// <param name="ACapacity">The desired capacity for the map.</param>
-    procedure SetCapacity(const ACapacity: integer);
+    procedure SetCapacity(const ACapacity: integer); inline;
 
     /// <summary>
     ///   Sets the default capacity used when resizing the map.
     /// </summary>
     /// <param name="ADefault">The default capacity for the map.</param>
-    procedure SetDefaultCapacity(const ADefault: integer);
+    procedure SetDefaultCapacity(const ADefault: integer); inline;
 
     /// <summary>
     ///   Inserts a key-value pair at the specified index in the map.
     /// </summary>
     /// <param name="AIndex">The index at which to insert the key-value pair.</param>
     /// <param name="AItem">The key-value pair to insert.</param>
-    procedure Insert(const AIndex: integer; const AItem: TItemPair);
+    procedure Insert(const AIndex: integer; const AItem: TItemPair); inline;
 
     /// <summary>
     ///   Deletes the key-value pair at the specified index in the map.
     /// </summary>
     /// <param name="AIndex">The index of the key-value pair to delete.</param>
-    procedure Delete(const AIndex: integer);
+    procedure Delete(const AIndex: integer); inline;
 
     /// <summary>
     ///   Removes all key-value pairs from the map, resetting it to an empty state.
     /// </summary>
-    procedure Clear;
+    procedure Clear; inline;
 
     /// <summary>
     ///   Returns an enumerator for iterating through key-value pairs in the map.
     /// </summary>
-    function GetEnumerator: TEnumerator<TMapPair<K,V>>;
+    function GetEnumerator: TEnumerator<TMapPair<K,V>>; inline;
 
     /// <summary>
     ///   Retrieves the value associated with the specified key.
     /// </summary>
     /// <param name="AKey">The key to retrieve the value for.</param>
     /// <returns>The value associated with the specified key.</returns>
-    function GetValue(const AKey: K): V;
+    function GetValue(const AKey: K): V; inline;
 
     /// <summary>
     ///   Attempts to retrieve the value associated with the specified key in the dictionary.
@@ -195,21 +194,21 @@ type
     ///   This function allows you to check if a key is present in the dictionary and, if it is,
     ///   retrieve the value associated with that key.
     /// </remarks>
-    function TryGetValue(const AKey: K; var AValue: V): boolean;
+    function TryGetValue(const AKey: K; var AValue: V): boolean; inline;
 
     /// <summary>
     ///   Retrieves the key-value pair associated with the specified key.
     /// </summary>
     /// <param name="AKey">The key to retrieve the key-value pair for.</param>
     /// <returns>The key-value pair associated with the specified key.</returns>
-    function GetPair(const AKey: K): TItemPair;
+    function GetPair(const AKey: K): TItemPair; inline;
 
     /// <summary>
     ///   Adds a key-value pair to the map.
     /// </summary>
     /// <param name="APair">The key-value pair to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
-    function Add(const APair: TMapPair<K, V>): integer; overload;
+    function Add(const APair: TMapPair<K, V>): integer; overload; inline;
 
     /// <summary>
     ///   Adds a key-value pair to the map.
@@ -217,42 +216,42 @@ type
     /// <param name="AKey">The key to add.</param>
     /// <param name="AValue">The value to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
-    function Add(const AKey: K; const AValue: V): integer; overload;
+    function Add(const AKey: K; const AValue: V): integer; overload; inline;
 
     /// <summary>
     ///   Adds or updates a key-value pair in the map.
     /// </summary>
     /// <param name="AKey">The key to add or update.</param>
     /// <param name="AValue">The value associated with the key.</param>
-    procedure AddOrUpdate(const AKey: K; const AValue: V);
+    procedure AddOrUpdate(const AKey: K; const AValue: V); inline;
 
     /// <summary>
     ///   Checks if the map contains the specified key.
     /// </summary>
     /// <param name="AKey">The key to check for.</param>
     /// <returns>True if the map contains the key; otherwise, False.</returns>
-    function Contains(const AKey: K): boolean;
+    function Contains(const AKey: K): boolean; inline;
 
     /// <summary>
     ///   Merges key-value pairs from the specified array into the map.
     /// </summary>
     /// <param name="ASourceArray">The array containing key-value pairs to merge.</param>
     /// <returns>The updated map with merged key-value pairs.</returns>
-    function Merge(const ASourceArray: TArray<TMapPair<K, V>>): TMap<K, V>;
+    function Merge(const ASourceArray: TArray<TMapPair<K, V>>): TMap<K, V>; inline;
 
     /// <summary>
     ///   Filters key-value pairs in the map based on a specified predicate.
     /// </summary>
     /// <param name="APredicate">The predicate function used for filtering.</param>
     /// <returns>The map containing filtered key-value pairs.</returns>
-    function Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
+    function Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>; inline;
 
     /// <summary>
     ///   Maps the values of the dictionary to a new dictionary of results.
     /// </summary>
     /// <typeparam name="TResult">The type of the mapped results.</typeparam>
     /// <param name="AMappingFunc">The mapping function to be applied to each value.</param>
-    function Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>; overload;
+    function Map(const AMappingFunc: TFunc<V, V>): TMap<K, V>; overload; inline;
 
     /// <summary>
     ///   Creates a new map resulting from the application of a mapping function to each value in the original map.
@@ -271,7 +270,7 @@ type
     ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
     ///   The mapping function should accept a value of type V and return a value of the type specified by R.
     /// </remarks>
-    function Map<R>(const AMappingFunc: TFunc<V, R>): TMap<K, R>; overload;
+    function Map<R>(const AMappingFunc: TFunc<V, R>): TMap<K, R>; overload; inline;
 
     /// <summary>
     ///   Creates a new map resulting from the application of a mapping function to each key-value pair in the original map.
@@ -287,7 +286,7 @@ type
     ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
     ///   The mapping function should accept a key of type K, a value of type V, and return a new value of type V.
     /// </remarks>
-    function Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>; overload;
+    function Map(const AMappingFunc: TFunc<K, V, V>): TMap<K, V>; overload; inline;
 
     /// <summary>
     ///   Creates a new map resulting from the application of a mapping function to each key-value pair in the original map.
@@ -306,50 +305,50 @@ type
     ///   in the original map. It does not modify the original map but instead returns a new map with the mapped values.
     ///   The mapping function should accept a key of type K, a value of type V, and return a value of the type specified by R.
     /// </remarks>
-    function Map<R>(const AMappingFunc: TFunc<K, V, R>): TMap<K, R>; overload;
+    function Map<R>(const AMappingFunc: TFunc<K, V, R>): TMap<K, R>; overload; inline;
 
     /// <summary>
     ///   Removes a key-value pair from the map by its key.
     /// </summary>
     /// <param name="AKey">The key of the key-value pair to remove.</param>
     /// <returns>True if the key-value pair was successfully removed; otherwise, False.</returns>
-    function Remove(const AKey: K): boolean;
+    function Remove(const AKey: K): boolean; inline;
 
     /// <summary>
     ///   Retrieves the first key-value pair in the map.
     /// </summary>
     /// <returns>The first key-value pair in the map.</returns>
-    function First: TItemPair;
+    function First: TItemPair; inline;
 
     /// <summary>
     ///   Retrieves the last key-value pair in the map.
     /// </summary>
     /// <returns>The last key-value pair in the map.</returns>
-    function Last: TMapPair<K, V>;
+    function Last: TMapPair<K, V>; inline;
 
     /// <summary>
     ///   Converts the map to a JSON string.
     /// </summary>
     /// <returns>A JSON representation of the map.</returns>
-    function ToJson: string;
+    function ToJson: string; inline;
 
     /// <summary>
     ///   Converts the map to a string.
     /// </summary>
     /// <returns>A string representation of the map.</returns>
-    function ToString: string;
+    function ToString: string; inline;
 
     /// <summary>
     ///   Returns the current capacity of the map.
     /// </summary>
     /// <returns>The current capacity of the map.</returns>
-    function Capacity: integer;
+    function Capacity: integer; inline;
 
     /// <summary>
     ///   Returns the number of key-value pairs in the map.
     /// </summary>
     /// <returns>The number of key-value pairs in the map.</returns>
-    function Count: integer;
+    function Count: integer; inline;
 
     /// <summary>
     ///   Returns an array containing all key-value pairs in the map.
@@ -360,7 +359,7 @@ type
     ///   the first item is the key and the second item is the value.
     /// </remarks>
     /// <returns>An array containing all key-value pairs in the map.</returns>
-    function ToArray: TArray<TItemPair>;
+    function ToArray: TArray<TItemPair>; inline;
 
     /// <summary>
     ///   Provides access to key-value pairs in the map using array indexing.

@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.objects;
@@ -38,20 +38,19 @@ uses
   Generics.Collections;
 
 type
-  IECL = interface
+  IObject = interface
     ['{E3B4DFC3-25AD-46F5-947C-1509E802C047}']
     function Factory(const AClass: TClass; const AMetadata: TArray<TValue> = [];
       const AMethodName: string = 'Create'): TObject;
   end;
 
-  TObjectEx = class sealed(TInterfacedObject, IECL)
+  TObjectEx = class sealed(TInterfacedObject, IObject)
   private
     FContext: TRttiContext;
-  protected
-    constructor Create;
-    destructor Destroy;
   public
-    class function New: IECL;
+    constructor Create;
+    destructor Destroy; override;
+    class function New: IObject;
     function Factory(const AClass: TClass;
       const AArgs: TArray<TValue> = []; const AMethodName: string = 'Create'): TObject;
   end;
@@ -70,8 +69,8 @@ type
       const AArgs: TArray<TValue>); overload;
     constructor Create; overload;
     constructor Create(const AObject: T); overload;
-    destructor Destroy; override;
   public
+    destructor Destroy; override;
     class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
       const AArgs: TArray<TValue>): IAutoRef<T>; overload;
     class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
@@ -97,7 +96,7 @@ end;
 
 constructor TAutoRef<T>.Create;
 var
-  LNewT: IECL;
+  LNewT: IObject;
 begin
   LNewT := TObjectEx.New;
   FObjectInternal := LNewT.Factory(T, []) as T;
@@ -170,9 +169,10 @@ begin
   end;
 end;
 
-class function TObjectEx.New: IECL;
+class function TObjectEx.New: IObject;
 begin
   Result := Self.Create;
 end;
 
 end.
+

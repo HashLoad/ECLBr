@@ -139,6 +139,7 @@ procedure TTestUtils.TestAsList_IntegerArray;
 var
   LInputArray: TArray<Integer>;
   LList: TList<Integer>;
+  LLength: integer;
 begin
   // Arrange
   LInputArray := TArray<Integer>.Create(1, 2, 3, 4, 5);
@@ -146,7 +147,8 @@ begin
   LList := TUtils.AsList<Integer>(LInputArray);
   try
     // Assert
-    Assert.AreEqual(Length(LInputArray), LList.Count);
+    LLength := Length(LInputArray);
+    Assert.AreEqual(LLength, LList.Count);
     for var i := 0 to High(LInputArray) do
       Assert.AreEqual(LInputArray[i], LList[i]);
   finally
@@ -175,6 +177,8 @@ var
   LResultBytes: TBytes;
   LDecodedString: string;
   LExpectedString: string;
+  LLength: integer;
+  LResult: integer;
 begin
   // Arrange
   LInputBase64 := 'SGVsbG8sIFdvcmxkIQ==';
@@ -184,7 +188,9 @@ begin
   LResultBytes := TUtils.DecodeBase64(LInputBase64);
 
   // Assert
-  Assert.AreEqual(Length(LExpectedString), Length(LResultBytes));
+  LLength := Length(LExpectedString);
+  LResult := Length(LResultBytes);
+  Assert.AreEqual(LLength, LResult);
   LDecodedString := StringOf(LResultBytes);
   Assert.AreEqual(LExpectedString, LDecodedString);
 end;
@@ -375,14 +381,16 @@ procedure TTestUtils.TestSplit;
 var
   LS: string;
   LResultArray: TArray<string>;
+  LLength: integer;
 begin
   // Arrange
   LS := 'Hello,World';
   // Act
   LResultArray := TUtils.Split(LS);
 
+  LLength := Length(LResultArray);
   // Assert
-  Assert.AreEqual(11, Length(LResultArray), 'Split should return an array with 2 elements.');
+  Assert.AreEqual(11, LLength, 'Split should return an array with 2 elements.');
   Assert.AreEqual('H', LResultArray[0], 'element should be "Hello".');
   Assert.AreEqual('e', LResultArray[1], 'element should be "Hello".');
   Assert.AreEqual('l', LResultArray[2], 'element should be "Hello".');

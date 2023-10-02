@@ -283,6 +283,7 @@ procedure TDictionaryHelperTest.TestRotate;
 var
   LDictionary: TDictEx<Integer, string>;
   LRotatedPairs: TArray<TPair<Integer, string>>;
+  LResult: integer;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -294,8 +295,9 @@ begin
     // Act
     LRotatedPairs := LDictionary.Rotate(1);
 
+    LResult := Length(LRotatedPairs);
     // Assert
-    Assert.AreEqual(3, Length(LRotatedPairs));
+    Assert.AreEqual(3, LResult);
 
     // Verifique se os pares chave-valor estão na ordem correta após a rotação
     Assert.AreEqual(3, LRotatedPairs[0].Key);
@@ -343,6 +345,7 @@ procedure TDictionaryHelperTest.TestSortedKeys;
 var
   LDictionary: TDictEx<Integer, string>;
   LSortedKeys: TArray<Integer>;
+  LResult: integer;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -354,8 +357,9 @@ begin
     // Act
     LSortedKeys := LDictionary.SortedKeys;
 
+    LResult := Length(LSortedKeys);
     // Assert
-    Assert.AreEqual(3, Length(LSortedKeys));
+    Assert.AreEqual(3, LResult);
     Assert.AreEqual(1, LSortedKeys[0]);
     Assert.AreEqual(2, LSortedKeys[1]);
     Assert.AreEqual(3, LSortedKeys[2]);
@@ -369,6 +373,7 @@ procedure TDictionaryHelperTest.TestShuffleKeys;
 var
   LDictionary: TDictEx<Integer, string>;
   LShuffledKeys: TArray<Integer>;
+  LResult: integer;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -380,8 +385,9 @@ begin
     // Act
     LShuffledKeys := LDictionary.ShuffleKeys;
 
+    LResult := Length(LShuffledKeys);
     // Assert
-    Assert.AreEqual(3, Length(LShuffledKeys));
+    Assert.AreEqual(3, LResult);
 
     // Verifique se todas as chaves originais estão presentes na matriz retornada
     // não tem teste para vê como ficou embaralhada
@@ -646,7 +652,8 @@ begin
                            end);
 
     Assert.IsTrue(LIlteredMap.Count = 1); // <<<<===== FILTRO
-    Assert.AreEqual(LIlteredMap.ToString, '7=250'); // <<<<==== CONVERT
+    Assert.AreEqual(LIlteredMap[7], 250); // <<<<==== CONVERT
+    Assert.AreEqual(LIlteredMap.ToString, '7=250');
   finally
     LMap.Free;
   end;
@@ -911,7 +918,6 @@ var
   LFor: Integer;
   LDictionary: TDictEx<Integer, String>;
   LResult: TMap<Integer, string>;
-  L: integer;
 begin
   LDictionary := TDictEx<Integer, String>.Create;
   try

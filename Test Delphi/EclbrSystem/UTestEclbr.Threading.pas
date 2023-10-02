@@ -132,9 +132,9 @@ var
   LFuture: TFuture;
   LErr: string;
 begin
-  // Neste caso no ECLBr o RUN não usa Function somente Procedure, se quiser
-  // usar Function use o Await, pois ele espera o resultado para devolver, o
-  // RUN não fica esperando, somente aloca a thread e executa
+  // Neste caso no ECLBr o "Run" não usa Function somente Procedure, se quiser
+  // usar Function use o "Await", pois ele espera o resultado para devolver, o
+  // "Run" não fica esperando, somente aloca a thread e executa
   LFuture := Async(function: TValue
                    begin
                      Result := False;

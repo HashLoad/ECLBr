@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.list;
@@ -34,11 +34,11 @@ uses
   Generics.Defaults,
   Generics.Collections,
   eclbr.map,
-  eclbr.include,
+  eclbr.core,
   eclbr.vector;
 
 type
-  Tuple = eclbr.include.Tuple;
+  Tuple = eclbr.core.Tuple;
 
   TPairList<L, R> = record
     Left: L;
@@ -82,8 +82,24 @@ type
     procedure Rotate(const Count: integer);
 
     /// <summary>
-    ///   Removes duplicate elements from the list, leaving only unique elements.
+    ///   Reverses the order of elements in the list.
     /// </summary>
+    /// <remarks>
+    ///   The Reverse procedure reverses the order of elements in the current list,
+    ///   changing the position of each element such that the first element becomes
+    ///   the last, the second becomes the second-to-last, and so on. This operation
+    ///   affects the order of elements in the original list.
+    /// </remarks>
+    procedure Reverse;
+
+    /// <summary>
+    ///   Removes duplicate elements from the list.
+    /// </summary>
+    /// <remarks>
+    ///   The Unique procedure removes all duplicate elements from the current list,
+    ///   retaining only the first occurrence of each unique element. The original
+    ///   order of elements is preserved, and the list will contain only distinct elements.
+    /// </remarks>
     function Unique: TVector<T>;
 
     /// <summary>
@@ -195,7 +211,7 @@ type
     /// <param name="AStartIndex">The index of the first element to include in the slice.</param>
     /// <param name="AEndIndex">The index of the last element to include in the slice.</param>
     /// <returns>A new list containing the sliced elements.</returns>
-    function Slice<T>(const AList: TList<T>; AStartIndex, AEndIndex: integer): TVector<T>;
+    function Slice(const AList: TList<T>; AStartIndex, AEndIndex: integer): TVector<T>;
 
     /// <summary>
     ///   Combines the elements of two lists into a new list using a specified function and returns the resulting list of combined elements.
@@ -218,7 +234,7 @@ type
     /// <param name="AList">The source list to flatmap.</param>
     /// <param name="AFunc">The function used to map each element to an array of elements.</param>
     /// <returns>A new list containing the flattened elements.</returns>
-    function FlatMap<T, R>(const AList: TList<T>;
+    function FlatMap<R>(const AList: TList<T>;
       const AFunc: TFunc<T, TArray<R>>): TVector<R>;
 
     /// <summary>
@@ -228,7 +244,7 @@ type
     /// <param name="List1">The first list to intersect.</param>
     /// <param name="List2">The second list to intersect.</param>
     /// <returns>A new list containing the elements common to both input lists.</returns>
-    function Intersect<T>(const List1, List2: TList<T>): TVector<T>;
+    function Intersect(const List2: TList<T>): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing the elements from the first list that are not present in the second list.
@@ -237,7 +253,7 @@ type
     /// <param name="List1">The first list to extract elements from.</param>
     /// <param name="List2">The second list used for exclusion.</param>
     /// <returns>A new list containing the elements from the first list that are not found in the second list.</returns>
-    function &Except<T>(const List1, List2: TList<T>): TVector<T>;
+    function &Except(const List2: TList<T>): TVector<T>;
 
     /// <summary>
     ///   Finds and returns the maximum element in the list based on their natural order.
@@ -368,12 +384,12 @@ begin
   end;
 end;
 
-function TListEx<T>.&Except<T>(const List1, List2: TList<T>): TVector<T>;
+function TListEx<T>.&Except(const List2: TList<T>): TVector<T>;
 var
   LItem: T;
 begin
   Result := TVector<T>.Create([]);
-  for LItem in List1 do
+  for LItem in Self do
   begin
     if not List2.Contains(LItem) then
       Result.Add(LItem);
@@ -429,7 +445,7 @@ begin
   end;
 end;
 
-function TListEx<T>.FlatMap<T, R>(const AList: TList<T>;
+function TListEx<T>.FlatMap<R>(const AList: TList<T>;
   const AFunc: TFunc<T, TArray<R>>): TVector<R>;
 var
   LItem: T;
@@ -519,12 +535,12 @@ begin
   Result := -1;
 end;
 
-function TListEx<T>.Intersect<T>(const List1, List2: TList<T>): TVector<T>;
+function TListEx<T>.Intersect(const List2: TList<T>): TVector<T>;
 var
   LItem: T;
 begin
   Result := TVector<T>.Create([]);
-  for LItem in List1 do
+  for LItem in Self do
   begin
     if List2.Contains(LItem) then
       Result.Add(LItem);
@@ -665,6 +681,23 @@ begin
     Result := AAccumulator(LItem, Result);
 end;
 
+procedure TListEx<T>.Reverse;
+var
+  LTemp: T;
+  LItemB, LItemA: Integer;
+begin
+  LItemB := 0;
+  LItemA := Self.Count - 1;
+  while LItemB < LItemA do
+  begin
+    LTemp := Self.Items[LItemB];
+    Self.Items[LItemB] := Self.Items[LItemA];
+    Self.Items[LItemA] := LTemp;
+    Inc(LItemB);
+    Dec(LItemA);
+  end;
+end;
+
 function TListEx<T>.Reduce(const AAccumulator: TFunc<T, T, T>;
   const AInitial: T): T;
 var
@@ -746,7 +779,7 @@ begin
   end;
 end;
 
-function TListEx<T>.Slice<T>(const AList: TList<T>; AStartIndex,
+function TListEx<T>.Slice(const AList: TList<T>; AStartIndex,
   AEndIndex: integer): TVector<T>;
 var
   LFor: integer;
@@ -838,4 +871,9 @@ begin
 end;
 
 end.
+
+
+
+
+
 

@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.vector;
@@ -35,10 +35,10 @@ uses
   TypInfo,
   Generics.Defaults,
   Generics.Collections,
-  eclbr.include;
+  eclbr.core;
 
 type
-  Tuple = eclbr.include.Tuple;
+  Tuple = eclbr.core.Tuple;
 
   IVectorEnumerator<T> = interface
     ['{1E9F92D8-4EF1-4D15-9160-9B00013BA97D}']
@@ -57,19 +57,19 @@ type
       private
         class var FCapacity: integer;
       private
-        class function _GetCapacity: integer; static;
-        class procedure _SetCapacity(var AArray: TArrayType; const ACapacity: integer); static;
-        class function _GetCount(var AArray: TArrayType): integer; static;
-        class function _IsEquals<I>(const ALeft: I; ARight: I): boolean; static;
+        class function _GetCapacity: integer; static; inline;
+        class procedure _SetCapacity(var AArray: TArrayType; const ACapacity: integer); static; inline;
+        class function _GetCount(var AArray: TArrayType): integer; static; inline;
+        class function _IsEquals<I>(const ALeft: I; ARight: I): boolean; static; inline;
       public
-        class procedure Add(var AArray: TArrayType; const AItem: T); static;
-        class procedure Insert(var AArray: TArrayType; const AIndex: integer; const AItem: T); static;
-        class procedure Delete(var AArray: TArrayType; const AIndex: integer); static;
-        class procedure Remove(var AArray: TArrayType; const AItem: T); static;
-        class procedure SetLength(var AArray: TArrayType; ALength: integer); static;
-        class function GetEnumerator(var AArray: TArrayType): IVectorEnumerator<T>; static;
-        class function Contains(const AArray: TArrayType; const AItem: T): boolean; static;
-        class function IndexOf(const AArray: TArrayType; const AItem: T): integer; static;
+        class procedure Add(var AArray: TArrayType; const AItem: T); static; inline;
+        class procedure Insert(var AArray: TArrayType; const AIndex: integer; const AItem: T); static; inline;
+        class procedure Delete(var AArray: TArrayType; const AIndex: integer); static; inline;
+        class procedure Remove(var AArray: TArrayType; const AItem: T); static; inline;
+        class procedure SetLength(var AArray: TArrayType; ALength: integer); static; inline;
+        class function GetEnumerator(var AArray: TArrayType): IVectorEnumerator<T>; static; inline;
+        class function Contains(const AArray: TArrayType; const AItem: T): boolean; static; inline;
+        class function IndexOf(const AArray: TArrayType; const AItem: T): integer; static; inline;
       end;
     type
       TVectorEnumerator = class(TInterfacedObject, IVectorEnumerator<T>)
@@ -85,264 +85,625 @@ type
       end;
   private
     FItems: TArrayType;
-    function _GetItem(Index: integer): T;
     procedure _SetItem(Index: integer; const V: T);
+    function _GetItem(Index: integer): T;
     function _TrimItems: TArrayType;
     function _IsEquals<I>(const ALeft: I; ARight: I): boolean;
   public
-    class operator Implicit(const V: TVector<T>): TArrayType;
-    class operator Implicit(const V: TArrayType): TVector<T>;
-    class operator Equal(const Left, Right: TVector<T>): boolean;
-    class operator NotEqual(const Left, Right: TVector<T>): boolean;
-    class function Empty: TVector<T>; static;
+    class operator Implicit(const V: TVector<T>): TArrayType; inline;
+    class operator Implicit(const V: TArrayType): TVector<T>; inline;
+    class operator Equal(const Left, Right: TVector<T>): boolean; inline;
+    class operator NotEqual(const Left, Right: TVector<T>): boolean; inline;
+    class operator Add(const Left, Right: TVector<T>): TVector<T>; inline;
+    class operator Add(const Left: TVector<T>; const Right: TArrayType): TVector<T>; inline;
+    class operator Add(const Left: TArrayType; const Right: TVector<T>): TVector<T>; inline;
+    class operator Add(const Left: TVector<T>; const Right: T): TVector<T>; inline;
+    class operator Add(const Left: T; const Right: TVector<T>): TVector<T>; inline;
+    class operator Subtract(const Left, Right: TVector<T>): TVector<T>; inline;
+    class operator Subtract(const Left: TVector<T>; const Right: T): TVector<T>; inline;
+    class operator In(const Left: T; const Right: TVector<T>): boolean; inline;
+    class operator In(const Left, Right: TVector<T>): boolean; inline;
+    class operator In(const Left: TArrayType; const Right: TVector<T>): boolean; inline;
 
     /// <summary>
-    ///   Creates a new vector initialized with the provided array of elements.
+    ///   Creates and returns an empty vector of the specified type.
     /// </summary>
-    /// <param name="Value">The array of elements used to initialize the vector.</param>
+    /// <returns>
+    ///   An empty vector of type <typeparamref name="T"/>.
+    /// </returns>
+    /// <remarks>
+    ///   The class method Empty creates and returns an empty vector of the specified
+    ///   type (<typeparamref name="T"/>). This vector contains no elements, and its
+    ///   size is zero. It can serve as a basis for constructing a vector with elements
+    ///   later on.
+    /// </remarks>
+    class function Empty: TVector<T>; static; inline;
+
+    /// <summary>
+    ///   Creates a new instance of the class and initializes it with an array of values.
+    /// </summary>
+    /// <param name="Value">
+    ///   An array of elements of type <typeparamref name="TArrayType"/> to initialize the instance.
+    /// </param>
+    /// <remarks>
+    ///   The constructor Create creates a new instance of the class and initializes it
+    ///   with the elements provided in the <paramref name="Value"/> array. This allows
+    ///   you to create an object of the class with initial values ready for use.
+    /// </remarks>
     constructor Create(const Value: TArrayType);
 
     /// <summary>
-    ///   Adds an element to the end of the vector.
+    ///   Adds an element to the list.
     /// </summary>
-    /// <param name="AValue">The element to be added.</param>
-    procedure Add(const AValue: T);
+    /// <param name="AValue">
+    ///   The element of type <typeparamref name="T"/> to be added to the list.
+    /// </param>
+    /// <remarks>
+    ///   The Add method adds the specified element, <paramref name="AValue"/>, to the
+    ///   current list. The element is inserted at the end of the list. After addition,
+    ///   the list contains all previous elements as well as the new element.
+    /// </remarks>
+    procedure Add(const AValue: T); inline;
 
     /// <summary>
-    ///   Inserts an element at the specified index in the vector.
+    ///   Inserts an element at the specified index in the list.
     /// </summary>
-    /// <param name="AIndex">The index at which to insert the element.</param>
-    /// <param name="AItem">The element to be inserted.</param>
-    procedure Insert(const AIndex: integer; const AItem: T);
+    /// <param name="AIndex">
+    ///   The index at which the element of type <typeparamref name="T"/> should be inserted.
+    /// </param>
+    /// <param name="AItem">
+    ///   The element of type <typeparamref name="T"/> to be inserted into the list.
+    /// </param>
+    /// <remarks>
+    ///   The Insert method inserts the specified element, <paramref name="AItem"/>, at
+    ///   the position indicated by <paramref name="AIndex"/> in the current list. The
+    ///   elements that were at or after the specified index are shifted to accommodate
+    ///   the new element. After insertion, the list contains all previous elements as
+    ///   well as the newly inserted element.
+    /// </remarks>
+    procedure Insert(const AIndex: integer; const AItem: T); inline;
 
     /// <summary>
-    ///   Deletes the element at the specified index in the vector.
+    ///   Deletes the element at the specified index from the list.
     /// </summary>
-    /// <param name="AIndex">The index of the element to be deleted.</param>
-    procedure Delete(const AIndex: integer);
+    /// <param name="AIndex">
+    ///   The index of the element to be deleted from the list.
+    /// </param>
+    /// <remarks>
+    ///   The Delete method removes the element at the position indicated by
+    ///   <paramref name="AIndex"/> from the current list. Any elements that were
+    ///   after the deleted element are shifted to fill the gap. After deletion,
+    ///   the list contains all previous elements except for the one that was deleted.
+    /// </remarks>
+    procedure Delete(const AIndex: integer); inline;
 
     /// <summary>
-    ///   Removes the first occurrence of a specified element from the vector.
+    ///   Removes the first occurrence of a specific element from the list.
     /// </summary>
-    /// <param name="AItem">The element to be removed.</param>
-    procedure Remove(const AItem: T);
+    /// <param name="AItem">
+    ///   The element of type <typeparamref name="T"/> to be removed from the list.
+    /// </param>
+    /// <remarks>
+    ///   The Remove method searches for the first occurrence of the specified element,
+    ///   <paramref name="AItem"/>, in the current list and removes it if found. If the
+    ///   element is not present in the list, the list remains unchanged. If there are
+    ///   multiple occurrences of the element, only the first one encountered is removed.
+    /// </remarks>
+    procedure Remove(const AItem: T); overload; inline;
 
     /// <summary>
-    ///   Executes a provided action for each element in the vector.
+    ///   Removes multiple occurrences of specific elements from the list.
     /// </summary>
-    /// <param name="Action">The action to be executed for each element.</param>
-    procedure ForEach(const Action: TProc<T>); overload;
+    /// <param name="AItems">
+    ///   An array of elements of type <typeparamref name="T"/> to be removed from the list.
+    /// </param>
+    /// <remarks>
+    ///   The Remove method searches for all occurrences of the elements specified in the
+    ///   <paramref name="AItems"/> array and removes them from the current list. If any
+    ///   of the specified elements are not present in the list, the list remains unchanged.
+    ///   If there are multiple occurrences of any element in the array, all of them are removed.
+    /// </remarks>
+    procedure Remove(const AItems: TArray<T>); overload; inline;
 
     /// <summary>
-    ///   Sets the current length of the vector.
+    ///   Executes a specified action for each element in the list.
     /// </summary>
-    /// <param name="ALength">The new length of the vector.</param>
-    procedure SetLength(const ALength: integer);
+    /// <param name="Action">
+    ///   A delegate of type TProc<T> representing the action to be performed on each element.
+    /// </param>
+    /// <remarks>
+    ///   The ForEach method iterates over each element in the current list and invokes
+    ///   the specified action, <paramref name="Action"/>, passing each element as a parameter.
+    ///   This allows you to perform a custom operation on each element in the list without
+    ///   the need for explicit loops.
+    /// </remarks>
+    procedure ForEach(const Action: TProc<T>); overload; inline;
 
     /// <summary>
-    ///   Sets the current capacity of the vector.
+    ///   Sets the length of the list to the specified value.
     /// </summary>
-    /// <param name="ACapacity">The new capacity of the vector.</param>
-    procedure SetCapacity(const ACapacity: integer);
+    /// <param name="ALength">
+    ///   The new length of the list, represented as an integer.
+    /// </param>
+    /// <remarks>
+    ///   The SetLength method changes the length of the current list to the value specified
+    ///   in <paramref name="ALength"/>. If <paramref name="ALength"/> is greater than the
+    ///   current number of elements, new elements are added to the end of the list, each
+    ///   initialized with default values. If <paramref name="ALength"/> is less than the
+    ///   current number of elements, excess elements are removed from the end of the list.
+    /// </remarks>
+    procedure SetLength(const ALength: integer); inline;
 
     /// <summary>
-    ///   Adds a collection of elements to the vector.
+    ///   Sets the capacity of the list to the specified value.
     /// </summary>
-    /// <param name="ACollection">The collection of elements to be added.</param>
-    procedure AddRange(const ACollection: TArrayType);
+    /// <param name="ACapacity">
+    ///   The new capacity of the list, represented as an integer.
+    /// </param>
+    /// <remarks>
+    ///   The SetCapacity method changes the capacity of the current list to the value specified
+    ///   in <paramref name="ACapacity"/>. Capacity refers to the maximum number of elements
+    ///   the list can hold without resizing. If <paramref name="ACapacity"/> is greater than
+    ///   the current capacity, the list may be reallocated to accommodate more elements.
+    ///   If <paramref name="ACapacity"/> is less than the current capacity, the list remains
+    ///   unchanged, but it may release excess memory if applicable.
+    /// </remarks>
+    procedure SetCapacity(const ACapacity: integer); inline;
 
     /// <summary>
-    ///   Concatenates a string with each element of the vector using a specified separator.
+    ///   Adds multiple elements from an array to the end of the list.
     /// </summary>
-    /// <param name="AValue">The string to be concatenated with the elements.</param>
-    /// <param name="ASeparator">The separator to be used between the elements.</param>
-    procedure JoinStrings(const AValue: string; const ASeparator: string);
+    /// <param name="ACollection">
+    ///   An array of elements of type <typeparamref name="TArrayType"/> to be added to the list.
+    /// </param>
+    /// <remarks>
+    ///   The AddRange method appends all elements from the specified array
+    ///   <paramref name="ACollection"/> to the end of the current list. After
+    ///   this operation, the list contains all its previous elements as well
+    ///   as the new elements from the array.
+    /// </remarks>
+    procedure AddRange(const ACollection: TArrayType); inline;
 
     /// <summary>
-    ///   Clears the vector by removing all elements.
+    ///   Concatenates the elements of the list into a single string with separators.
     /// </summary>
-    procedure Clear;
+    /// <param name="AValue">
+    ///   The string to be inserted between the elements of the list in the resulting string.
+    /// </param>
+    /// <param name="ASeparator">
+    ///   The string to be inserted between adjacent elements in the resulting string.
+    /// </param>
+    /// <remarks>
+    ///   The JoinStrings method combines the elements of the list into a single string,
+    ///   using the value specified in <paramref name="AValue"/> to separate the elements
+    ///   and the value specified in <paramref name="ASeparator"/> to separate adjacent
+    ///   elements. The resulting string is returned, but the original list is not modified.
+    /// </remarks>
+    procedure JoinStrings(const AValue: string; const ASeparator: string); inline;
 
     /// <summary>
-    ///   Sorts the elements of the dictionary based on their keys in ascending order.
+    ///   Removes all elements from the list.
     /// </summary>
     /// <remarks>
-    ///   This procedure rearranges the elements of the dictionary so that they are
-    ///   sorted in ascending order based on their keys. After calling this procedure,
-    ///   the dictionary will be sorted, and you can access its elements in a sorted
-    ///   order using iterators or other methods.
+    ///   The Clear method removes all elements from the current list, leaving it empty.
+    ///   Any memory allocated for the elements is released, and the list is ready to be
+    ///   populated with new elements.
     /// </remarks>
-    procedure Sort;
+    procedure Clear; inline;
 
     /// <summary>
-    ///   Removes duplicate elements from the vector, keeping only one occurrence of each element.
+    ///   Assigns elements from an array to the list.
     /// </summary>
+    /// <param name="Items">
+    ///   An array containing elements of type <typeparamref name="T"/> to be assigned to the list.
+    /// </param>
+    /// <remarks>
+    ///   The Assign procedure copies the elements from the specified array
+    ///   <paramref name="Items"/> to the current list. The existing elements in
+    ///   the list, if any, are replaced by the elements from the array. After
+    ///   the assignment, the list contains the same elements as the array.
+    /// </remarks>
+    procedure Assign(const Items: TArray<T>);
+
+    /// <summary>
+    ///   Sorts the elements in the list in ascending order.
+    /// </summary>
+    /// <remarks>
+    ///   The Sort procedure rearranges the elements in the current list so that they
+    ///   are in ascending order based on their natural order. This operation modifies
+    ///   the order of elements in the list.
+    /// </remarks>
+    procedure Sort; inline;
+
+    /// <summary>
+    ///   Reverses the order of elements in the list.
+    /// </summary>
+    /// <remarks>
+    ///   The Reverse procedure reverses the order of elements in the current list,
+    ///   changing the position of each element such that the first element becomes
+    ///   the last, the second becomes the second-to-last, and so on. This operation
+    ///   affects the order of elements in the original list.
+    /// </remarks>
+    procedure Reverse;
+
+    /// <summary>
+    ///   Removes duplicate elements from the list.
+    /// </summary>
+    /// <remarks>
+    ///   The Unique procedure removes all duplicate elements from the current list,
+    ///   retaining only the first occurrence of each unique element. The original
+    ///   order of elements is preserved, and the list will contain only distinct elements.
+    /// </remarks>
     procedure Unique;
 
     /// <summary>
-    ///   Returns an enumerator that allows iterating through the elements of the vector.
+    ///   Returns an enumerator for iterating through the elements in the list.
     /// </summary>
-    function GetEnumerator: IVectorEnumerator<T>;
+    /// <returns>
+    ///   An instance of <typeparamref name="IVectorEnumerator<T>"/> that can be used to
+    ///   iterate through the elements in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The GetEnumerator function provides an enumerator object that allows you to
+    ///   iterate through the elements in the list in a forward direction. You can use
+    ///   this enumerator in loops to access each element sequentially.
+    /// </remarks>
+    function GetEnumerator: IVectorEnumerator<T>; inline;
 
     /// <summary>
-    ///   Determines whether the vector contains a specific element.
+    ///   Checks if the list contains a specific element.
     /// </summary>
-    /// <param name="AItem">The element to locate in the vector.</param>
-    /// <returns><c>True</c> if the element is found in the vector; otherwise, <c>False</c>.</returns>
-    function Contains(const AItem: T): boolean;
+    /// <param name="AItem">
+    ///   The element of type <typeparamref name="T"/> to be checked for existence in the list.
+    /// </param>
+    /// <returns>
+    ///   True if the element <paramref name="AItem"/> is found in the list; otherwise, False.
+    /// </returns>
+    /// <remarks>
+    ///   The Contains function with overload checks if the specified element
+    ///   <paramref name="AItem"/> exists in the current list. It returns True if
+    ///   the element is found, and False if it is not found.
+    /// </remarks>
+    function Contains(const AItem: T): boolean; overload; inline;
 
     /// <summary>
-    ///   Searches for the specified element and returns the zero-based index of the first occurrence.
+    ///   Checks if the list contains all elements from a specified array.
     /// </summary>
-    /// <param name="AItem">The element to locate in the vector.</param>
-    /// <returns>The zero-based index of the first occurrence of the element in the vector; otherwise, -1 if not found.</returns>
-    function IndexOf(const AItem: T): integer;
+    /// <param name="AItems">
+    ///   An array of elements of type <typeparamref name="TArrayType"/> to be checked for
+    ///   existence in the list.
+    /// </param>
+    /// <returns>
+    ///   True if all elements from the array <paramref name="AItems"/> are found in the list;
+    ///   otherwise, False.
+    /// </returns>
+    /// <remarks>
+    ///   The Contains function with overload checks if all elements specified in the
+    ///   <paramref name="AItems"/> array exist in the current list. It returns True if
+    ///   all elements are found, and False if any of them are not found.
+    /// </remarks>
+    function Contains(const AItems: TArrayType): boolean; overload;
 
     /// <summary>
-    ///   Merges the elements of the source array into the vector, adding non-duplicate elements.
+    ///   Returns the index of the first occurrence of a specific element in the list.
     /// </summary>
-    /// <param name="ASourceArray">The source array to merge into the vector.</param>
-    /// <returns>The vector with elements merged from the source array.</returns>
-    function Merge(const ASourceArray: TArrayType): TVector<T>;
+    /// <param name="AItem">
+    ///   The element of type <typeparamref name="T"/> to search for in the list.
+    /// </param>
+    /// <returns>
+    ///   The zero-based index of the first occurrence of the element <paramref name="AItem"/>
+    ///   in the list, or -1 if the element is not found.
+    /// </returns>
+    /// <remarks>
+    ///   The IndexOf function searches for the first occurrence of the specified element
+    ///   <paramref name="AItem"/> in the current list and returns its zero-based index if
+    ///   found. If the element is not found in the list, it returns -1.
+    /// </remarks>
+    function IndexOf(const AItem: T): integer; inline;
 
     /// <summary>
-    ///   Filters the elements of the vector based on a provided predicate.
+    ///   Merges the elements of the list with those from a specified array.
     /// </summary>
-    /// <param name="APredicate">A function that determines whether an element should be included in the filtered vector.</param>
-    /// <returns>A new vector containing the elements that satisfy the predicate.</returns>
-    function Filter(const APredicate: TPredicate<T>): TVector<T>; overload;
+    /// <param name="ASourceArray">
+    ///   An array of elements of type <typeparamref name="TArrayType"/> to be merged
+    ///   with the elements of the list.
+    /// </param>
+    /// <returns>
+    ///   A new instance of <typeparamref name="TVector<T>"/> containing the merged elements.
+    /// </returns>
+    /// <remarks>
+    ///   The Merge function combines the elements of the current list with those from
+    ///   the specified array <paramref name="ASourceArray"/> to create a new instance
+    ///   of <typeparamref name="TVector<T>"/>. The order of elements is preserved.
+    /// </remarks>
+    function Merge(const ASourceArray: TArrayType): TVector<T>; inline;
 
     /// <summary>
-    ///   Filters the elements of the vector based on a provided predicate.
+    ///   Filters the elements of the list based on a specified predicate function.
     /// </summary>
     /// <param name="APredicate">
-    ///   A function that determines whether an element should be included in the filtered vector.
-    ///   The function takes two parameters: the element of the vector and its index, and should return True
-    ///   if the element should be included in the filtered vector, or False if it should be excluded.
+    ///   A predicate function of type TPredicate<T> that
+    ///   determines whether an element should be included in the filtered result.
     /// </param>
     /// <returns>
-    ///   A new vector containing the elements that satisfy the predicate.
+    ///   A new instance of TVector<T> containing the elements
+    ///   that satisfy the given predicate.
     /// </returns>
-    function Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>; overload;
+    /// <remarks>
+    ///   The Filter function with overload applies the specified predicate function
+    ///   APredicate to each element in the current list and includes
+    ///   only the elements that satisfy the predicate in the filtered result.
+    /// </remarks>
+    function Filter(const APredicate: TPredicate<T>): TVector<T>; overload; inline;
 
     /// <summary>
-    ///   Mapeia os elementos desta coleção para uma nova coleção de tipo TResult usando a função de mapeamento fornecida.
+    ///   Filters the elements of the list based on a specified predicate function
+    ///   with an index parameter.
     /// </summary>
+    /// <param name="APredicate">
+    ///   A predicate function of type TFunc<T, integer, boolean> that determines
+    ///   whether an element should be included in the filtered result.
+    /// </param>
+    /// <returns>
+    ///   A new instance of TVector<T> containing the elements that satisfy the given predicate.
+    /// </returns>
+    /// <remarks>
+    ///   The Filter function with overload applies the specified predicate function
+    ///   APredicate to each element in the current list, along with its index, and
+    ///   includes only the elements that satisfy the predicate in the filtered result.
+    /// </remarks>
+    function Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>; overload; inline;
+
+    /// <summary>
+    ///   Applies a mapping function to each element in the list and returns a new list
+    ///   containing the results of the mapping.
+    /// </summary>
+    /// <typeparam name="R">
+    ///   The type of the result elements after applying the mapping function.
+    /// </typeparam>
     /// <param name="AMappingFunc">
-    ///   A função de mapeamento que transforma cada elemento da coleção atual em um elemento do tipo TResult.
+    ///   A mapping function of type TFunc<T, R> that transforms each element in the list
+    ///   to a result of type R.
     /// </param>
     /// <returns>
-    ///   Uma nova coleção contendo os elementos resultantes da aplicação da função de mapeamento.
+    ///   A new instance of TVector<R> containing the results of applying the mapping
+    ///   function to each element in the original list.
     /// </returns>
-    function Map<R>(const AMappingFunc: TFunc<T, R>): TVector<R>;
+    /// <remarks>
+    ///   The Map function applies the specified mapping function AMappingFunc to each
+    ///   element in the current list and constructs a new list of type TVector<R> that
+    ///   contains the results of the mapping.
+    /// </remarks>
+    function Map<R>(const AMappingFunc: TFunc<T, R>): TVector<R>; inline;
 
     /// <summary>
-    ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
-    /// </summary>
-    /// <param name="AAccumulator">The accumulator function used to combine elements.</param>
-    /// <returns>The accumulated result.</returns>
-    function Reduce(const AAccumulator: TFunc<T, T, T>): T; overload;
-
-    /// <summary>
-    ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
-    /// </summary>
-    /// <param name="AAccumulator">The accumulator function used to combine elements.</param>
-    /// <returns>The accumulated result.</returns>
-    function Reduce(const AAccumulator: TFunc<T, T, T>; const AInitial: T): T; overload;
-
-    /// <summary>
-    ///   Reduces a tuple based on a provided accumulator function.
+    ///   Reduces the elements in the list to a single value using an accumulator function.
     /// </summary>
     /// <param name="AAccumulator">
-    ///   A function that accumulates values in the tuple.
-    ///   The function takes two parameters: the current value of the tuple and the accumulated value,
-    ///   and should return a new accumulated value.
-    /// </param>
-    /// <param name="ATuple">
-    ///   The initial tuple to start the reduction process.
+    ///   An accumulator function of type TFunc<T, T, T> that combines two elements to
+    ///   produce a single result.
     /// </param>
     /// <returns>
-    ///   A new tuple resulting from the reduction process.
+    ///   The result of applying the accumulator function to all elements in the list.
     /// </returns>
-    function Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>; const ATuple: Tuple): Tuple; overload;
+    /// <remarks>
+    ///   The Reduce function with overload applies the specified accumulator function
+    ///   AAccumulator to combine the elements in the current list into a single result.
+    ///   It starts with the first element as an initial value and combines each subsequent
+    ///   element with the accumulated result until all elements have been processed.
+    /// </remarks>
+    function Reduce(const AAccumulator: TFunc<T, T, T>): T; overload; inline;
 
     /// <summary>
-    ///   Returns the first element in the vector.
+    ///   Reduces the elements in the list to a single value using an accumulator function
+    ///   and an initial value.
     /// </summary>
-    /// <returns>The first element in the vector.</returns>
-    function First: T;
+    /// <param name="AAccumulator">
+    ///   An accumulator function of type TFunc<T, T, T> that combines two elements to
+    ///   produce a single result.
+    /// </param>
+    /// <param name="AInitial">
+    ///   The initial value of type T used as the starting point for the reduction process.
+    /// </param>
+    /// <returns>
+    ///   The result of applying the accumulator function to all elements in the list,
+    ///   starting with the initial value.
+    /// </returns>
+    /// <remarks>
+    ///   The Reduce function with overload applies the specified accumulator function
+    ///   AAccumulator to combine the elements in the current list into a single result.
+    ///   It starts with the initial value AInitial and combines each subsequent element
+    ///   with the accumulated result until all elements have been processed.
+    /// </remarks>
+    function Reduce(const AAccumulator: TFunc<T, T, T>; const AInitial: T): T; overload; inline;
 
     /// <summary>
-    ///   Returns the last non-empty element in the vector.
+    ///   Reduces the elements in the list to a single value using an accumulator function
+    ///   and an initial value represented as a tuple.
     /// </summary>
-    /// <returns>The last non-empty element in the vector.</returns>
-    /// <exception cref="Exception">Thrown if no non-empty elements are found in the vector.</exception>
-    function Last: T;
+    /// <param name="AAccumulator">
+    ///   An accumulator function of type TFunc<T, Tuple, Tuple> that combines an element
+    ///   and a tuple into a new tuple.
+    /// </param>
+    /// <param name="ATuple">
+    ///   The initial value represented as a tuple, used as the starting point for the
+    ///   reduction process.
+    /// </param>
+    /// <returns>
+    ///   The result of applying the accumulator function to all elements in the list,
+    ///   starting with the initial value represented as a tuple.
+    /// </returns>
+    /// <remarks>
+    ///   The Reduce function with overload applies the specified accumulator function
+    ///   AAccumulator to combine the elements in the current list into a single result.
+    ///   It starts with the initial value represented as a tuple (ATuple) and combines
+    ///   each subsequent element with the accumulated result (a tuple) until all elements
+    ///   have been processed.
+    /// </remarks>
+    function Reduce(const AAccumulator: TFunc<T, Tuple, Tuple>; const ATuple: Tuple): Tuple; overload; inline;
 
     /// <summary>
-    ///   Determines whether the vector is empty (contains no non-empty elements).
+    ///   Retrieves the first element in the list.
     /// </summary>
-    /// <returns><c>True</c> if the vector is empty; otherwise, <c>False</c>.</returns>
-    function IsEmpty: boolean;
+    /// <returns>
+    ///   The first element of type T in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The First function returns the first element in the current list. If the list is
+    ///   empty, it may raise an exception or return a default value depending on the
+    ///   implementation. Ensure that the list is not empty before calling this function.
+    /// </remarks>
+    function First: T; inline;
 
     /// <summary>
-    ///   Returns a pointer to the TypeInfo of the vector's element type.
+    ///   Retrieves the last element in the list.
     /// </summary>
-    /// <returns>A pointer to the TypeInfo of the vector's element type.</returns>
+    /// <returns>
+    ///   The last element of type T in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The Last function returns the last element in the current list. If the list is
+    ///   empty, it may raise an exception or return a default value depending on the
+    ///   implementation. Ensure that the list is not empty before calling this function.
+    /// </remarks>
+    function Last: T; inline;
+
+    /// <summary>
+    ///   Checks if the list is empty.
+    /// </summary>
+    /// <returns>
+    ///   True if the list is empty; otherwise, False.
+    /// </returns>
+    /// <remarks>
+    ///   The IsEmpty function determines whether the current list contains any elements.
+    ///   It returns True if the list is empty and contains no elements, and False if the
+    ///   list contains one or more elements.
+    /// </remarks>
+    function IsEmpty: boolean; inline;
+
+    /// <summary>
+    ///   Retrieves the type information for the elements in the list.
+    /// </summary>
+    /// <returns>
+    ///   A pointer to type information (PTypeInfo) representing the type of elements
+    ///   stored in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The AsType function returns a pointer to type information (PTypeInfo) that
+    ///   represents the data type of the elements stored in the current list. This can
+    ///   be used to determine the type of elements in the list at runtime.
+    /// </remarks>
     function AsType: PTypeInfo;
 
     /// <summary>
-    ///   Returns a pointer to the internal array of the vector.
+    ///   Retrieves a pointer to the internal array of elements in the list.
     /// </summary>
-    /// <returns>A pointer to the internal array of the vector.</returns>
+    /// <returns>
+    ///   A pointer to an array of elements of type PArrayType that represents the
+    ///   internal storage of elements in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The AsPointer function returns a pointer to the internal array of elements
+    ///   in the current list. This can be used when direct access to the underlying
+    ///   array is needed for specific operations or optimizations.
+    /// </remarks>
     function AsPointer: PArrayType;
 
     /// <summary>
-    ///   Converts the vector into a TList containing non-empty elements.
+    ///   Retrieves a reference to a TList<T> that wraps the elements in the list.
     /// </summary>
-    /// <returns>A TList containing non-empty elements from the vector.</returns>
+    /// <returns>
+    ///   A reference to a TList<T> that provides access to the elements in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The AsList function returns a reference to a TList<T> that wraps the elements
+    ///   in the current list. This allows you to work with the list as a TList<T> object
+    ///   and use its methods and properties for list manipulation.
+    /// </remarks>
     function AsList: TList<T>;
 
     /// <summary>
-    ///   Converte os elementos desta coleção em um array de tipo T.
+    ///   Converts the elements in the list to an array of type TArray<T>.
     /// </summary>
-    /// <remarks>
-    ///   Este método cria um novo array contendo todos os elementos da coleção atual.
-    /// </remarks>
     /// <returns>
-    ///   Um array contendo os elementos da coleção.
+    ///   An array of type TArray<T> containing the elements from the list.
     /// </returns>
-    function ToArray: TArray<T>;
+    /// <remarks>
+    ///   The ToArray function converts the elements in the current list into an array
+    ///   of type TArray<T>. This allows you to work with the list's elements as an
+    ///   array and provides compatibility with array-based operations.
+    /// </remarks>
+    function ToArray: TArray<T>; inline;
 
     /// <summary>
-    ///   Converts the vector into a string representation containing non-empty elements.
+    ///   Converts the elements in the list to a string representation.
     /// </summary>
-    /// <returns>A string representation of the vector containing non-empty elements.</returns>
-    function ToString: string;
+    /// <returns>
+    ///   A string representation of the elements in the list.
+    /// </returns>
+    /// <remarks>
+    ///   The ToString function converts the elements in the current list into a string
+    ///   representation. This allows you to obtain a human-readable or log-friendly
+    ///   representation of the list's contents.
+    /// </remarks>
+    function ToString: string; inline;
 
     /// <summary>
-    ///   Returns the number of non-empty elements in the vector.
+    ///   Retrieves the number of elements in the list.
     /// </summary>
-    /// <returns>The number of non-empty elements in the vector.</returns>
-    function Length: integer;
+    /// <returns>
+    ///   The number of elements in the list as an integer.
+    /// </returns>
+    /// <remarks>
+    ///   The Length function returns the count of elements in the current list, providing
+    ///   the total number of elements stored in the list.
+    /// </remarks>
+    function Length: integer; inline;
 
     /// <summary>
-    ///   Returns the number of non-empty elements in the vector.
+    ///   Retrieves the number of elements in the list.
     /// </summary>
-    /// <returns>The number of non-empty elements in the vector.</returns>
-    function Count: integer;
+    /// <returns>
+    ///   The number of elements in the list as an integer.
+    /// </returns>
+    /// <remarks>
+    ///   The Count function returns the count of elements in the current list, providing
+    ///   the total number of elements stored in the list.
+    /// </remarks>
+    function Count: integer; inline;
 
     /// <summary>
-    ///   Returns the capacity of the vector.
+    ///   Retrieves the current capacity of the list.
     /// </summary>
-    /// <returns>The current capacity of the vector.</returns>
-    function Capacity: integer;
+    /// <returns>
+    ///   The current capacity of the list as an integer.
+    /// </returns>
+    /// <remarks>
+    ///   The Capacity function returns the current capacity of the list, which represents
+    ///   the maximum number of elements that the list can hold efficiently without
+    ///   reallocation. It can be used to check the current capacity of the list.
+    /// </remarks>
+    function Capacity: integer; inline;
 
     /// <summary>
-    ///   Provides indexed access to elements of the vector.
+    ///   Provides access to elements in the list using an indexer.
     /// </summary>
-    /// <param name="Index">The index of the element to access.</param>
-    /// <returns>The element at the specified index.</returns>
+    /// <param name="Index">
+    ///   The zero-based index of the element to access.
+    /// </param>
+    /// <returns>
+    ///   The element of type T at the specified index in the list.
+    /// </returns>
+    /// <value>
+    ///   The value to assign to the element at the specified index.
+    /// </value>
+    /// <remarks>
+    ///   The Items property allows you to access elements in the list using an indexer.
+    ///   You can retrieve the value of an element at a specific index using the "read"
+    ///   accessor and assign a value to an element at a specific index using the "write"
+    ///   accessor. This property enables you to treat the list like an array for element
+    ///   access.
+    /// </remarks>
     property Items[Index: integer]: T read _GetItem write _SetItem; default;
   end;
 
@@ -481,6 +842,11 @@ begin
   Pointer(Result) := FItems;
 end;
 
+procedure TVector<T>.Assign(const Items: TArray<T>);
+begin
+  FItems := TArray.Copy<T>(Items);
+end;
+
 procedure TVector<T>.Delete(const AIndex: integer);
 begin
   TArrayManager.Delete(FItems, AIndex);
@@ -559,6 +925,18 @@ begin
     Result := AAccumulator(LItem, Result);
 end;
 
+procedure TVector<T>.Remove(const AItems: TArray<T>);
+var
+  LFor, LIndex: integer;
+begin
+  for LFor := 0 to System.Length(AItems) - 1 do
+  begin
+    LIndex := IndexOf(AItems[LFor]);
+    if LIndex > -1 then
+      Delete(LIndex);
+  end;
+end;
+
 function TVector<T>.Reduce(const AAccumulator: TFunc<T, T, T>;
   const AInitial: T): T;
 var
@@ -577,6 +955,23 @@ begin
   TArrayManager.Remove(FItems, AItem);
 end;
 
+procedure TVector<T>.Reverse;
+var
+  LTemp: T;
+  LItemB, LItemA: Integer;
+begin
+  LItemB := 0;
+  LItemA := Self.Count - 1;
+  while LItemB < LItemA do
+  begin
+    LTemp := FItems[LItemB];
+    FItems[LItemB] := FItems[LItemA];
+    FItems[LItemA] := LTemp;
+    Inc(LItemB);
+    Dec(LItemA);
+  end;
+end;
+
 procedure TVector<T>.SetLength(const ALength: integer);
 begin
   TArrayManager.SetLength(FItems, ALength);
@@ -585,6 +980,69 @@ end;
 procedure TVector<T>.Sort;
 begin
   TArray.Sort<T>(FItems);
+end;
+
+class operator TVector<T>.Add(const Left: TArrayType;
+  const Right: TVector<T>): TVector<T>;
+begin
+  Result := Left;
+  Result.AddRange(Right.FItems);
+end;
+
+class operator TVector<T>.Add(const Left: TVector<T>;
+  const Right: TArrayType): TVector<T>;
+begin
+  Result := Left;
+  Result.AddRange(Right);
+end;
+
+class operator TVector<T>.Add(const Left, Right: TVector<T>): TVector<T>;
+begin
+  Result := Left;
+  Result.AddRange(Right.FItems);
+end;
+
+class operator TVector<T>.Add(const Left: TVector<T>;
+  const Right: T): TVector<T>;
+begin
+  Result := Left;
+  Result.Add(Right);
+end;
+
+class operator TVector<T>.Add(const Left: T;
+  const Right: TVector<T>): TVector<T>;
+begin
+  System.SetLength(Result.FItems, 1);
+  Result.FItems[0] := Left;
+  Result.AddRange(Right);
+end;
+
+class operator TVector<T>.Subtract(const Left: TVector<T>;
+  const Right: T): TVector<T>;
+begin
+  Result := Left;
+  Result.Remove(Right);
+end;
+
+class operator TVector<T>.Subtract(const Left, Right: TVector<T>): TVector<T>;
+begin
+  Result := Left;
+  Result.Remove(Right.FItems);
+end;
+
+class operator TVector<T>.In(const Left: T; const Right: TVector<T>): boolean;
+begin
+  Result := Right.Contains(Left);
+end;
+
+class operator TVector<T>.In(const Left, Right: TVector<T>): boolean;
+begin
+  Result := Right.Contains(Left.FItems);
+end;
+
+class operator TVector<T>.In(const Left: TArrayType; const Right: TVector<T>): boolean;
+begin
+  Result := Right.Contains(Left);
 end;
 
 procedure TVector<T>.AddRange(const ACollection: TArrayType);
@@ -659,6 +1117,17 @@ begin
   Result := TArrayManager.Contains(FItems, AItem);
 end;
 
+function TVector<T>.Contains(const AItems: TArrayType): boolean;
+var
+  LFor: Integer;
+begin
+  Result := false;
+  for LFor := 0 to System.Length(AItems) - 1 do
+    if IndexOf(AItems[LFor]) = -1 then
+      exit;
+  Result := true;
+end;
+
 function TVector<T>.Count: integer;
 begin
   Result := TArrayManager._GetCount(FItems);
@@ -686,17 +1155,18 @@ end;
 
 class operator TVector<T>.Equal(const Left, Right: TVector<T>): boolean;
 var
+  LComparer: IEqualityComparer<T>;
   LFor: Integer;
 begin
   Result := false;
   if System.Length(Left.FItems) <> System.Length(Right.FItems) then
     exit;
+
+  LComparer := TEqualityComparer<T>.Default;
   for LFor := 0 to High(Left.FItems) do
   begin
-    if not TEqualityComparer<T>.Default.Equals(Left.FItems[LFor], Right.FItems[LFor]) then
-    begin
+    if not LComparer.Equals(Left.FItems[LFor], Right.FItems[LFor]) then
       exit;
-    end;
   end;
   Result := True;
 end;
@@ -888,4 +1358,5 @@ begin
 end;
 
 end.
+
 

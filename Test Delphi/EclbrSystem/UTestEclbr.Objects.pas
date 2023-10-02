@@ -22,9 +22,11 @@ type
     [TearDown]
     procedure TearDown;
     [Test]
+    procedure TestAutoRef_Create;
+    [Test]
     procedure TestAutoRef_New;
     [Test]
-    procedure TestAutoRef_Create;
+    procedure TestAutoRef_Auto_Create;
   end;
 
 implementation
@@ -39,11 +41,21 @@ begin
 
 end;
 
-procedure TTestObectLib.TestAutoRef_Create;
+procedure TTestObectLib.TestAutoRef_Auto_Create;
 var
   LOption: IAutoRef<TMyClass>;
 begin
   LOption := TAutoRef<TMyClass>.New;
+
+  Assert.IsNotNull(LOption.Get);
+  Assert.AreEqual('Hello word', LOption.Get.GetMessage);
+end;
+
+procedure TTestObectLib.TestAutoRef_Create;
+var
+  LOption: IAutoRef<TMyClass>;
+begin
+  LOption := TAutoRef<TMyClass>.New(TMyClass.Create());
 
   Assert.IsNotNull(LOption.Get);
   Assert.AreEqual('Hello word', LOption.Get.GetMessage);

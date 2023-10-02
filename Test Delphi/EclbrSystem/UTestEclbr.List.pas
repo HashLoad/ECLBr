@@ -5,7 +5,7 @@ interface
 uses
   DUnitX.TestFramework,
   Generics.Collections,
-  eclbr.include,
+  eclbr.core,
   eclbr.vector;
 
 type

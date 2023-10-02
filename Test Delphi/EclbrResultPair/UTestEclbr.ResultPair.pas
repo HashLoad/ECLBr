@@ -40,9 +40,9 @@ type
     [Test]
     procedure TestRecover;
     [Test]
-    procedure TestFoldSuccess;
+    procedure TestReduceSuccess;
     [Test]
-    procedure TestFoldFailure;
+    procedure TestReduceFailure;
     [Test]
     procedure TestGetSuccessOrElse;
     [Test]
@@ -201,7 +201,7 @@ var
 begin
   try
     LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue)
-               .FlatMapFailure<String>(
+               .FlatMap<String>(
                   function(Error: string): string
                   var
                     LResult: TResultPair<Integer, string>;
@@ -281,7 +281,7 @@ var
   LResultPair: TResultPair<Integer, string>;
 begin
   try
-    LResultPair := TResultPair<Integer, string>.New.PureFailure(FFailureValue);
+    LResultPair := TResultPair<Integer, string>.New.Pure(FFailureValue);
 
     Assert.IsTrue(LResultPair.isFailure);
     Assert.AreEqual(FFailureValue, LResultPair.ValueFailure);
@@ -301,7 +301,10 @@ begin
     LRecoveredPair := LResultPair.Recover<Double>(
       function(Error: string): Double
       begin
-        Result := Length(Error);
+        if Error = 'Error' then
+          Result := Length(Error)
+        else
+          Result := 0;
       end);
 
     LLength := Length(FFailureValue);
@@ -329,11 +332,11 @@ end;
 
 procedure TTestTResultPair.TestSwap;
 var
-  LResultPair: TResultPair<Integer, string>;
-  LSwappedPair: TResultPair<string, Integer>;
+  LResultPair: TResultPair<integer, string>;
+  LSwappedPair: TResultPair<string, integer>;
 begin
   try
-    LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue);
+    LResultPair := TResultPair<integer, string>.New.Failure(FFailureValue);
     LSwappedPair := LResultPair.Swap;
 
     Assert.IsTrue(LSwappedPair.isSuccess);
@@ -373,14 +376,14 @@ begin
   end;
 end;
 
-procedure TTestTResultPair.TestFoldSuccess;
+procedure TTestTResultPair.TestReduceSuccess;
 var
   LResultPair: TResultPair<Integer, string>;
   LSum: Integer;
 begin
   LResultPair := TResultPair<Integer, string>.New.Success(FSuccessValue);
   try
-    LSum := LResultPair.Fold<Integer>(
+    LSum := LResultPair.Reduce<Integer>(
       function(Value: Integer; Error: string): Integer
       begin
         Result := Value + 5;
@@ -508,14 +511,14 @@ begin
   end;
 end;
 
-procedure TTestTResultPair.TestFoldFailure;
+procedure TTestTResultPair.TestReduceFailure;
 var
   LResultPair: TResultPair<Integer, string>;
   LDefaultValue: Integer;
 begin
   LResultPair := TResultPair<Integer, string>.New.Failure(FFailureValue);
   try
-    LDefaultValue := LResultPair.Fold<Integer>(
+    LDefaultValue := LResultPair.Reduce<Integer>(
       function(Value: Integer; Error: string): Integer
       begin
         Result := 0;

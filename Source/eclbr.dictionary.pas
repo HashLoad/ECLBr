@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.dictionary;
@@ -43,8 +43,6 @@ type
   private
     type
       TItemPair = TPair<K, V>;
-  private
-    function _ComparePairs(const Left, Right: TPair<K, V>): Integer;
   public
     /// <summary>
     ///   Adds the key-value pairs from another dictionary to this dictionary.
@@ -788,11 +786,6 @@ begin
   finally
     LResultBuilder.Free;
   end;
-end;
-
-function TDictEx<K, V>._ComparePairs(const Left, Right: TPair<K, V>): Integer;
-begin
-  Result := TComparer<K>.Default.Compare(Left.Key, Right.Key);
 end;
 
 procedure TDictEx<K, V>.Unique;

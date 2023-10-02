@@ -6,7 +6,6 @@ program PTestUtils;
 {$STRONGLINKTYPES ON}
 uses
   FastMM4,
-  DUnitX.MemoryLeakMonitor.FastMM4,
   System.SysUtils,
   {$IFDEF TESTINSIGHT}
   TestInsight.DUnitX,

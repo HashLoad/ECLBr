@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2022, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
 unit eclbr.result.pair;
@@ -41,12 +41,10 @@ type
   public
     constructor Create(const Value: F);
   end;
-
   ESuccessException<S> = class(Exception)
   public
     constructor Create(const Value: S);
   end;
-
   ETypeIncompatibility = class(Exception)
   public
     constructor Create(const AMessage: string = '');
@@ -71,20 +69,13 @@ type
       TFuncFail = reference to function(const Success: F): TResultPair<S, F>;
       TFuncExec = reference to function: TResultPair<S, F>;
   private
-    FSuccess: ^TResultPairValue<S>;
-    FFailure: ^TResultPairValue<F>;
-    FSuccessFuncs: ^TArray<TFuncOk>;
-    FFailureFuncs: ^TArray<TFuncFail>;
+    FSuccess: TResultPairValue<S>;
+    FFailure: TResultPairValue<F>;
+    FSuccessFuncs: TArray<TFuncOk>;
+    FFailureFuncs: TArray<TFuncFail>;
     FResultType: TResultType;
   private
-    ///  <summary>
-    ///    Libera os recursos associados ao valor de sucesso da instância.
-    ///  </summary>
     procedure _DestroySuccess;
-
-    ///  <summary>
-    ///    Libera os recursos associados ao valor de falha da instância.
-    ///  </summary>
     procedure _DestroyFailure;
 
     /// <summary>
@@ -97,7 +88,7 @@ type
     /// <param name="ASuccess">
     ///   The success value of type S to set.
     /// </param>
-    procedure _SetSuccessValue(const ASuccess: S);
+    procedure _SetSuccessValue(const ASuccess: S); inline;
 
     /// <summary>
     ///   Sets the failure value for the TResultPair.
@@ -109,7 +100,7 @@ type
     /// <param name="AFailure">
     ///   The failure value of type F to set.
     /// </param>
-    procedure _SetFailureValue(const AFailure: F);
+    procedure _SetFailureValue(const AFailure: F); inline;
 
     /// <summary>
     ///   Returns a TResultPair with the success value set.
@@ -124,7 +115,7 @@ type
     /// <returns>
     ///   A new TResultPair instance with the success value set to <paramref name="ASuccess"/>.
     /// </returns>
-    function _ReturnSuccess: TResultPair<S, F>;
+    function _ReturnSuccess: TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Returns a TResultPair with the failure value set.
@@ -139,11 +130,8 @@ type
     /// <returns>
     ///   A new TResultPair instance with the failure value set to <paramref name="AFailure"/>.
     /// </returns>
-    function _ReturnFailure: TResultPair<S, F>;
+    function _ReturnFailure: TResultPair<S, F>; inline;
 
-    ///  <summary>
-    ///    Aloca os recursos associados ao valor de falha e sucesso.
-    ///  </summary>
     constructor Create(const AResultType: TResultType);
   public
     class operator Implicit(const V: TResultPair<S, F>): TResultPairValue<S>;
@@ -159,7 +147,7 @@ type
     /// <returns>
     ///   A new TResultPair<S, F> instance.
     /// </returns>
-    class function New: TResultPair<S, F>; static;
+    class function New: TResultPair<S, F>; static; inline;
 
     /// <summary>
     ///   Releases any resources associated with the current TResultPair instance.
@@ -169,7 +157,7 @@ type
     ///   for the current TResultPair instance. It's recommended to call this method when you are
     ///   finished using the TResultPair object to ensure proper resource management.
     /// </remarks>
-    procedure Dispose;
+    procedure Dispose; inline;
 
     /// <summary>
     ///   Creates a new instance of TResultPair representing a success result.
@@ -180,7 +168,7 @@ type
     /// <returns>
     ///   A TResultPair instance with the given success value.
     /// </returns>
-    function Success(const ASuccess: S): TResultPair<S, F>;
+    function Success(const ASuccess: S): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Creates a new instance of TResultPair representing a failure result.
@@ -191,7 +179,7 @@ type
     /// <returns>
     ///   A TResultPair instance with the given failure value.
     /// </returns>
-    function Failure(const AFailure: F): TResultPair<S, F>;
+    function Failure(const AFailure: F): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Executes a success procedure if the current instance represents a success result,
@@ -206,7 +194,8 @@ type
     /// <returns>
     ///   The same TResultPair instance for chaining.
     /// </returns>
-    function TryException(const ASuccessProc: TProc<S>; const AFailureProc: TProc<F>): TResultPair<S, F>;
+    function TryException(const ASuccessProc: TProc<S>;
+      const AFailureProc: TProc<F>): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Performs a "fold" over the result, applying the success function if it is a success result
@@ -224,7 +213,7 @@ type
     /// <returns>
     ///   The result of the application of the function corresponding to the type of result.
     /// </returns>
-    function Fold<R>(const AFunc: TFunc<S, F, R>): R;
+    function Reduce<R>(const AFunc: TFunc<S, F, R>): R; inline;
 
     /// <summary>
     ///   Evaluates the result and executes the success function if it is a success result,
@@ -243,7 +232,7 @@ type
     ///   The result of the execution of the function corresponding to the type of result.
     /// </returns>
     function When<R>(const ASuccessFunc: TFunc<S, R>;
-      const AFailureFunc: TFunc<F, R>): R;
+      const AFailureFunc: TFunc<F, R>): R; inline;
 
     /// <summary>
     ///   Applies a mapping function to the success part of the result, producing a new result
@@ -259,7 +248,7 @@ type
     ///   A new result with the success part mapped according to the specified function
     ///   and the failure part kept intact.
     /// </returns>
-    function Map<R>(const ASuccessFunc: TFunc<S, R>): TResultPair<S, F>;
+    function Map<R>(const ASuccessFunc: TFunc<S, R>): TResultPair<S, F>; overload; inline;
 
     /// <summary>
     ///   Applies a mapping function to the failure part of the result, producing a new result
@@ -275,7 +264,7 @@ type
     ///   A new result with the failure part mapped according to the specified function
     ///   and the success part kept intact.
     /// </returns>
-    function MapFailure<R>(const AFailureFunc: TFunc<F, R>): TResultPair<S, F>;
+    function Map<R>(const AFailureFunc: TFunc<F, R>): TResultPair<S, F>; overload; inline;
 
     /// <summary>
     ///   Applies a mapping function that operates on the success part of the result, producing
@@ -292,7 +281,7 @@ type
     ///   A new result with the success part mapped or converted to failure based on the result
     ///   of the mapping function applied.
     /// </returns>
-    function FlatMap<R>(const ASuccessFunc: TFunc<S, R>): TResultPair<S, F>;
+    function FlatMap<R>(const ASuccessFunc: TFunc<S, R>): TResultPair<S, F>; overload; inline;
 
     /// <summary>
     ///   Applies a mapping function that operates on the failure part of the result, producing
@@ -309,7 +298,7 @@ type
     ///   A new result with the failure part mapped or converted to success based on the result
     ///   of the mapping function applied.
     /// </returns>
-    function FlatMapFailure<R>(const AFailureFunc: TFunc<F, R>): TResultPair<S, F>;
+    function FlatMap<R>(const AFailureFunc: TFunc<F, R>): TResultPair<S, F>; overload; inline;
 
     /// <summary>
     ///   Creates an instance of a success result containing the specified value.
@@ -321,7 +310,7 @@ type
     ///   An instance of a result containing the success part filled with the specified value
     ///   and the failure part empty.
     /// </returns>
-    function Pure(const ASuccess: S): TResultPair<S, F>;
+    function Pure(const ASuccess: S): TResultPair<S, F>; overload; inline;
 
     /// <summary>
     ///   Creates an instance of a failure result containing the specified error.
@@ -333,7 +322,7 @@ type
     ///   An instance of a result containing the failure part filled with the specified error
     ///   and the success part empty.
     /// </returns>
-    function PureFailure(const AFailure: F): TResultPair<S, F>;
+    function Pure(const AFailure: F): TResultPair<S, F>; overload; inline;
 
     /// <summary>
     ///   Swaps the success and failure parts of the result.
@@ -341,7 +330,7 @@ type
     /// <returns>
     ///   A new instance of result with the success and failure parts swapped.
     /// </returns>
-    function Swap: TResultPair<F, S>;
+    function Swap: TResultPair<F, S>; inline;
 
     /// <summary>
     ///   Attempts to recover the failure, applying a conversion function <paramref name="AFailureFunc"/>
@@ -357,7 +346,7 @@ type
     /// <returns>
     ///   A new instance of result with the recovered failure part or the success part.
     /// </returns>
-    function Recover<R>(const AFailureFunc: TFunc<F, R>): TResultPair<R, S>;
+    function Recover<R>(const AFailureFunc: TFunc<F, R>): TResultPair<R, S>; inline;
 
     /// <summary>
     ///   Gets the success value, applying a function <paramref name="ASuccessFunc"/> if
@@ -370,7 +359,7 @@ type
     /// <returns>
     ///   The success value, or the default value of the success part if it is a failure.
     /// </returns>
-    function GetSuccessOrElse(const ASuccessFunc: TFunc<S, S>): S;
+    function GetSuccessOrElse(const ASuccessFunc: TFunc<S, S>): S; inline;
 
     /// <summary>
     ///   Gets the success value, returning it if the result is a success
@@ -383,7 +372,7 @@ type
     /// <exception cref="EFailureValue">
     ///   Exception contained in the failure part, if the result is a failure.
     /// </exception>
-    function GetSuccessOrException: S;
+    function GetSuccessOrException: S; inline;
 
     /// <summary>
     ///   Gets the success value, returning it if the result is a success
@@ -394,7 +383,7 @@ type
     ///   The success value if the result is a success, otherwise, a value
     ///   provided as a default.
     /// </returns>
-    function GetSuccessOrDefault: S; overload;
+    function GetSuccessOrDefault: S; overload; inline;
 
     /// <summary>
     ///   Gets the success value, returning it if the result is a success
@@ -408,7 +397,7 @@ type
     ///   The success value if the result is a success, otherwise, the value
     ///   provided as a default.
     /// </returns>
-    function GetSuccessOrDefault(const ADefault: S): S; overload;
+    function GetSuccessOrDefault(const ADefault: S): S; overload; inline;
 
     /// <summary>
     ///   Gets the failure value, throwing it as an exception if the result is a failure
@@ -420,7 +409,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure.
     /// </returns>
-    function GetFailureOrElse(const AFailureFunc: TFunc<F, F>): F;
+    function GetFailureOrElse(const AFailureFunc: TFunc<F, F>): F; inline;
 
     /// <summary>
     ///   Gets the failure value, throwing it as an exception if the result is a failure
@@ -432,7 +421,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure.
     /// </returns>
-    function GetFailureOrException: F;
+    function GetFailureOrException: F; inline;
 
     /// <summary>
     ///   Gets the failure value or the default value of type <typeparamref name="F"/>,
@@ -441,7 +430,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure, otherwise, a default value of <typeparamref name="F"/>.
     /// </returns>
-    function GetFailureOrDefault: F; overload;
+    function GetFailureOrDefault: F; overload; inline;
 
     /// <summary>
     ///   Gets the failure value or a default value provided, if the result is a failure
@@ -453,7 +442,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure, otherwise, the default value provided.
     /// </returns>
-    function GetFailureOrDefault(const ADefault: F): F; overload;
+    function GetFailureOrDefault(const ADefault: F): F; overload; inline;
 
     /// <summary>
     ///   Determines whether the result is a success (<paramref name="rtSuccess"/>).
@@ -461,7 +450,7 @@ type
     /// <returns>
     ///   <c>True</c> if the result is a success, otherwise <c>False</c>.
     /// </returns>
-    function isSuccess: boolean;
+    function isSuccess: boolean; inline;
 
     /// <summary>
     ///   Determines whether the result is a failure (<paramref name="rtFailure"/>).
@@ -469,7 +458,7 @@ type
     /// <returns>
     ///   <c>True</c> if the result is a failure, otherwise <c>False</c>.
     /// </returns>
-    function isFailure: boolean;
+    function isFailure: boolean; inline;
 
     /// <summary>
     ///   Gets the success value contained in the result, throwing an exception if it is a failure result.
@@ -480,7 +469,7 @@ type
     /// <exception cref="EInvalidOperation">
     ///   Thrown if the result is a failure.
     /// </exception>
-    function ValueSuccess: S;
+    function ValueSuccess: S; inline;
 
     /// <summary>
     ///   Gets the failure value contained in the result, throwing an exception if it is a success result.
@@ -491,7 +480,7 @@ type
     /// <exception cref="EInvalidOperation">
     ///   Thrown if the result is a success.
     /// </exception>
-    function ValueFailure: F;
+    function ValueFailure: F; inline;
 
     /// <summary>
     ///   Executes a custom function specified by AFunc. The result of this function determines whether
@@ -504,7 +493,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after executing the custom function.
     /// </returns>
-    function Exec(const AFunc: TFuncExec): TResultPair<S, F>;
+    function Exec(const AFunc: TFuncExec): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Marks the current step as successful and provides a value ASuccess to carry forward in the
@@ -516,7 +505,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after marking the step as successful.
     /// </returns>
-    function Ok(const ASuccessProc: TProc<S>): TResultPair<S, F>;
+    function Ok(const ASuccessProc: TProc<S>): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Marks the current step as a failure and provides a value AFailure to carry forward in the
@@ -528,7 +517,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after marking the step as a failure.
     /// </returns>
-    function Fail(const AFailureProc: TProc<F>): TResultPair<S, F>;
+    function Fail(const AFailureProc: TProc<F>): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Specifies a custom function AFunc to execute if the previous step was successful. It continues
@@ -540,7 +529,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after executing the custom function.
     /// </returns>
-    function ThenOf(const AFunc: TFuncOk): TResultPair<S, F>;
+    function ThenOf(const AFunc: TFuncOk): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Specifies a custom function AFunc to execute if the previous step resulted in failure. It
@@ -552,7 +541,7 @@ type
     /// <returns>
     ///   The TResultPair<S, F> instance after executing the custom function.
     /// </returns>
-    function ExceptOf(const AFunc: TFuncFail): TResultPair<S, F>;
+    function ExceptOf(const AFunc: TFuncFail): TResultPair<S, F>; inline;
 
     /// <summary>
     ///   Returns the current TResultPair<S, F> instance, allowing you to retrieve the final result of
@@ -561,7 +550,7 @@ type
     /// <returns>
     ///   The current TResultPair<S, F> instance.
     /// </returns>
-    function Return: TResultPair<S, F>;
+    function Return: TResultPair<S, F>; inline;
   end;
 
 implementation
@@ -578,34 +567,26 @@ begin
     LTypeInfo := TypeInfo(S);
     if LTypeInfo.Kind = tkClass then
     begin
-      LObject := TValue.From<S>(FSuccess^.GetValue);
+      LObject := TValue.From<S>(FSuccess.GetValue);
       LObject.AsObject.Free;
     end;
-    System.Dispose(FSuccess);
-    FSuccess := nil;
-    System.Dispose(FSuccessFuncs);
-    FSuccessFuncs := nil;
   end;
 end;
 
 procedure TResultPair<S, F>._SetFailureValue(const AFailure: F);
 begin
-  FFailure^ := TResultPairValue<F>.Create(AFailure);
+  FFailure := TResultPairValue<F>.Create(AFailure);
   FResultType := TResultType.rtFailure;
 end;
 
 procedure TResultPair<S, F>._SetSuccessValue(const ASuccess: S);
 begin
-  FSuccess^ := TResultPairValue<S>.Create(ASuccess);
+  FSuccess := TResultPairValue<S>.Create(ASuccess);
   FResultType := TResultType.rtSuccess;
 end;
 
 constructor TResultPair<S, F>.Create(const AResultType: TResultType);
 begin
-  System.New(FSuccess);
-  System.New(FFailure);
-  System.New(FSuccessFuncs);
-  System.New(FFailureFuncs);
   FResultType := AResultType;
 end;
 
@@ -625,13 +606,9 @@ begin
     LTypeInfo := TypeInfo(F);
     if LTypeInfo.Kind = tkClass then
     begin
-      LObject := TValue.From<F>(FFailure^.GetValue);
+      LObject := TValue.From<F>(FFailure.GetValue);
       LObject.AsObject.Free;
     end;
-    System.Dispose(FFailure);
-    FFailure := nil;
-    System.Dispose(FFailureFuncs);
-    FFailureFuncs := nil;
   end;
 end;
 
@@ -641,7 +618,7 @@ begin
   if not Assigned(AFailureProc) then
     exit;
   case FResultType of
-    TResultType.rtFailure: AFailureProc(FFailure^.GetValue);
+    TResultType.rtFailure: AFailureProc(FFailure.GetValue);
   end;
 end;
 
@@ -666,9 +643,9 @@ var
   LResult: TResultPair<S, F>;
 begin
   Result := Self;
-  for LFor := Low(Result.FFailureFuncs^) to High(Result.FFailureFuncs^) do
+  for LFor := Low(FFailureFuncs) to High(FFailureFuncs) do
   begin
-    LResult := Result.FFailureFuncs^[LFor](Result.FFailure^.GetValue);
+    LResult := FFailureFuncs[LFor](FFailure.GetValue);
     try
       if LResult.isSuccess then
         Result._SetSuccessValue(LResult.ValueSuccess)
@@ -687,9 +664,9 @@ var
   LResult: TResultPair<S, F>;
 begin
   Result := Self;
-  for LFor := Low(Result.FSuccessFuncs^) to High(Result.FSuccessFuncs^) do
+  for LFor := Low(FSuccessFuncs) to High(FSuccessFuncs) do
   begin
-    LResult := Result.FSuccessFuncs^[LFor](Result.FSuccess^.GetValue);
+    LResult := FSuccessFuncs[LFor](Result.FSuccess.GetValue);
     try
       if LResult.isSuccess then
         Result._SetSuccessValue(LResult.ValueSuccess)
@@ -728,7 +705,7 @@ begin
   case FResultType of
     TResultType.rtSuccess:
     begin
-      LCast := TValue.From<R>(ASuccessFunc(FSuccess^.GetValue));
+      LCast := TValue.From<R>(ASuccessFunc(FSuccess.GetValue));
       Result._SetSuccessValue(LCast.AsType<S>);
     end;
   end;
@@ -740,18 +717,18 @@ begin
   if (not Assigned(ASuccessFunc)) and (not Assigned(AFailureFunc)) then
     exit;
   case FResultType of
-    TResultType.rtSuccess: Result := ASuccessFunc(FSuccess^.GetValue);
-    TResultType.rtFailure: Result := AFailureFunc(FFailure^.GetValue);
+    TResultType.rtSuccess: Result := ASuccessFunc(FSuccess.GetValue);
+    TResultType.rtFailure: Result := AFailureFunc(FFailure.GetValue);
   end;
 end;
 
-function TResultPair<S, F>.Fold<R>(const AFunc: TFunc<S, F, R>): R;
+function TResultPair<S, F>.Reduce<R>(const AFunc: TFunc<S, F, R>): R;
 begin
   if not Assigned(AFunc) then
     exit;
   case FResultType of
-    TResultType.rtSuccess: Result := AFunc(FSuccess^.GetValue, Default(F));
-    TResultType.rtFailure: Result := AFunc(Default(S), FFailure^.GetValue);
+    TResultType.rtSuccess: Result := AFunc(FSuccess.GetValue, Default(F));
+    TResultType.rtFailure: Result := AFunc(Default(S), FFailure.GetValue);
   end;
 end;
 
@@ -760,8 +737,8 @@ begin
   Result := Self;
   if (FResultType in [TResultType.rtSuccess]) and Assigned(AFunc) then
   begin
-    SetLength(Result.FSuccessFuncs^, Length(Result.FSuccessFuncs^) + 1);
-    Result.FSuccessFuncs^[Length(Result.FSuccessFuncs^) - 1] := AFunc;
+    SetLength(Result.FSuccessFuncs, Length(FSuccessFuncs) + 1);
+    Result.FSuccessFuncs[Length(Result.FSuccessFuncs) - 1] := AFunc;
   end;
 end;
 
@@ -772,53 +749,53 @@ begin
   if (not Assigned(ASuccessProc)) and (not Assigned(AFailureProc)) then
     exit;
   case FResultType of
-    TResultType.rtSuccess: ASuccessProc(FSuccess^.GetValue);
-    TResultType.rtFailure: AFailureProc(FFailure^.GetValue);
+    TResultType.rtSuccess: ASuccessProc(FSuccess.GetValue);
+    TResultType.rtFailure: AFailureProc(FFailure.GetValue);
   end;
 end;
 
 function TResultPair<S, F>.GetSuccessOrException: S;
 begin
   if FResultType = TResultType.rtFailure then
-    raise EFailureException<F>.Create(FFailure^.GetValue);
-  Result := FSuccess^.GetValue;
+    raise EFailureException<F>.Create(FFailure.GetValue);
+  Result := FSuccess.GetValue;
 end;
 
 class operator TResultPair<S, F>.Implicit(
   const V: TResultPairValue<F>): TResultPair<S, F>;
 begin
-  Result.FFailure^ := V;
+  Result.FFailure := V;
 end;
 
 class operator TResultPair<S, F>.Implicit(
   const V: TResultPair<S, F>): TResultPairValue<F>;
 begin
-  Result := V.FFailure^;
+  Result := V.FFailure;
 end;
 
 class operator TResultPair<S, F>.Implicit(
   const V: TResultPairValue<S>): TResultPair<S, F>;
 begin
-  Result.FSuccess^ := V;
+  Result.FSuccess := V;
 end;
 
 class operator TResultPair<S, F>.Implicit(
   const V: TResultPair<S, F>): TResultPairValue<S>;
 begin
-  Result := V.FSuccess^;
+  Result := V.FSuccess;
 end;
 
 function TResultPair<S, F>.ValueFailure: F;
 begin
-  Result := FFailure^.GetValue;
+  Result := FFailure.GetValue;
 end;
 
 function TResultPair<S, F>.ValueSuccess: S;
 begin
-  Result := FSuccess^.GetValue;
+  Result := FSuccess.GetValue;
 end;
 
-function TResultPair<S, F>.MapFailure<R>(
+function TResultPair<S, F>.Map<R>(
   const AFailureFunc: TFunc<F, R>): TResultPair<S, F>;
 var
   LCast: TValue;
@@ -829,7 +806,7 @@ begin
   case FResultType of
     TResultType.rtFailure:
     begin
-      LCast := TValue.From<R>(AFailureFunc(FFailure^.GetValue));
+      LCast := TValue.From<R>(AFailureFunc(FFailure.GetValue));
       Result._SetFailureValue(LCast.AsType<F>);
     end;
   end;
@@ -852,7 +829,7 @@ begin
   if not Assigned(ASuccessProc) then
     exit;
   case FResultType of
-    TResultType.rtSuccess: ASuccessProc(FSuccess^.GetValue);
+    TResultType.rtSuccess: ASuccessProc(FSuccess.GetValue);
   end;
 end;
 
@@ -867,14 +844,14 @@ begin
   case FResultType of
     TResultType.rtSuccess:
     begin
-      LCast := TValue.From<R>(ASuccessFunc(FSuccess^.GetValue));
+      LCast := TValue.From<R>(ASuccessFunc(FSuccess.GetValue));
       Result._SetSuccessValue(LCast.AsType<S>);
     end;
-    TResultType.rtFailure: Result._SetFailureValue(FFailure^.GetValue);
+    TResultType.rtFailure: Result._SetFailureValue(FFailure.GetValue);
   end;
 end;
 
-function TResultPair<S, F>.FlatMapFailure<R>(
+function TResultPair<S, F>.FlatMap<R>(
   const AFailureFunc: TFunc<F, R>): TResultPair<S, F>;
 var
   LCast: TValue;
@@ -885,7 +862,7 @@ begin
   case FResultType of
     TResultType.rtFailure:
     begin
-      LCast := TValue.From<R>(AFailureFunc(FFailure^.GetValue));
+      LCast := TValue.From<R>(AFailureFunc(FFailure.GetValue));
       Result._SetFailureValue(LCast.AsType<F>);
     end;
   end;
@@ -893,38 +870,28 @@ end;
 
 function TResultPair<S, F>.Pure(const ASuccess: S): TResultPair<S, F>;
 begin
-  if Assigned(Pointer(FSuccess)) then
-  begin
-    Result := Self;
-    Result._SetSuccessValue(ASuccess);
-  end
-  else
-    Self._SetSuccessValue(ASuccess);
+  Result := Self;
+  Result._SetSuccessValue(ASuccess);
 end;
 
-function TResultPair<S, F>.PureFailure(const AFailure: F): TResultPair<S, F>;
+function TResultPair<S, F>.Pure(const AFailure: F): TResultPair<S, F>;
 begin
-  if Assigned(Pointer(FFailure)) then
-  begin
-    Result := Self;
-    Result._SetFailureValue(AFailure);
-  end
-  else
-    Self._SetFailureValue(AFailure);
+  Result := Self;
+  Result._SetFailureValue(AFailure);
 end;
 
 function TResultPair<S, F>.GetSuccessOrElse(const ASuccessFunc: TFunc<S, S>): S;
 begin
   case FResultType of
-    TResultType.rtSuccess: Result := FSuccess^.GetValue;
-    TResultType.rtFailure: Result := ASuccessFunc(FSuccess^.GetValue);
+    TResultType.rtSuccess: Result := FSuccess.GetValue;
+    TResultType.rtFailure: Result := ASuccessFunc(FSuccess.GetValue);
   end;
 end;
 
 function TResultPair<S, F>.GetSuccessOrDefault(const ADefault: S): S;
 begin
   case FResultType of
-    TResultType.rtSuccess: Result := FSuccess^.GetValue;
+    TResultType.rtSuccess: Result := FSuccess.GetValue;
     TResultType.rtFailure: Result := ADefault;
   end;
 end;
@@ -932,7 +899,7 @@ end;
 function TResultPair<S, F>.GetSuccessOrDefault: S;
 begin
   case FResultType of
-    TResultType.rtSuccess: Result := FSuccess^.GetValue;
+    TResultType.rtSuccess: Result := FSuccess.GetValue;
     TResultType.rtFailure: Result := Default(S);
   end;
 end;
@@ -948,8 +915,8 @@ begin
   Result := Self;
   if (FResultType in [TResultType.rtFailure]) and Assigned(AFunc) then
   begin
-    SetLength(Result.FFailureFuncs^, Length(Result.FFailureFuncs^) + 1);
-    Result.FFailureFuncs^[Length(Result.FFailureFuncs^) - 1] := AFunc;
+    SetLength(Result.FFailureFuncs, Length(FFailureFuncs) + 1);
+    Result.FFailureFuncs[Length(Result.FFailureFuncs) - 1] := AFunc;
   end;
 end;
 
@@ -961,17 +928,17 @@ begin
     exit;
   LResult := AFunc();
   if LResult.isSuccess then
-    Result.Success(LResult.FSuccess^.GetValue)
+    Result.Success(LResult.FSuccess.GetValue)
   else
   if LResult.isFailure then
-    Result.Failure(LResult.FFailure^.GetValue);
+    Result.Failure(LResult.FFailure.GetValue);
 end;
 
 function TResultPair<S, F>.GetFailureOrDefault: F;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := Default(F);
-    TResultType.rtFailure: Result := FFailure^.GetValue;
+    TResultType.rtFailure: Result := FFailure.GetValue;
   end;
 end;
 
@@ -979,51 +946,67 @@ function TResultPair<S, F>.GetFailureOrDefault(const ADefault: F): F;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := ADefault;
-    TResultType.rtFailure: Result := FFailure^.GetValue;
+    TResultType.rtFailure: Result := FFailure.GetValue;
   end;
 end;
 
 function TResultPair<S, F>.GetFailureOrElse(const AFailureFunc: TFunc<F, F>): F;
 begin
   case FResultType of
-    TResultType.rtSuccess: Result := AFailureFunc(FFailure^.GetValue);
-    TResultType.rtFailure: Result := FFailure^.GetValue;
+    TResultType.rtSuccess: Result := AFailureFunc(FFailure.GetValue);
+    TResultType.rtFailure: Result := FFailure.GetValue;
   end;
 end;
 
 function TResultPair<S, F>.GetFailureOrException: F;
 begin
   if FResultType = TResultType.rtSuccess then
-    raise ESuccessException<F>.Create(FFailure^.GetValue);
-  Result := FFailure^.GetValue;
+    raise ESuccessException<F>.Create(FFailure.GetValue);
+  Result := FFailure.GetValue;
 end;
 
 function TResultPair<S, F>.Swap: TResultPair<F, S>;
+var
+  LResult: TResultPair<F, S>;
 begin
+  LResult := TResultPair<F, S>.New;
   try
     case FResultType of
-      TResultType.rtSuccess: Result := TResultPair<F, S>.New.Failure(FSuccess^.GetValue);
-      TResultType.rtFailure: Result := TResultPair<F, S>.New.Success(FFailure^.GetValue);
+      TResultType.rtSuccess:
+      begin
+        LResult.FFailure := TResultPairValue<S>.Create(FSuccess.GetValue);
+        LResult.FResultType := TResultType.rtFailure;
+      end;
+      TResultType.rtFailure:
+      begin
+        LResult.FSuccess := TResultPairValue<F>.Create(FFailure.GetValue);
+        LResult.FResultType := TResultType.rtSuccess;
+      end;
     end;
   except
     on E: Exception do
       raise ETypeIncompatibility.Create('[Success/Failure]');
   end;
+  Result := LResult;
 end;
 
 function TResultPair<S, F>.Recover<R>(const AFailureFunc: TFunc<F, R>): TResultPair<R, S>;
 var
   LCast: TValue;
+  LResult: TResultPair<R, S>;
 begin
+  LResult := TResultPair<R, S>.New;
   if not Assigned(AFailureFunc) then
     exit;
   case FResultType of
     TResultType.rtFailure:
     begin
-      LCast := TValue.From<R>(AFailureFunc(FFailure^.GetValue));
-      Result := TResultPair<R, S>.New.Success(LCast.AsType<R>);
+      LCast := TValue.From<R>(AFailureFunc(FFailure.GetValue));
+      LResult.FSuccess := TResultPairValue<R>.Create(LCast.AsType<R>);
+      LResult.FResultType := TResultType.rtSuccess;
     end;
   end;
+  Result := LResult;
 end;
 
 { TResultPairValue<T> }
@@ -1073,3 +1056,14 @@ begin
 end;
 
 end.
+
+
+
+
+
+
+
+
+
+
+

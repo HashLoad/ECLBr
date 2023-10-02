@@ -1,7 +1,7 @@
 {
-             ECL Brasil - Essential Core Library for Delphi
+               ECL Brasil - Essential Core Library for Delphi
 
-                   Copyright (c) 2016, Isaque Pinheiro
+                   Copyright (c) 2023, Isaque Pinheiro
                           All rights reserved.
 
                     GNU Lesser General Public License
@@ -21,40 +21,42 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Telegram(https://t.me/ormbr)
+  @Discord(https://discord.gg/S5yvvGu7)
 }
 
-unit eclbr.include;
+unit eclbr.core;
 
 interface
 
 uses
   Rtti,
-  SysUtils;
-
-const CASE_IF_PROC = 'CaseIf_Proc';
-const CASE_IF_FUNC = 'CaseIf_Func';
-const CASE_EQ_PROC = 'CaseEq_Proc';
-const CASE_EQ_FUNC = 'CaseEq_Func';
+  SysUtils,
+  Generics.Collections;
 
 type
   Tuple = array of TValue;
 
-  TArrow = class
+  TArrayHelper = class helper for TArray
   public
-    class function Fn<TResult>(const Value: TResult): TFunc<TResult>; inline;
+    /// <summary>
+    ///   Copies an open array to a dynamic array.
+    /// </summary>
+    class function Copy<T>(const Values: array of T): TArray<T>; static;
   end;
 
 implementation
 
-{ TArrowFn }
+{ TArrayHelper }
 
-class function TArrow.Fn<TResult>(const Value: TResult): TFunc<TResult>;
+class function TArrayHelper.Copy<T>(const Values: array of T): TArray<T>;
+var
+  LFor: Integer;
 begin
-  Result := function: TResult
-            begin
-              Result := Value;
-            end;
+  SetLength(Result, Length(Values));
+  for LFor := Low(Values) to High(Values) do
+    Result[LFor] := Values[LFor];
 end;
 
 end.
+
+

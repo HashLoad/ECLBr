@@ -20,7 +20,8 @@ uses
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
   eclbr.list in '..\..\Source\eclbr.list.pas',
   eclbr.utils in '..\..\Source\eclbr.utils.pas',
-  eclbr.include in '..\..\Source\eclbr.include.pas';
+  eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',
+  eclbr.core in '..\..\Source\eclbr.core.pas';
 
 var
   runner : ITestRunner;

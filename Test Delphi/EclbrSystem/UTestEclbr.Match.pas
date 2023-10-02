@@ -9,6 +9,8 @@ uses
   Generics.Collections,
   eclbr.match,
   eclbr.tuple,
+  eclbr.core,
+  eclbr.arrow.fun,
   eclbr.result.pair,
   DUnitX.TestFramework;
 
@@ -188,9 +190,9 @@ var
 begin
   LIsMatch := false;
   LMatchResult := TMatch<Integer>.Value(2)
-                                 .CaseIn([1, 2, 3], procedure begin LIsMatch := true; end)
-                                 .CaseIn([1, 4, 8], procedure begin LIsMatch := false; end)
-                                 .CaseIn([1, 9, 6], procedure begin LIsMatch := false; end)
+                                 .CaseIn([1, 2, 3], TArrow.Fn<boolean>(LIsMatch, true))
+                                 .CaseIn([1, 4, 8], TArrow.Fn<boolean>(LIsMatch, false))
+                                 .CaseIn([1, 9, 6], TArrow.Fn<boolean>(LIsMatch, false))
                                  .Execute;
   try
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
@@ -209,10 +211,10 @@ begin
   LValue := ['E', 'V', 'N'];
 
   LMatchResult := TMatch<TArray<Char>>.Value(LValue)
-                                  .CaseEq(['V', 'E', 'N'], procedure begin LIsMatch := false; end)
-                                  .CaseEq(['E', 'V', 'N'], procedure begin LIsMatch := true; end)
-                                  .CaseEq(['N', 'E', 'V'], procedure begin LIsMatch := false; end)
-                                  .Default(procedure begin LIsMatch := false; end)
+                                  .CaseEq(['V', 'E', 'N'], TArrow.Fn<boolean>(LIsMatch, false))
+                                  .CaseEq(['E', 'V', 'N'], TArrow.Fn<boolean>(LIsMatch, true))
+                                  .CaseEq(['N', 'E', 'V'], TArrow.Fn<boolean>(LIsMatch, false))
+                                  .Default(TArrow.Fn<boolean>(LIsMatch, false))
                                   .Execute;
   try
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
@@ -327,7 +329,7 @@ begin
     LMatchResult := TMatch<Integer>.Value(42)
                                    .CaseEq(1, procedure begin isMatch := false; end)
                                    .CaseEq(2, procedure begin isMatch := false; end)
-                                   .Default(procedure begin isMatch := true; end)
+                                   .Default(  procedure begin isMatch := true; end)
                                    .Execute;
 
     Assert.IsTrue(isMatch, 'Expected match to be successful');
@@ -377,9 +379,16 @@ begin
   // Teste com a chave 'Idade'
   LChave := 'Idade';
   LResult := TMatch<string>.Value(LChave)
-    .CaseEq('Nome', procedure(Key: string) begin LValor := LDados.Get<string>(Key); end)
-    .CaseEq('Idade', procedure(Key: string) begin LValor := LDados.Get<string>(Key); end)
-    .CaseEq('Cidade', procedure(Key: string) begin LValor := LDados.Get<string>(Key); end)
+    .CaseEq('Nome', procedure(Key: string)
+                    begin
+                      LValor := LDados.Get<string>(Key);
+                    end)
+    .CaseEq('Idade', TArrow.Fn<string>(LValor,
+                                       LDados.Get<string>(TMatch.Value<string>))) // <<<<<==========
+    .CaseEq('Cidade', procedure(Key: string)
+                      begin
+                        LValor := LDados.Get<string>(Key);
+                      end)
     .Default(procedure begin LValor := 'Chave não encontrada'; end)
     .Execute;
   try
@@ -505,12 +514,17 @@ procedure TestTMatch.TestCaseMultiple;
 var
   LResult: TResultPair<boolean, string>;
   LResultString: string;
+  LResultStringNot: string;
+  LValues: Tuple;
 begin
+  LValues := ['Matched 1 or 2', 'Matched 3 not'];
   LResult := TMatch<Integer>.Value(2)
-                            .CaseIn([1, 2], procedure begin LResultString := 'Matched 1 or 2'; end)
+                            .CaseIn([1, 2], TArrow.Fn([@LResultString, @LResultStringNot],
+                                                      LValues))
                             .Execute;
   try
     Assert.AreEqual('Matched 1 or 2', LResultString);
+    Assert.AreEqual('Matched 3 not', LResultStringNot);
   finally
     LResult.Dispose;
   end;
@@ -526,7 +540,7 @@ begin
   try
     LResult := TMatch<Integer>.Value(LValue)
                               .CaseIf((LValue = 1) and not (LValue <> 1))
-                              .CaseEq(1, procedure begin LResultString := 'Matched 1 with NotGuard'; end)
+                              .CaseEq(1, TArrow.Fn<string>(LResultString, 'Matched 1 with NotGuard'))
                               .Execute;
     Assert.AreEqual('Matched 1 with NotGuard', LResultString);
   finally
@@ -593,7 +607,7 @@ var
   LResultString: string;
 begin
   LResult := TMatch<Integer>.Value(1)
-                            .CaseEq(1, procedure begin LResultString := 'Matched 1'; end)
+                            .CaseEq(1, TArrow.Fn<string>(LResultString, 'Matched 1'))
                             .Execute;
   try
     Assert.AreEqual('Matched 1', LResultString);
@@ -870,7 +884,6 @@ begin
                                         begin
                                           LResultString := 'Type is a String';
                                         end);
-
   // Padrão de combinação 2
   LStrPattern2 := TMatch<String>.Value(LValueString)
                                 .CaseEq('Hello', procedure
@@ -1119,3 +1132,4 @@ initialization
   TDUnitX.RegisterTestFixture(TestTMatch);
 
 end.
+
