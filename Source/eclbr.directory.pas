@@ -24,8 +24,6 @@
   @Discord(https://discord.gg/S5yvvGu7)
 }
 
-{$WARN H2443 ON}
-
 unit eclbr.directory;
 
 interface
