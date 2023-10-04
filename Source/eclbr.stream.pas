@@ -40,31 +40,35 @@ type
   TStreamReader = Classes.TStreamReader;
   TStringStream = Classes.TStringStream;
 
+  TStreamReaderListenerEvent = procedure(const Line: string) of object;
+
   TStreamReaderEx = class
   private
     FDataInternal: TStreamReader;
     FDataReader: TStreamReader;
     FDataString: TStringStream;
-  protected
+    FListeners: TList<TStreamReaderListenerEvent>;
     procedure _SetDataInternal;
+    procedure _NotifyListeners(const Line: string);
   public
     constructor Create(const Stream: TStream); reintroduce; overload;
     constructor Create(const Stream: TStream; const DetectBOM: Boolean); reintroduce; overload;
     constructor Create(const Stream: TStream; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096); reintroduce; overload;
+      const DetectBOM: Boolean = False; const BufferSize: integer = 4096); reintroduce; overload;
     constructor Create(const Filename: string); reintroduce; overload;
     constructor Create(const Filename: string; const DetectBOM: Boolean); reintroduce; overload;
     constructor Create(const Filename: string; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096); reintroduce; overload;
+      const DetectBOM: Boolean = False; const BufferSize: integer = 4096); reintroduce; overload;
+    constructor Create; overload;
     destructor Destroy; override;
     class function New(const Stream: TStream): TStreamReaderEx; overload;
     class function New(const Stream: TStream; const DetectBOM: Boolean): TStreamReaderEx; overload;
     class function New(const Stream: TStream; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096): TStreamReaderEx; overload;
+      const DetectBOM: Boolean = False; const BufferSize: integer = 4096): TStreamReaderEx; overload;
     class function New(const Filename: string): TStreamReaderEx; overload;
     class function New(const Filename: string; const DetectBOM: Boolean): TStreamReaderEx; overload;
     class function New(const Filename: string; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096): TStreamReaderEx; overload;
+      const DetectBOM: Boolean = False; const BufferSize: integer = 4096): TStreamReaderEx; overload;
     function BaseStream: TStream;
     function CurrentEncoding: TEncoding;
     function Map(const AFunc: TFunc<string, string>): TStreamReaderEx; overload;
@@ -75,14 +79,16 @@ type
     function ForEach(const AAction: TProc<string>): TStreamReaderEx;
     function GroupBy(const AKeySelector: TFunc<string, string>): TMap<string, TVector<string>>;
     function Distinct: TStreamReaderEx;
-    function Skip(const ACount: Integer): TStreamReaderEx;
+    function Skip(const ACount: integer): TStreamReaderEx;
     function Sort: TStreamReaderEx;
-    function Take(const ACount: Integer): TStreamReaderEx;
+    function Take(const ACount: integer): TStreamReaderEx;
     function Concat(const AStreamReader: TStreamReaderEx): TStreamReaderEx;
     function Partition(const APredicate: TPredicate<string>): TPair<TStreamReaderEx, TStreamReaderEx>;
     function Join(const ASeparator: string): string;
     function AsLine: string;
     function AsString: string;
+    procedure AddListener(const Listener: TStreamReaderListenerEvent);
+    procedure RemoveListener(const Listener: TStreamReaderListenerEvent);
   end;
 
 implementation
@@ -91,12 +97,15 @@ implementation
 
 constructor TStreamReaderEx.Create(const Filename: string);
 begin
+  Create;
   FDataInternal := TStreamReader.Create(Filename);
 end;
 
 destructor TStreamReaderEx.Destroy;
 begin
   FDataInternal.Free;
+  if Assigned(FListeners) then
+    FListeners.Free;
   if Assigned(FDataReader) then
     FDataReader.Free;
   if Assigned(FDataString) then
@@ -113,8 +122,13 @@ begin
   while not FDataInternal.EndOfStream do
   begin
     LLine := FDataInternal.ReadLine;
+    // Predicate
     if APredicate(LLine) then
+    begin
       LResultBuilder.Get.AppendLine(LLine);
+      // Listeners
+      _NotifyListeners(LLine);
+    end;
   end;
   if Assigned(FDataString) then
     FDataString.Free;
@@ -141,6 +155,8 @@ begin
     begin
       LUniqueLines.Add(LLine);
       LResultBuilder.Get.AppendLine(LLine);
+      // Listeners
+      _NotifyListeners(LLine);
     end;
   end;
   if Assigned(FDataString) then
@@ -163,6 +179,8 @@ begin
   begin
     LLine := TrimRight(FDataInternal.ReadLine);
     LResultBuilder.Get.AppendLine(AFunc(LLine));
+    // Listeners
+    _NotifyListeners(LLine);
   end;
   if Assigned(FDataString) then
     FDataString.Free;
@@ -177,13 +195,15 @@ end;
 function TStreamReaderEx.Map<TResult>(
   const AMappingFunc: TFunc<string, TResult>): TVector<TResult>;
 var
-  LItem: string;
+  LLine: string;
 begin
   Result := TVector<TResult>.Create([]);
   while not FDataInternal.EndOfStream do
   begin
-    LItem := FDataInternal.ReadLine;
-    Result.Add(AMappingFunc(LItem));
+    LLine := FDataInternal.ReadLine;
+    Result.Add(AMappingFunc(LLine));
+    // Listeners
+    _NotifyListeners(LLine);
   end;
 end;
 
@@ -199,7 +219,7 @@ begin
 end;
 
 class function TStreamReaderEx.New(const Stream: TStream; const Encoding: TEncoding;
-  const DetectBOM: Boolean; const BufferSize: Integer): TStreamReaderEx;
+  const DetectBOM: Boolean; const BufferSize: integer): TStreamReaderEx;
 begin
   Result := TStreamReaderEx.Create(Stream, Encoding, DetectBOM, BufferSize);
 end;
@@ -212,7 +232,7 @@ end;
 
 class function TStreamReaderEx.New(const Filename: string;
   const Encoding: TEncoding; const DetectBOM: Boolean;
-  const BufferSize: Integer): TStreamReaderEx;
+  const BufferSize: integer): TStreamReaderEx;
 begin
   Result := TStreamReaderEx.Create(Filename, Encoding, DetectBOM, BufferSize);
 end;
@@ -222,13 +242,21 @@ begin
   Result := TStreamReaderEx.Create(Filename);
 end;
 
+procedure TStreamReaderEx.AddListener(
+  const Listener: TStreamReaderListenerEvent);
+begin
+  if not Assigned(FListeners) then
+    FListeners := TList<TStreamReaderListenerEvent>.Create;
+  FListeners.Add(Listener);
+end;
+
 function TStreamReaderEx.AsLine: string;
 begin
   Result := FDataReader.ReadLine;
 end;
 
-function TStreamReaderEx.Reduce(const AFunc: TFunc<Integer, string, Integer>;
-  const AInitialValue: Integer): Integer;
+function TStreamReaderEx.Reduce(const AFunc: TFunc<integer, string, integer>;
+  const AInitialValue: integer): integer;
 var
   LLine: string;
 begin
@@ -237,44 +265,57 @@ begin
   begin
     LLine := FDataInternal.ReadLine;
     Result := AFunc(Result, LLine);
+    // Listeners
+    _NotifyListeners(LLine);
   end;
+end;
+
+procedure TStreamReaderEx.RemoveListener(
+  const Listener: TStreamReaderListenerEvent);
+begin
+  if Assigned(FListeners) then
+    FListeners.Remove(Listener);
 end;
 
 constructor TStreamReaderEx.Create(const Stream: TStream);
 begin
+  Create;
   FDataInternal := TStreamReader.Create(Stream);
-//  FDataString := TStringStream.Create('', TEncoding.UTF8);
-//  FDataString.CopyFrom(Stream, Stream.Size);
 end;
 
 constructor TStreamReaderEx.Create(const Stream: TStream;
   const DetectBOM: Boolean);
 begin
+  Create;
   FDataInternal := TStreamReader.Create(Stream, DetectBOM);
-//  FDataString := TStringStream.Create('', TEncoding.UTF8);
-//  FDataString.CopyFrom(Stream, Stream.Size);
 end;
 
 constructor TStreamReaderEx.Create(const Stream: TStream;
   const Encoding: TEncoding; const DetectBOM: Boolean;
-  const BufferSize: Integer);
+  const BufferSize: integer);
 begin
+  Create;
   FDataInternal := TStreamReader.Create(Stream, Encoding, DetectBOM, BufferSize);
-//  FDataString := TStringStream.Create('', TEncoding.UTF8);
-//  FDataString.CopyFrom(Stream, Stream.Size);
 end;
 
 constructor TStreamReaderEx.Create(const Filename: string;
   const DetectBOM: Boolean);
 begin
+  Create;
   FDataInternal := TStreamReader.Create(Filename, DetectBOM);
 end;
 
 constructor TStreamReaderEx.Create(const Filename: string;
   const Encoding: TEncoding; const DetectBOM: Boolean;
-  const BufferSize: Integer);
+  const BufferSize: integer);
 begin
+  Create;
   FDataInternal := TStreamReader.Create(Filename, Encoding, DetectBOM, BufferSize);
+end;
+
+constructor TStreamReaderEx.Create;
+begin
+  inherited Create;
 end;
 
 function TStreamReaderEx.CurrentEncoding: TEncoding;
@@ -300,6 +341,8 @@ begin
   begin
     LLine := FDataInternal.ReadLine;
     AAction(LLine);
+    // Listeners
+    _NotifyListeners(LLine);
   end;
   Result := Self;
 end;
@@ -319,19 +362,21 @@ begin
       if not Result.TryGetValue(LKey, LList) then
       begin
         LList := TVector<string>.Create([]);
-        Result.Add(LKey, LList)
+        Result.Add(LKey, LList);
       end;
       LList.Add(LLine);
       Result[LKey] := LList;
+      // Listeners
+      _NotifyListeners(LLine);
     end;
   except
     raise;
   end;
 end;
 
-function TStreamReaderEx.Skip(const ACount: Integer): TStreamReaderEx;
+function TStreamReaderEx.Skip(const ACount: integer): TStreamReaderEx;
 var
-  LSkippedCount: Integer;
+  LSkippedCount: integer;
   LResultBuilder: IAutoRef<TStringBuilder>;
   LLine: string;
 begin
@@ -341,7 +386,11 @@ begin
   begin
     LLine := FDataInternal.ReadLine;
     if LSkippedCount > ACount then
+    begin
       LResultBuilder.Get.AppendLine(LLine);
+      // Listeners
+      _NotifyListeners(LLine);
+    end;
     Inc(LSkippedCount);
   end;
   if Assigned(FDataString) then
@@ -373,11 +422,11 @@ begin
   Result := Self;
 end;
 
-function TStreamReaderEx.Take(const ACount: Integer): TStreamReaderEx;
+function TStreamReaderEx.Take(const ACount: integer): TStreamReaderEx;
 var
   LResultBuilder: IAutoRef<TStringBuilder>;
   LLine: string;
-  LLineCount: Integer;
+  LLineCount: integer;
 begin
   LResultBuilder := TAutoRef<TStringBuilder>.New;
   LLineCount := 0;
@@ -386,7 +435,11 @@ begin
     LLine := FDataInternal.ReadLine;
     Inc(LLineCount);
     if LLineCount <= ACount then
-      LResultBuilder.Get.AppendLine(LLine)
+    begin
+      LResultBuilder.Get.AppendLine(LLine);
+      // Listeners
+      _NotifyListeners(LLine);
+    end
     else
       break;
   end;
@@ -398,6 +451,17 @@ begin
     FDataReader.Free;
   FDataReader := TStreamReader.Create(FDataString);
   Result := Self;
+end;
+
+procedure TStreamReaderEx._NotifyListeners(const Line: string);
+var
+  LListener: TStreamReaderListenerEvent;
+begin
+  if Assigned(FListeners) then
+  begin
+    for LListener in FListeners do
+      LListener(Line);
+  end;
 end;
 
 procedure TStreamReaderEx._SetDataInternal;
@@ -435,6 +499,8 @@ begin
   begin
     LLine := FDataInternal.ReadLine;
     LResultBuilder.Get.AppendLine(LLine);
+    // Listeners
+    _NotifyListeners(LLine);
   end;
   while not AStreamReader.FDataInternal.EndOfStream do
   begin
@@ -471,6 +537,8 @@ begin
         LLeftStream.Get.WriteString(LLine + sLineBreak)
       else
         LRightStream.Get.WriteString(LLine + sLineBreak);
+      // Listeners
+      _NotifyListeners(LLine);
     end;
     LLeftStream.Get.DataString;
     LLeftStreamReader := TStreamReaderEx.New(LLeftStream.Get);
@@ -498,10 +566,9 @@ begin
     Result := Result + LLine;
     if not FDataInternal.EndOfStream then
       Result := Result + ASeparator;
+    // Listeners
+    _NotifyListeners(LLine);
   end;
 end;
 
 end.
-
-
-

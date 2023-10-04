@@ -36,6 +36,11 @@ uses
 type
   Tuple = array of TValue;
 
+  IObserverEx = interface
+    ['{5887CDFF-DA23-4466-A5CB-FBA1DFEAF907}']
+    procedure Update(const Progress: Integer);
+  end;
+
   TArrayHelper = class helper for TArray
   public
     /// <summary>
