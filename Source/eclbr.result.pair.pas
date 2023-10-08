@@ -359,7 +359,7 @@ type
     /// <returns>
     ///   The success value, or the default value of the success part if it is a failure.
     /// </returns>
-    function GetSuccessOrElse(const ASuccessFunc: TFunc<S, S>): S; inline;
+    function SuccessOrElse(const ASuccessFunc: TFunc<S, S>): S; inline;
 
     /// <summary>
     ///   Gets the success value, returning it if the result is a success
@@ -372,7 +372,7 @@ type
     /// <exception cref="EFailureValue">
     ///   Exception contained in the failure part, if the result is a failure.
     /// </exception>
-    function GetSuccessOrException: S; inline;
+    function SuccessOrException: S; inline;
 
     /// <summary>
     ///   Gets the success value, returning it if the result is a success
@@ -383,7 +383,7 @@ type
     ///   The success value if the result is a success, otherwise, a value
     ///   provided as a default.
     /// </returns>
-    function GetSuccessOrDefault: S; overload; inline;
+    function SuccessOrDefault: S; overload; inline;
 
     /// <summary>
     ///   Gets the success value, returning it if the result is a success
@@ -397,7 +397,7 @@ type
     ///   The success value if the result is a success, otherwise, the value
     ///   provided as a default.
     /// </returns>
-    function GetSuccessOrDefault(const ADefault: S): S; overload; inline;
+    function SuccessOrDefault(const ADefault: S): S; overload; inline;
 
     /// <summary>
     ///   Gets the failure value, throwing it as an exception if the result is a failure
@@ -409,7 +409,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure.
     /// </returns>
-    function GetFailureOrElse(const AFailureFunc: TFunc<F, F>): F; inline;
+    function FailureOrElse(const AFailureFunc: TFunc<F, F>): F; inline;
 
     /// <summary>
     ///   Gets the failure value, throwing it as an exception if the result is a failure
@@ -421,7 +421,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure.
     /// </returns>
-    function GetFailureOrException: F; inline;
+    function FailureOrException: F; inline;
 
     /// <summary>
     ///   Gets the failure value or the default value of type <typeparamref name="F"/>,
@@ -430,7 +430,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure, otherwise, a default value of <typeparamref name="F"/>.
     /// </returns>
-    function GetFailureOrDefault: F; overload; inline;
+    function FailureOrDefault: F; overload; inline;
 
     /// <summary>
     ///   Gets the failure value or a default value provided, if the result is a failure
@@ -442,7 +442,7 @@ type
     /// <returns>
     ///   The failure value, if the result is a failure, otherwise, the default value provided.
     /// </returns>
-    function GetFailureOrDefault(const ADefault: F): F; overload; inline;
+    function FailureOrDefault(const ADefault: F): F; overload; inline;
 
     /// <summary>
     ///   Determines whether the result is a success (<paramref name="rtSuccess"/>).
@@ -754,7 +754,7 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.GetSuccessOrException: S;
+function TResultPair<S, F>.SuccessOrException: S;
 begin
   if FResultType = TResultType.rtFailure then
     raise EFailureException<F>.Create(FFailure.GetValue);
@@ -880,7 +880,7 @@ begin
   Result._SetFailureValue(AFailure);
 end;
 
-function TResultPair<S, F>.GetSuccessOrElse(const ASuccessFunc: TFunc<S, S>): S;
+function TResultPair<S, F>.SuccessOrElse(const ASuccessFunc: TFunc<S, S>): S;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := FSuccess.GetValue;
@@ -888,7 +888,7 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.GetSuccessOrDefault(const ADefault: S): S;
+function TResultPair<S, F>.SuccessOrDefault(const ADefault: S): S;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := FSuccess.GetValue;
@@ -896,7 +896,7 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.GetSuccessOrDefault: S;
+function TResultPair<S, F>.SuccessOrDefault: S;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := FSuccess.GetValue;
@@ -934,7 +934,7 @@ begin
     Result.Failure(LResult.FFailure.GetValue);
 end;
 
-function TResultPair<S, F>.GetFailureOrDefault: F;
+function TResultPair<S, F>.FailureOrDefault: F;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := Default(F);
@@ -942,7 +942,7 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.GetFailureOrDefault(const ADefault: F): F;
+function TResultPair<S, F>.FailureOrDefault(const ADefault: F): F;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := ADefault;
@@ -950,7 +950,7 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.GetFailureOrElse(const AFailureFunc: TFunc<F, F>): F;
+function TResultPair<S, F>.FailureOrElse(const AFailureFunc: TFunc<F, F>): F;
 begin
   case FResultType of
     TResultType.rtSuccess: Result := AFailureFunc(FFailure.GetValue);
@@ -958,7 +958,7 @@ begin
   end;
 end;
 
-function TResultPair<S, F>.GetFailureOrException: F;
+function TResultPair<S, F>.FailureOrException: F;
 begin
   if FResultType = TResultType.rtSuccess then
     raise ESuccessException<F>.Create(FFailure.GetValue);

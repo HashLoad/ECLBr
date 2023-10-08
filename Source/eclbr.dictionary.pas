@@ -35,7 +35,7 @@ uses
   Generics.Collections,
   eclbr.list,
   eclbr.map,
-  eclbr.utils,
+  eclbr.std,
   eclbr.vector;
 
 type
@@ -717,7 +717,7 @@ var
 begin
   Result := [];
   LSortedKeys := Self.SortedKeys;
-  for LIndex := AStartIndex to TUtils.Min(AEndIndex, High(LSortedKeys)) do
+  for LIndex := AStartIndex to TStd.Min(AEndIndex, High(LSortedKeys)) do
     Result.Add(LSortedKeys[LIndex], Self[LSortedKeys[LIndex]]);
 end;
 

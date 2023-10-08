@@ -24,7 +24,7 @@
   @Discord(https://discord.gg/S5yvvGu7)
 }
 
-unit eclbr.utils;
+unit eclbr.std;
 
 interface
 
@@ -48,7 +48,7 @@ type
       3: (c: array[0..3] of AnsiChar);
   end;
 
-  TUtils = class
+  TStd = class
   private
     class function _DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket; static;
     class procedure _EncodePacket(const Packet: TPacket; NumChars: Integer;
@@ -70,16 +70,18 @@ type
       const AUseISO8601DateFormat: Boolean): TDateTime; inline;
     class function DateTimeToIso8601(const AValue: TDateTime;
       const AUseISO8601DateFormat: Boolean): string; inline;
-    class function DecodeBase64(const AInput: string): TBytes;
-    class function EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
-    class function EncodeString(const AInput: string): string;
-    class function DecodeString(const AInput: string): string;
+    class function DecodeBase64(const AInput: string): TBytes; inline;
+    class function EncodeBase64(const AInput: Pointer; const ASize: Integer): string; inline;
+    class function EncodeString(const AInput: string): string; inline;
+    class function DecodeString(const AInput: string): string; inline;
+    class function Min(const A, B: Integer): Integer; overload; inline;
+    class function Min(const A, B: Double): Double; overload; inline;
+    class function Min(const A, B: Currency): Currency; overload; inline;
+    class function Split(const S: string): TArray<string>; inline;
+    class function Clone<T>(const First: Pointer; Size: Cardinal; var Return): Pointer;
     class procedure EncodeStream(const AInput, AOutput: TStream);
     class procedure DecodeStream(const AInput, AOutput: TStream);
-    class function Min(const A, B: Integer): Integer; overload;
-    class function Min(const A, B: Double): Double; overload;
-    class function Min(const A, B: Currency): Currency; overload;
-    class function Split(const S: string): TArray<string>;
+    class procedure Fill<T>(const First: Pointer; Size: Cardinal; const Value: T);
   end;
 
 {$IFDEF DEBUG}
@@ -89,7 +91,7 @@ procedure DebugPrint(const AMessage: string);
 implementation
 
 uses
-  Winapi.Windows;
+  Winapi.Windows, System.TypInfo;
 
 {$IFDEF DEBUG}
 procedure DebugPrint(const AMessage: string);
@@ -128,7 +130,7 @@ type
 
 { TSysLib }
 
-class function TUtils.ArrayCopy(const ASource: TArrayString; const AIndex,
+class function TStd.ArrayCopy(const ASource: TArrayString; const AIndex,
   ACount: integer): TArrayString;
 var
   LFor: integer;
@@ -138,7 +140,7 @@ begin
     Result[LFor] := ASource[AIndex + LFor];
 end;
 
-class function TUtils.ArrayMerge<T>(const AArray1,
+class function TStd.ArrayMerge<T>(const AArray1,
   AArray2: TArray<T>): TArray<T>;
 var
   LLength1: integer;
@@ -158,7 +160,7 @@ begin
     Move(AArray2[0], Result[LLength1], LLength2 * SizeOf(T));
 end;
 
-class function TUtils.AsList<T>(const AArray: TArray<T>): TList<T>;
+class function TStd.AsList<T>(const AArray: TArray<T>): TList<T>;
 var
   LFor: integer;
 begin
@@ -167,7 +169,7 @@ begin
     Result.Add(AArray[LFor]);
 end;
 
-class function TUtils.DateTimeToIso8601(const AValue: TDateTime;
+class function TStd.DateTimeToIso8601(const AValue: TDateTime;
   const AUseISO8601DateFormat: Boolean): string;
 var
   LDatePart, LTimePart: string;
@@ -188,7 +190,7 @@ begin
   end;
 end;
 
-class function TUtils.IfThen<T>(AValue: boolean; const ATrue, AFalse: T): T;
+class function TStd.IfThen<T>(AValue: boolean; const ATrue, AFalse: T): T;
 begin
   if AValue then
     Result := ATrue
@@ -196,7 +198,7 @@ begin
     Result := AFalse;
 end;
 
-class function TUtils.Iso8601ToDateTime(const AValue: string;
+class function TStd.Iso8601ToDateTime(const AValue: string;
   const AUseISO8601DateFormat: Boolean): TDateTime;
 var
   LYYYY, LMM, LDD, LHH, LMI, LSS, LMS: integer;
@@ -220,7 +222,7 @@ begin
     Result := 0;
 end;
 
-class function TUtils.JoinStrings(const AStrings: TListString;
+class function TStd.JoinStrings(const AStrings: TListString;
   const ASeparator: string): string;
 var
   LFor: integer;
@@ -234,7 +236,7 @@ begin
   end;
 end;
 
-class function TUtils.Min(const A, B: Integer): Integer;
+class function TStd.Min(const A, B: Integer): Integer;
 begin
   if A < B then
     Result := A
@@ -242,7 +244,7 @@ begin
     Result := B;
 end;
 
-class function TUtils.Min(const A, B: Double): Double;
+class function TStd.Min(const A, B: Double): Double;
 begin
   if A < B then
     Result := A
@@ -250,7 +252,7 @@ begin
     Result := B;
 end;
 
-class function TUtils.Min(const A, B: Currency): Currency;
+class function TStd.Min(const A, B: Currency): Currency;
 begin
   if A < B then
     Result := A
@@ -258,7 +260,7 @@ begin
     Result := B;
 end;
 
-class function TUtils.RemoveTrailingChars(const AStr: string;
+class function TStd.RemoveTrailingChars(const AStr: string;
   const AChars: TSysCharSet): string;
 var
   LLastCharIndex: integer;
@@ -269,7 +271,7 @@ begin
   Result := Copy(AStr, 1, LLastCharIndex);
 end;
 
-class function TUtils.Split(const S: string): TArray<string>;
+class function TStd.Split(const S: string): TArray<string>;
 var
   LFor: integer;
 begin
@@ -278,7 +280,7 @@ begin
     Result[LFor - 1] := S[LFor];
 end;
 
-class function TUtils.JoinStrings(const AStrings: TArrayString;
+class function TStd.JoinStrings(const AStrings: TArrayString;
   const ASeparator: string): string;
 var
   LFor: integer;
@@ -292,7 +294,7 @@ begin
   end;
 end;
 
-class function TUtils.DecodeBase64(const AInput: string): TBytes;
+class function TStd.DecodeBase64(const AInput: string): TBytes;
 var
   LInStr: TMemoryStream;
   LOutStr: TBytesStream;
@@ -319,7 +321,7 @@ begin
   end;
 end;
 
-class procedure TUtils._EncodePacket(const Packet: TPacket; NumChars: Integer; OutBuf: PAnsiChar);
+class procedure TStd._EncodePacket(const Packet: TPacket; NumChars: Integer; OutBuf: PAnsiChar);
 begin
   OutBuf[0] := ENCODETABLE[Packet.a[0] shr 2];
   OutBuf[1] := ENCODETABLE[((Packet.a[0] shl 4) or (Packet.a[1] shr 4)) and $0000003f];
@@ -331,7 +333,7 @@ begin
   else OutBuf[3] := ENCODETABLE[Packet.a[2] and $0000003f];
 end;
 
-class function TUtils._DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket;
+class function TStd._DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket;
 begin
   Result.a[0] := (DECODETABLE[InBuf[0]] shl 2) or
     (DECODETABLE[InBuf[1]] shr 4);
@@ -348,7 +350,7 @@ begin
   end;
 end;
 
-class procedure TUtils.EncodeStream(const AInput, AOutput: TStream);
+class procedure TStd.EncodeStream(const AInput, AOutput: TStream);
 type
   PInteger = ^Integer;
 var
@@ -390,7 +392,7 @@ begin
     AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
 end;
 
-class procedure TUtils.DecodeStream(const AInput, AOutput: TStream);
+class procedure TStd.DecodeStream(const AInput, AOutput: TStream);
 var
   LInBuf: array[0..75] of AnsiChar;
   LOutBuf: array[0..60] of Byte;
@@ -472,7 +474,7 @@ begin
   until BytesRead = 0;
 end;
 
-class function TUtils.EncodeString(const AInput: string): string;
+class function TStd.EncodeString(const AInput: string): string;
 var
   LInStr, LOutStr: TStringStream;
 begin
@@ -490,7 +492,7 @@ begin
   end;
 end;
 
-class function TUtils.DecodeString(const AInput: string): string;
+class function TStd.DecodeString(const AInput: string): string;
 var
   LInStr, LOutStr: TStringStream;
 begin
@@ -508,7 +510,7 @@ begin
   end;
 end;
 
-class function TUtils.EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
+class function TStd.EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
 var
   LInStream, LOutStream: TMemoryStream;
 begin
@@ -526,6 +528,40 @@ begin
   finally
     LInStream.Free;
   end;
+end;
+
+class function TStd.Clone<T>(const First: Pointer; Size: Cardinal; var Return): Pointer;
+var
+  LSource, LTarget: ^T;
+begin
+  if (Size <= 0) or (First = nil) then
+    raise Exception.Create('Invalid parameters in TStd.Clone');
+
+  LSource := First;
+  LTarget := @Return;
+  while Size > 0 do
+  begin
+    LTarget^ := LSource^;
+    Inc(LSource);
+    Inc(LTarget);
+    Dec(Size);
+  end;
+  Result := @Return;
+end;
+
+class procedure TStd.Fill<T>(const First: Pointer; Size: Cardinal; const Value: T);
+var
+  LPointer: ^T;
+begin
+  if (Size <= 0) or (First = nil) then
+    raise Exception.Create('Invalid parameters in TStd.Fill');
+
+  LPointer := First;
+  repeat
+    LPointer^ := Value;
+    Inc(LPointer);
+    Dec(Size);
+  until Size = 0;
 end;
 
 { TPointerStream }

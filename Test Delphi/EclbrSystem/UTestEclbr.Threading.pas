@@ -13,7 +13,7 @@ uses
 
 type
   [TestFixture]
-  TTestUtils = class
+  TTesTStd = class
   private
     function FetchData: TValue;
   public
@@ -37,17 +37,17 @@ type
 
 implementation
 
-procedure TTestUtils.Setup;
+procedure TTesTStd.Setup;
 begin
 
 end;
 
-procedure TTestUtils.TearDown;
+procedure TTesTStd.TearDown;
 begin
 
 end;
 
-procedure TTestUtils.TestAwaitProc;
+procedure TTesTStd.TestAwaitProc;
 var
   LFuture: TFuture;
   LExecuted: Boolean;
@@ -62,7 +62,7 @@ begin
   Assert.IsTrue(LFuture.Ok<boolean>);
 end;
 
-procedure TTestUtils.TestFetchAsyncAwait;
+procedure TTesTStd.TestFetchAsyncAwait;
 var
   LFuture: TFuture;
 begin
@@ -72,13 +72,13 @@ begin
   Assert.AreEqual(LFuture.Ok<string>, 'sucesso!');
 end;
 
-function TTestUtils.FetchData: TValue;
+function TTesTStd.FetchData: TValue;
 begin
   Sleep(50);
   Result := 'sucesso!';
 end;
 
-procedure TTestUtils.TestAwaitFunc;
+procedure TTesTStd.TestAwaitFunc;
 var
   LFuture: TFuture;
 begin
@@ -93,7 +93,7 @@ begin
   Assert.AreEqual(LFuture.Ok<string>, 'Delphi Await');
 end;
 
-procedure TTestUtils.TestAwaitFuture;
+procedure TTesTStd.TestAwaitFuture;
 var
   LFuture: TFuture;
   LContinue: boolean;
@@ -113,7 +113,7 @@ begin
   Assert.AreEqual(LFuture.Ok<string>, 'Await and Continue');
 end;
 
-procedure TTestUtils.TestExec;
+procedure TTesTStd.TestExec;
 var
   LFuture: TFuture;
   LExecuted: Boolean;
@@ -127,7 +127,7 @@ begin
   Assert.IsTrue(LFuture.Ok<boolean>);
 end;
 
-procedure TTestUtils.TestRunFuture;
+procedure TTesTStd.TestRunFuture;
 var
   LFuture: TFuture;
   LErr: string;
@@ -147,6 +147,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TTestUtils);
+  TDUnitX.RegisterTestFixture(TTesTStd);
 
 end.

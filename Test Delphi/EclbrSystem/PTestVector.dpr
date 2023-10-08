@@ -17,7 +17,7 @@ uses
   UTestEclbr.Vector in 'UTestEclbr.Vector.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
   eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas',
+  eclbr.std in '..\..\Source\eclbr.std.pas',
   eclbr.core in '..\..\Source\eclbr.core.pas';
 
 var

@@ -16,7 +16,7 @@ uses
   DUnitX.TestFramework,
   UTestEclbr.List in 'UTestEclbr.List.pas',
   eclbr.list in '..\..\Source\eclbr.list.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas',
+  eclbr.std in '..\..\Source\eclbr.std.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
   eclbr.map in '..\..\Source\eclbr.map.pas',
   eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',

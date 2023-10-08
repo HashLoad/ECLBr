@@ -1,4 +1,4 @@
-unit UTestEclbr.Utils;
+unit UTestEclbr.Std;
 
 interface
 
@@ -9,11 +9,11 @@ uses
   Classes,
   Generics.Collections,
   eclbr.objects,
-  eclbr.utils;
+  eclbr.std;
 
 type
   [TestFixture]
-  TTestUtils = class
+  TTesTStd = class
   public
     [Setup]
     procedure Setup;
@@ -57,17 +57,17 @@ type
 
 implementation
 
-procedure TTestUtils.Setup;
+procedure TTesTStd.Setup;
 begin
 
 end;
 
-procedure TTestUtils.TearDown;
+procedure TTesTStd.TearDown;
 begin
 
 end;
 
-procedure TTestUtils.TestArrayCopy_StringArrays;
+procedure TTesTStd.TestArrayCopy_StringArrays;
 var
   LSourceArray, LCopiedArray: TArrayString;
   LIndex, LCount: Integer;
@@ -80,7 +80,7 @@ begin
   LCount := 3;  // Number of elements to copy
 
   // Act
-  LCopiedArray := TUtils.ArrayCopy(LSourceArray, LIndex, LCount);
+  LCopiedArray := TStd.ArrayCopy(LSourceArray, LIndex, LCount);
 
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LCopiedArray));
@@ -88,7 +88,7 @@ begin
     Assert.AreEqual(LExpectedArray[LIndex], LCopiedArray[LIndex]);
 end;
 
-procedure TTestUtils.TestArrayMerge_IntegerArrays;
+procedure TTesTStd.TestArrayMerge_IntegerArrays;
 var
   LArray1, LArray2, LMergedArray: TArray<Integer>;
   LFor: integer;
@@ -105,14 +105,14 @@ begin
   LArray2[1] := 5;
   LArray2[2] := 6;
   // Act
-  LMergedArray := TUtils.ArrayMerge<integer>(LArray1, LArray2);
+  LMergedArray := TStd.ArrayMerge<integer>(LArray1, LArray2);
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LMergedArray));
   for LFor := Low(LExpectedArray) to High(LExpectedArray) do
     Assert.AreEqual(LExpectedArray[LFor], LMergedArray[LFor]);
 end;
 
-procedure TTestUtils.TestArrayMerge_StringArrays;
+procedure TTesTStd.TestArrayMerge_StringArrays;
 var
   LArray1, LArray2, LMergedArray: TArray<String>;
   LFor: integer;
@@ -127,7 +127,7 @@ begin
   LArray2[0] := 'DUnitX';
   LArray2[1] := 'Testing';
   // Act
-  LMergedArray := TUtils.ArrayMerge<String>(LArray1, LArray2);
+  LMergedArray := TStd.ArrayMerge<String>(LArray1, LArray2);
   // Assert
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LMergedArray));
@@ -135,7 +135,7 @@ begin
     Assert.AreEqual(LExpectedArray[LFor], LMergedArray[LFor]);
 end;
 
-procedure TTestUtils.TestAsList_IntegerArray;
+procedure TTesTStd.TestAsList_IntegerArray;
 var
   LInputArray: TArray<Integer>;
   LList: TList<Integer>;
@@ -144,7 +144,7 @@ begin
   // Arrange
   LInputArray := TArray<Integer>.Create(1, 2, 3, 4, 5);
   // Act
-  LList := TUtils.AsList<Integer>(LInputArray);
+  LList := TStd.AsList<Integer>(LInputArray);
   try
     // Assert
     LLength := Length(LInputArray);
@@ -156,7 +156,7 @@ begin
   end;
 end;
 
-procedure TTestUtils.TestDateTimeToIso8601;
+procedure TTesTStd.TestDateTimeToIso8601;
 var
   LInputDateTime: TDateTime;
   LResultString: string;
@@ -164,14 +164,14 @@ begin
   // Arrange
   LInputDateTime := EncodeDateTime(2023, 9, 26, 14, 30, 0, 0);
   // Act
-  LResultString := TUtils.DateTimeToIso8601(LInputDateTime, True);
+  LResultString := TStd.DateTimeToIso8601(LInputDateTime, True);
 
   // Assert
   // Verifique se o ResultString corresponde à string ISO 8601 esperada
   Assert.AreEqual('2023-09-26T14:30:00', LResultString);
 end;
 
-procedure TTestUtils.TestDecodeBase64;
+procedure TTesTStd.TestDecodeBase64;
 var
   LInputBase64: string;
   LResultBytes: TBytes;
@@ -185,7 +185,7 @@ begin
   LExpectedString := 'Hello, World!';
 
   // Act
-  LResultBytes := TUtils.DecodeBase64(LInputBase64);
+  LResultBytes := TStd.DecodeBase64(LInputBase64);
 
   // Assert
   LLength := Length(LExpectedString);
@@ -195,7 +195,7 @@ begin
   Assert.AreEqual(LExpectedString, LDecodedString);
 end;
 
-procedure TTestUtils.TestDecodeString;
+procedure TTesTStd.TestDecodeString;
 var
   LInputString: string;
   LResultString: string;
@@ -204,7 +204,7 @@ begin
   LInputString := 'SGVsbG8sIFdvcmxkIQ=='; // Coloque a string Base64 que deseja decodificar aqui
 
   // Act
-  LResultString := TUtils.DecodeString(LInputString);
+  LResultString := TStd.DecodeString(LInputString);
 
   // Assert
   // Verifique se o ResultString corresponde à string decodificada esperada
@@ -212,7 +212,7 @@ begin
   Assert.AreEqual('Hello, World!', LResultString);
 end;
 
-procedure TTestUtils.TestEncodeBase64;
+procedure TTesTStd.TestEncodeBase64;
 var
   LInputData: TBytes;
   LResultString: string;
@@ -235,14 +235,14 @@ begin
   LInputData[12] := Ord('!');
 
   // Act
-  LResultString := TUtils.EncodeBase64(@LInputData[0], Length(LInputData));
+  LResultString := TStd.EncodeBase64(@LInputData[0], Length(LInputData));
 
   // Assert
   // Verifique se o ResultString corresponde à string Base64 esperada
   Assert.AreEqual('SGVsbG8sIFdvcmxkIQ==', LResultString);
 end;
 
-procedure TTestUtils.TestEncodeString;
+procedure TTesTStd.TestEncodeString;
 var
   LInputString: string;
   LResultString: string;
@@ -251,7 +251,7 @@ begin
   LInputString := 'Hello, World!'; // Coloque a string que você deseja codificar aqui
 
   // Act
-  LResultString := TUtils.EncodeString(LInputString);
+  LResultString := TStd.EncodeString(LInputString);
 
   // Assert
   // Verifique se o ResultString corresponde à string codificada esperada
@@ -259,7 +259,7 @@ begin
   Assert.AreEqual('SGVsbG8sIFdvcmxkIQ==', LResultString);
 end;
 
-procedure TTestUtils.TestIso8601ToDateTime;
+procedure TTesTStd.TestIso8601ToDateTime;
 var
   LIso8601DateString: string;
   LResultDateTime: TDateTime;
@@ -270,7 +270,7 @@ begin
   // A implementação real deve ser configurada de acordo com a sua lógica.
 
   // Act
-  LResultDateTime := TUtils.Iso8601ToDateTime(LIso8601DateString, True);
+  LResultDateTime := TStd.Iso8601ToDateTime(LIso8601DateString, True);
 
   // Assert
   // Verifique se o ResultDateTime está correto com base no valor da data de entrada.
@@ -283,7 +283,7 @@ begin
   Assert.AreEqual(0, SecondOf(LResultDateTime));
 end;
 
-procedure TTestUtils.TestJoinStrings_StringArray;
+procedure TTesTStd.TestJoinStrings_StringArray;
 var
   LStrings: TArrayString;
   LSeparator, LResultString: string;
@@ -292,12 +292,12 @@ begin
   LStrings := TArrayString.Create('Hello', 'World', 'DUnitX', 'Testing');
   LSeparator := ', ';
   // Act
-  LResultString := TUtils.JoinStrings(LStrings, LSeparator);
+  LResultString := TStd.JoinStrings(LStrings, LSeparator);
   // Assert
   Assert.AreEqual('Hello, World, DUnitX, Testing', LResultString);
 end;
 
-procedure TTestUtils.TestJoinStrings_StringList;
+procedure TTesTStd.TestJoinStrings_StringList;
 var
   LStringList: TListString;
   LSeparator, LResultString: string;
@@ -312,12 +312,12 @@ begin
 
   LSeparator := ', ';
   // Act
-  LResultString := TUtils.JoinStrings(LIAutoRef.Get, LSeparator);
+  LResultString := TStd.JoinStrings(LIAutoRef.Get, LSeparator);
   // Assert
   Assert.AreEqual('Hello, World, DUnitX, Testing', LResultString);
 end;
 
-procedure TTestUtils.TestMinCurrency;
+procedure TTesTStd.TestMinCurrency;
 var
   LA, LB: Currency;
   LResultValue: Currency;
@@ -327,13 +327,13 @@ begin
   LA := 100.50;
   LB := 99.99;
   // Act
-  LResultValue := TUtils.Min(LA, LB);
+  LResultValue := TStd.Min(LA, LB);
 
   // Assert
   LExpectativa := 99.99;
   Assert.AreEqual(LExpectativa, LResultValue, 'Min(A, B) should return 99.99 for A = 100.50 and B = 99.99.');end;
 
-procedure TTestUtils.TestMinDouble;
+procedure TTesTStd.TestMinDouble;
 var
   LA, LB: Double;
   LResultValue: Double;
@@ -343,13 +343,13 @@ begin
   LA := 3.14;
   LB := 2.71;
   // Act
-  LResultValue := TUtils.Min(LA, LB);
+  LResultValue := TStd.Min(LA, LB);
 
   // Assert
   LExpectativa := 2.71;
   Assert.AreEqual(LExpectativa, LResultValue, 'Min(A, B) should return 2.71 for A = 3.14 and B = 2.71.');end;
 
-procedure TTestUtils.TestMinInteger;
+procedure TTesTStd.TestMinInteger;
 var
   LA, LB, LResultValue: Integer;
 begin
@@ -357,13 +357,13 @@ begin
   LA := 5;
   LB := 10;
   // Act
-  LResultValue := TUtils.Min(LA, LB);
+  LResultValue := TStd.Min(LA, LB);
 
   // Assert
   Assert.AreEqual(5, LResultValue, 'Min(A, B) should return 5 for A = 5 and B = 10.');
 end;
 
-procedure TTestUtils.TestRemoveTrailingChars;
+procedure TTesTStd.TestRemoveTrailingChars;
 var
   LInputString, LResultString: string;
   LTrailingChars: TSysCharSet;
@@ -372,12 +372,12 @@ begin
   LInputString := 'Hello, World!!!';
   LTrailingChars := ['!', ','];
   // Act
-  LResultString := TUtils.RemoveTrailingChars(LInputString, LTrailingChars);
+  LResultString := TStd.RemoveTrailingChars(LInputString, LTrailingChars);
   // Assert
   Assert.AreEqual('Hello, World', LResultString);
 end;
 
-procedure TTestUtils.TestSplit;
+procedure TTesTStd.TestSplit;
 var
   LS: string;
   LResultArray: TArray<string>;
@@ -386,7 +386,7 @@ begin
   // Arrange
   LS := 'Hello,World';
   // Act
-  LResultArray := TUtils.Split(LS);
+  LResultArray := TStd.Split(LS);
 
   LLength := Length(LResultArray);
   // Assert
@@ -405,6 +405,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TTestUtils);
+  TDUnitX.RegisterTestFixture(TTesTStd);
 
 end.

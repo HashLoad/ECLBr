@@ -7,7 +7,7 @@ uses
   SysUtils,
   StrUtils,
   Generics.Collections,
-  eclbr.utils,
+  eclbr.std,
   eclbr.vector;
 
 type
@@ -310,7 +310,7 @@ var
   LNumbers: TVector<string>;
   LResult: Tuple;
 begin
-  LNumbers := TVector<string>.Create(TUtils.Split('12345678900'));
+  LNumbers := TVector<string>.Create(TStd.Split('12345678900'));
   LResult := LNumbers.Filter(function(Value: string): boolean
                              begin
                                Result := Pos(Value, '0123456789') > 0;
@@ -323,9 +323,9 @@ begin
                              var
                                LPonto, LTraco, LCpf: string;
                              begin
-                               LPonto := TUtils.IfThen<string>((Arg2[1].AsType<integer> = 3) or
+                               LPonto := TStd.IfThen<string>((Arg2[1].AsType<integer> = 3) or
                                                                (Arg2[1].AsType<integer> = 6), '.', '');
-                               LTraco := TUtils.IfThen<string>((Arg2[1].AsType<integer> = 9), '-', '');
+                               LTraco := TStd.IfThen<string>((Arg2[1].AsType<integer> = 9), '-', '');
                                LCpf := Arg2[0].AsType<String> + LPonto + LTraco + Arg1;
 
                                Result := [LCpf, Arg2[1].AsType<integer> + 1];
@@ -413,4 +413,6 @@ initialization
   TDUnitX.RegisterTestFixture(TVectorTest);
 
 end.
+
+
 

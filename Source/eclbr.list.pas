@@ -348,7 +348,7 @@ type
 implementation
 
 uses
-  eclbr.utils;
+  eclbr.std;
 
 { TListHelper<T> }
 
@@ -803,7 +803,7 @@ var
   LIndex: integer;
 begin
   Result := TVector<T>.Create([]);
-  for LIndex := 0 to TUtils.Min(Count - 1, Count - 1) do
+  for LIndex := 0 to TStd.Min(Count - 1, Count - 1) do
   begin
     if LIndex >= Self.Count then
       break;
@@ -858,7 +858,7 @@ var
   LFor: integer;
 begin
   Result := TVector<R>.Create([]);
-  for LFor := 0 to TUtils.Min(AList1.Count, AList2.Count) - 1 do
+  for LFor := 0 to TStd.Min(AList1.Count, AList2.Count) - 1 do
     Result.Add(AFunc(AList1[LFor], AList2[LFor]));
 end;
 

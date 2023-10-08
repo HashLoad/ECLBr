@@ -12,10 +12,10 @@ uses
 type
   IScheduler = interface
     ['{BC104A19-9657-4093-A494-8D3CFD4CAF09}']
-    procedure Send(const Value: TValue);
     procedure Next;
+    procedure Send(const Value: TValue);
     function Add(const Routine: TFunc<TValue, TValue>; const Value: TValue;
-      const Proc: TProc = nil): IScheduler;
+      const Proc: TProc = nil): IScheduler; overload;
     function Yield: TValue;
     function Value: TValue;
     function Run: IScheduler;
@@ -55,11 +55,10 @@ type
     constructor Create(const Routine: TFunc<TValue, TValue>; const Value: TValue;
       const Proc: TProc); overload;
     destructor Destroy; override;
-    procedure Send(const Value: TValue);
     procedure Next;
+    procedure Send(const Value: TValue);
     function Add(const Routine: TFunc<TValue, TValue>; const Value: TValue;
       const Proc: TProc = nil): IScheduler; overload;
-    function Add(const Routine: TFunc<TValue, TValue>; const Proc: TProc = nil): IScheduler; overload;
     function Yield: TValue;
     function Value: TValue;
     function Run: IScheduler;
@@ -78,12 +77,6 @@ end;
 constructor TScheduler.Create(const Routine: TFunc<TValue, TValue>);
 begin
   Create(Routine, TValue.Empty, nil);
-end;
-
-function TScheduler.Add(const Routine: TFunc<TValue, TValue>;
-  const Proc: TProc): IScheduler;
-begin
-  Add(Routine, TValue.Empty, Proc);
 end;
 
 constructor TScheduler.Create(const Routine: TFunc<TValue, TValue>;
@@ -122,11 +115,12 @@ var
 begin
   if FRoutines.Count = 0 then
     exit;
-  LPair := FRoutines.Peek;
+  LPair := FRoutines.Dequeue;
   if LPair.Value.IsEmpty then
     LPair.Value := Value
   else
     LPair.ValueSend := Value;
+  FRoutines.Enqueue(LPair);
 end;
 
 function TScheduler.Value: TValue;
@@ -137,8 +131,8 @@ end;
 function TScheduler.Add(const Routine: TFunc<TValue, TValue>;
   const Value: TValue; const Proc: TProc = nil): IScheduler;
 begin
-  FRoutines.Enqueue(TSchedulerPair.Create(Routine, Value, Proc));
   Result := Self;
+  FRoutines.Enqueue(TSchedulerPair.Create(Routine, Value, Proc));
 end;
 
 class function TScheduler.New: IScheduler;
@@ -171,12 +165,12 @@ end;
 
 function TScheduler.Run: IScheduler;
 begin
+  Result := Self;
   FTask := TTask.Run(procedure
                      begin
                        while FRoutines.Count > 0 do
                          Next;
                      end);
-  Result := Self;
 end;
 
 { TCoroPair }

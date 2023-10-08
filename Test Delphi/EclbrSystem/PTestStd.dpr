@@ -1,4 +1,4 @@
-program PTestUtils;
+program PTestStd;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,8 +14,8 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.Utils in 'UTestEclbr.Utils.pas',
-  eclbr.utils in '..\..\Source\eclbr.utils.pas',
+  UTestEclbr.Std in 'UTestEclbr.Std.pas',
+  eclbr.std in '..\..\Source\eclbr.std.pas',
   eclbr.objects in '..\..\Source\eclbr.objects.pas';
 
 var

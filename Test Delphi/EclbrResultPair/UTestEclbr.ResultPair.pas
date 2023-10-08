@@ -108,7 +108,7 @@ begin
 
     // Verifique se o resultado é sucesso e obtenha o preço total
     if LResultPair.IsSuccess then
-      LTotalPrice := LResultPair.GetSuccessOrDefault(0.0)
+      LTotalPrice := LResultPair.SuccessOrDefault(0.0)
     else
       LTotalPrice := 0.0;
 
@@ -147,9 +147,9 @@ begin
       ).Return;
     // Verifique se o resultado é sucesso ou falha
     if LResultPair.IsSuccess then
-      Assert.IsTrue(LResultPair.GetSuccessOrDefault(False))
+      Assert.IsTrue(LResultPair.SuccessOrDefault(False))
     else
-      Assert.AreEqual('Item fora de estoque!', LResultPair.GetFailureOrDefault('Erro desconhecido'));
+      Assert.AreEqual('Item fora de estoque!', LResultPair.FailureOrDefault('Erro desconhecido'));
   finally
     LResultPair.Dispose;
   end;
@@ -401,7 +401,7 @@ var
 begin
   LResultPair := TResultPair<string, Integer>.New.Failure(42);
   try
-    Assert.AreEqual(LResultPair.GetFailureOrDefault, 42);
+    Assert.AreEqual(LResultPair.FailureOrDefault, 42);
   finally
     LResultPair.Dispose;
   end;
@@ -413,7 +413,7 @@ var
 begin
   LResultPair := TResultPair<string, Integer>.New.Failure(42);
   try
-    Assert.AreEqual(LResultPair.GetFailureOrDefault(100), 42);
+    Assert.AreEqual(LResultPair.FailureOrDefault(100), 42);
   finally
     LResultPair.Dispose;
   end;
@@ -425,7 +425,7 @@ var
 begin
   ResultPair := TResultPair<string, Integer>.New.Failure(42);
   try
-    Assert.AreEqual(ResultPair.GetFailureOrElse(
+    Assert.AreEqual(ResultPair.FailureOrElse(
       function(Value: Integer): Integer
       begin
         Result := Value * 2;
@@ -445,7 +445,7 @@ begin
     Assert.WillRaise(
       procedure
       begin
-        LResultPair.GetFailureOrException;
+        LResultPair.FailureOrException;
       end
     );
   finally
@@ -459,7 +459,7 @@ var
 begin
   LResultPair := TResultPair<Integer, string>.New.Success(42);
   try
-    Assert.AreEqual(LResultPair.GetSuccessOrDefault, 42);
+    Assert.AreEqual(LResultPair.SuccessOrDefault, 42);
   finally
     LResultPair.Dispose;
   end;
@@ -471,7 +471,7 @@ var
 begin
   LResultPair := TResultPair<Integer, string>.New.Success(42);
   try
-    Assert.AreEqual(LResultPair.GetSuccessOrDefault(100), 42);
+    Assert.AreEqual(LResultPair.SuccessOrDefault(100), 42);
   finally
     LResultPair.Dispose;
   end;
@@ -483,7 +483,7 @@ var
 begin
   LResultPair := TResultPair<Integer, String>.New.Success(42);
   try
-    Assert.AreEqual(LResultPair.GetSuccessOrElse(
+    Assert.AreEqual(LResultPair.SuccessOrElse(
       function(Value: Integer): Integer
       begin
         Result := Value * 2;
@@ -503,7 +503,7 @@ begin
     Assert.WillRaise(
       procedure
       begin
-        LResultPair.GetSuccessOrException;
+        LResultPair.SuccessOrException;
       end
     );
   finally

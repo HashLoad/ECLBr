@@ -118,7 +118,7 @@
         </DelphiCompile>
         <DCCReference Include="UTestEclbr.List.pas"/>
         <DCCReference Include="..\..\Source\eclbr.list.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.utils.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.std.pas"/>
         <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <DCCReference Include="..\..\Source\eclbr.map.pas"/>
         <DCCReference Include="..\..\Source\eclbr.arrow.fun.pas"/>
