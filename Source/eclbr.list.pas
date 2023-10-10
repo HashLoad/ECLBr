@@ -79,7 +79,7 @@ type
     ///   Rotates the elements in the list by a specified number of positions.
     /// </summary>
     /// <param name="Count">The number of positions by which the elements are rotated. A positive count rotates to the right; a negative count rotates to the left.</param>
-    procedure Rotate(const Count: integer);
+    procedure Rotate(const Count: Integer);
 
     /// <summary>
     ///   Reverses the order of elements in the list.
@@ -187,14 +187,14 @@ type
     /// </summary>
     /// <param name="ACount">The number of elements to take from the beginning of the list.</param>
     /// <returns>A new list containing the first 'n' elements.</returns>
-    function Take(const ACount: integer): TVector<T>;
+    function Take(const ACount: Integer): TVector<T>;
 
     /// <summary>
     ///   Returns a new list containing all elements in the list except the first 'n' elements, where 'n' is the specified count.
     /// </summary>
     /// <param name="ACount">The number of elements to skip from the beginning of the list.</param>
     /// <returns>A new list containing the remaining elements after skipping 'n' elements.</returns>
-    function Skip(const ACount: integer): TVector<T>;
+    function Skip(const ACount: Integer): TVector<T>;
 
     /// <summary>
     ///   Searches for an element in the list that satisfies a specified predicate and returns the first matching element.
@@ -211,7 +211,7 @@ type
     /// <param name="AStartIndex">The index of the first element to include in the slice.</param>
     /// <param name="AEndIndex">The index of the last element to include in the slice.</param>
     /// <returns>A new list containing the sliced elements.</returns>
-    function Slice(const AList: TList<T>; AStartIndex, AEndIndex: integer): TVector<T>;
+    function Slice(const AList: TList<T>; AStartIndex, AEndIndex: Integer): TVector<T>;
 
     /// <summary>
     ///   Combines the elements of two lists into a new list using a specified function and returns the resulting list of combined elements.
@@ -324,13 +324,13 @@ type
     /// </summary>
     /// <param name="APredicate">The function used to search for an element.</param>
     /// <returns>The index of the first element that satisfies the predicate or -1 if not found.</returns>
-    function IndexOfItem(const APredicate: TPredicate<T>): integer;
+    function IndexOfItem(const APredicate: TPredicate<T>): Integer;
 
     /// <summary>
     ///   Determines whether the list is empty.
     /// </summary>
     /// <returns>True if the list is empty; otherwise, False.</returns>
-    function IsEmpty: boolean;
+    function IsEmpty: Boolean;
 
     /// <summary>
     ///   Retorna uma representação de string deste objeto.
@@ -409,7 +409,7 @@ end;
 function TListEx<T>.Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>;
 var
   LItem: T;
-  LIndex: integer;
+  LIndex: Integer;
 begin
   Result := TVector<T>.Create([]);
   LIndex := 0;
@@ -471,7 +471,7 @@ end;
 
 procedure TListEx<T>.ForEachIndexed(const Action: TProc<integer, T>);
 var
-  LIndex: integer;
+  LIndex: Integer;
   LItem: T;
 begin
   for LIndex := 0 to Count - 1 do
@@ -523,7 +523,7 @@ begin
   end
 end;
 
-function TListEx<T>.IndexOfItem(const APredicate: TPredicate<T>): integer;
+function TListEx<T>.IndexOfItem(const APredicate: TPredicate<T>): Integer;
 var
   LIndex: Integer;
 begin
@@ -547,7 +547,7 @@ begin
   end;
 end;
 
-function TListEx<T>.IsEmpty: boolean;
+function TListEx<T>.IsEmpty: Boolean;
 begin
   Result := Self.Count = 0;
 end;
@@ -597,7 +597,7 @@ end;
 function TListEx<T>.Min: T;
 var
   LItem: T;
-  LIsFirst: boolean;
+  LIsFirst: Boolean;
 begin
   if Count = 0 then
     raise Exception.Create('The list is empty.');
@@ -711,9 +711,9 @@ begin
     Result := AAccumulator(Result, LItem);
 end;
 
-procedure TListEx<T>.Rotate(const Count: integer);
+procedure TListEx<T>.Rotate(const Count: Integer);
 var
-  LTotalCount, LFor, LShiftedIndex: integer;
+  LTotalCount, LFor, LShiftedIndex: Integer;
   LTempList: TList<T>;
 begin
   LTotalCount := Count mod Count;
@@ -741,7 +741,7 @@ end;
 
 procedure TListEx<T>.Shuffle;
 var
-  LI, LJ: integer;
+  LI, LJ: Integer;
   LTemp: T;
 begin
   Randomize;
@@ -754,9 +754,9 @@ begin
   end;
 end;
 
-function TListEx<T>.Skip(const ACount: integer): TVector<T>;
+function TListEx<T>.Skip(const ACount: Integer): TVector<T>;
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   Result := TVector<T>.Create([]);
   for LIndex := Count to Self.Count - 1 do
@@ -766,7 +766,7 @@ end;
 function TListEx<T>.SkipWhile(
   const APredicate: TPredicate<T>): TVector<T>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := TVector<T>.Create([]);
   LFor := 0;
@@ -780,9 +780,9 @@ begin
 end;
 
 function TListEx<T>.Slice(const AList: TList<T>; AStartIndex,
-  AEndIndex: integer): TVector<T>;
+  AEndIndex: Integer): TVector<T>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := TVector<T>.Create([]);
   for LFor := AStartIndex to AEndIndex do
@@ -792,15 +792,15 @@ end;
 procedure TListEx<T>.SortBy(const ASelector: TFunc<T, TValue>);
 begin
   Sort(TComparer<T>.Construct(
-    function(const Left, Right: T): integer
+    function(const Left, Right: T): Integer
     begin
       Result := TComparer<TValue>.Default.Compare(ASelector(Left), ASelector(Right));
     end));
 end;
 
-function TListEx<T>.Take(const ACount: integer): TVector<T>;
+function TListEx<T>.Take(const ACount: Integer): TVector<T>;
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   Result := TVector<T>.Create([]);
   for LIndex := 0 to TStd.Min(Count - 1, Count - 1) do
@@ -813,7 +813,7 @@ end;
 
 function TListEx<T>.TakeWhile(const APredicate: TPredicate<T>): TVector<T>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := TVector<T>.Create([]);
   for LFor := 0 to Count - 1 do
@@ -855,7 +855,7 @@ end;
 function TListEx<T>.Zip<T1, T2, R>(const AList1: TList<T1>;
   const AList2: TList<T2>; const AFunc: TFunc<T1, T2, R>): TVector<R>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := TVector<R>.Create([]);
   for LFor := 0 to TStd.Min(AList1.Count, AList2.Count) - 1 do

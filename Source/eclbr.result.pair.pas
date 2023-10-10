@@ -39,11 +39,11 @@ type
 
   EFailureException<F> = class(Exception)
   public
-    constructor Create(const Value: F);
+    constructor Create(const AValue: F);
   end;
   ESuccessException<S> = class(Exception)
   public
-    constructor Create(const Value: S);
+    constructor Create(const AValue: S);
   end;
   ETypeIncompatibility = class(Exception)
   public
@@ -53,20 +53,20 @@ type
   TResultPairValue<T> = record
   private
     FValue: T;
-    FHasValue: boolean;
+    FHasValue: Boolean;
   public
     constructor Create(AValue: T);
     class function CreateNil: TResultPairValue<T>; static;
     function GetValue: T;
-    function HasValue: boolean;
+    function HasValue: Boolean;
   end;
 
   TResultPair<S, F> = record
   private
     type
       TMapFunc<Return> = reference to function(const ASelf: TResultPair<S, F>): Return;
-      TFuncOk = reference to function(const Success: S): TResultPair<S, F>;
-      TFuncFail = reference to function(const Success: F): TResultPair<S, F>;
+      TFuncOk = reference to function(const ASuccess: S): TResultPair<S, F>;
+      TFuncFail = reference to function(const AFailure: F): TResultPair<S, F>;
       TFuncExec = reference to function: TResultPair<S, F>;
   private
     FSuccess: TResultPairValue<S>;
@@ -450,7 +450,7 @@ type
     /// <returns>
     ///   <c>True</c> if the result is a success, otherwise <c>False</c>.
     /// </returns>
-    function isSuccess: boolean; inline;
+    function isSuccess: Boolean; inline;
 
     /// <summary>
     ///   Determines whether the result is a failure (<paramref name="rtFailure"/>).
@@ -458,7 +458,7 @@ type
     /// <returns>
     ///   <c>True</c> if the result is a failure, otherwise <c>False</c>.
     /// </returns>
-    function isFailure: boolean; inline;
+    function isFailure: Boolean; inline;
 
     /// <summary>
     ///   Gets the success value contained in the result, throwing an exception if it is a failure result.
@@ -639,7 +639,7 @@ end;
 
 function TResultPair<S, F>._ReturnFailure: TResultPair<S, F>;
 var
-  LFor: integer;
+  LFor: Integer;
   LResult: TResultPair<S, F>;
 begin
   Result := Self;
@@ -660,7 +660,7 @@ end;
 
 function TResultPair<S, F>._ReturnSuccess: TResultPair<S, F>;
 var
-  LFor: integer;
+  LFor: Integer;
   LResult: TResultPair<S, F>;
 begin
   Result := Self;
@@ -685,12 +685,12 @@ begin
   Result._SetSuccessValue(ASuccess);
 end;
 
-function TResultPair<S, F>.isFailure: boolean;
+function TResultPair<S, F>.isFailure: Boolean;
 begin
   Result := FResultType = TResultType.rtFailure;
 end;
 
-function TResultPair<S, F>.isSuccess: boolean;
+function TResultPair<S, F>.isSuccess: Boolean;
 begin
   Result := FResultType = TResultType.rtSuccess;
 end;
@@ -1029,23 +1029,23 @@ begin
   Result := FValue;
 end;
 
-function TResultPairValue<T>.HasValue: boolean;
+function TResultPairValue<T>.HasValue: Boolean;
 begin
   Result := FHasValue;
 end;
 
 { EFailureException<S> }
 
-constructor EFailureException<F>.Create(const Value: F);
+constructor EFailureException<F>.Create(const AValue: F);
 begin
-  inherited CreateFmt('A generic exception occurred with value %s', [TValue.From<F>(Value).AsString]);
+  inherited CreateFmt('A generic exception occurred with value %s', [TValue.From<F>(AValue).AsString]);
 end;
 
 { ESuccessException<S> }
 
-constructor ESuccessException<S>.Create(const Value: S);
+constructor ESuccessException<S>.Create(const AValue: S);
 begin
-  inherited CreateFmt('A generic exception occurred with value %s', [TValue.From<S>(Value).AsString]);
+  inherited CreateFmt('A generic exception occurred with value %s', [TValue.From<S>(AValue).AsString]);
 end;
 
 { ETypeIncompatibility }
@@ -1056,14 +1056,3 @@ begin
 end;
 
 end.
-
-
-
-
-
-
-
-
-
-
-

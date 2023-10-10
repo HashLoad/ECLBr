@@ -43,9 +43,9 @@ type
     class var FValue: TValue;
   public
     class destructor Destroy;
-    class function Fn<W>(const AValue: W): TFunc<W>; overload; inline; static;
-    class function Fn<W>(var AVar: W; const AValue: W): TProc<TValue>; overload; inline; static;
+    class function Fn(const AValue: TValue): TFunc<TValue>; overload; static;
     class function Fn(var AVarRefs: TArray<Pointer>; const AValues: Tuple): TProc<TValue>; overload; static;
+    class function Fn<W>(var AVar: W; const AValue: W): TProc<TValue>; overload; inline; static;
     class function Value<W>: W; static;
   end;
 
@@ -53,11 +53,12 @@ implementation
 
 { TArrowFn }
 
-class function TArrow.Fn<W>(const AValue: W): TFunc<W>;
+class function TArrow.Fn(const AValue: TVAlue): TFunc<TValue>;
 begin
-  Result := function: W
+  FValue := AValue;
+  Result := function: TValue
             begin
-              Result := AValue;
+              Result := AVAlue;
             end;
 end;
 
@@ -96,7 +97,8 @@ begin
   FValue := nil;
 end;
 
-class function TArrow.Fn(var AVarRefs: TArray<Pointer>; const AValues: Tuple): TProc<TValue>;
+class function TArrow.Fn(var AVarRefs: TArray<Pointer>;
+  const AValues: Tuple): TProc<TValue>;
 var
   LVarRefs: TArray<Pointer>;
 begin
@@ -111,7 +113,7 @@ begin
             begin
               try
                 FValue := nil;
-                FValue := Avalue;
+                FValue := AValue;
                 for LFor := 0 to High(LVarRefs) do
                 begin
                   case AValues[LFor].Kind of
@@ -161,8 +163,6 @@ begin
 end;
 
 end.
-
-
 
 
 

@@ -88,7 +88,7 @@ procedure TMapTest.TestEnumerator;
 var
   LPair: TMapPair<Integer, String>;
   LKey: Integer;
-  LLast: String;
+  LLast: string;
 begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
@@ -189,7 +189,7 @@ begin
   FMap.Add(3, 'Three');
 
   LilteredMap := FMap.Filter(
-    function(Key: Integer; Value: String): boolean
+    function(Key: Integer; Value: string): Boolean
     begin
       Result := Key mod 2 = 0;
     end);

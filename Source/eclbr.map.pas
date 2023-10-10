@@ -24,6 +24,8 @@
   @Discord(https://discord.gg/S5yvvGu7)
 }
 
+{$T+}
+
 unit eclbr.map;
 
 interface
@@ -53,7 +55,7 @@ type
 
   TDefaultCapacity = class
   public
-    class var DefaultCapacity: integer;
+    class var DefaultCapacity: Integer;
   end;
 
   TMap<K, V> = record
@@ -61,10 +63,10 @@ type
     type
       PItemPair = ^TItemPair;
       TItemPair = record
-        HashCode: integer;
+        HashCode: Integer;
         Key: K;
         Value: V;
-        constructor Create(const AKey: K; const AValue: V; const AHashCode: integer = -1);
+        constructor Create(const AKey: K; const AValue: V; const AHashCode: Integer = -1);
       end;
       TArrayPair = TArray<TItemPair>;
       PArrayPair = ^TArrayPair;
@@ -72,28 +74,28 @@ type
       TMapEnumerator = class(TEnumerator<TMapPair<K,V>>)
       private
         FItems: PArrayPair;
-        FIndex: integer;
+        FIndex: Integer;
         function _GetCurrent: TMapPair<K, V>;
-        function _IsEquals<T>(const ALeft: T; ARight: T): boolean;
+        function _IsEquals<T>(const ALeft: T; ARight: T): Boolean;
       protected
         function DoGetCurrent: TMapPair<K,V>; override;
-        function DoMoveNext: boolean; override;
+        function DoMoveNext: Boolean; override;
       public
         constructor Create(const AItems: PArrayPair);
         destructor Destroy; override;
-        function MoveNext: boolean;
+        function MoveNext: Boolean;
         property Current: TMapPair<K, V> read _GetCurrent;
       end;
   private
     FMapItems: TArrayPair;
     FDefaultCapacity: TDefaultCapacity;
-    FCapacity: integer;
-    function _GetBucketIndex(const AKey: K; const AHashCode: integer = -1): integer;
-    procedure _SetNewLength(const ALength: integer);
-    function _GetCount: integer;
-    function _Hash(const Key: K): integer;
-    function _IsEquals<T>(const ALeft: T; ARight: T): boolean;
-    procedure _DoAdd(const AKey: K; const AValue: V; const AIndex: integer);
+    FCapacity: Integer;
+    function _GetBucketIndex(const AKey: K; const AHashCode: Integer = -1): Integer;
+    procedure _SetNewLength(const ALength: Integer);
+    function _GetCount: Integer;
+    function _Hash(const Key: K): Integer;
+    function _IsEquals<T>(const ALeft: T; ARight: T): Boolean;
+    procedure _DoAdd(const AKey: K; const AValue: V; const AIndex: Integer);
   public
     class operator Implicit(const V: TMap<K, V>): TArrayPair;
     class operator Implicit(const V: TArrayPair): TMap<K, V>;
@@ -139,26 +141,26 @@ type
     ///   Sets the capacity of the map, allowing it to hold a specified number of key-value pairs.
     /// </summary>
     /// <param name="ACapacity">The desired capacity for the map.</param>
-    procedure SetCapacity(const ACapacity: integer); inline;
+    procedure SetCapacity(const ACapacity: Integer); inline;
 
     /// <summary>
     ///   Sets the default capacity used when resizing the map.
     /// </summary>
     /// <param name="ADefault">The default capacity for the map.</param>
-    procedure SetDefaultCapacity(const ADefault: integer); inline;
+    procedure SetDefaultCapacity(const ADefault: Integer); inline;
 
     /// <summary>
     ///   Inserts a key-value pair at the specified index in the map.
     /// </summary>
     /// <param name="AIndex">The index at which to insert the key-value pair.</param>
     /// <param name="AItem">The key-value pair to insert.</param>
-    procedure Insert(const AIndex: integer; const AItem: TItemPair); inline;
+    procedure Insert(const AIndex: Integer; const AItem: TItemPair); inline;
 
     /// <summary>
     ///   Deletes the key-value pair at the specified index in the map.
     /// </summary>
     /// <param name="AIndex">The index of the key-value pair to delete.</param>
-    procedure Delete(const AIndex: integer); inline;
+    procedure Delete(const AIndex: Integer); inline;
 
     /// <summary>
     ///   Removes all key-value pairs from the map, resetting it to an empty state.
@@ -194,7 +196,7 @@ type
     ///   This function allows you to check if a key is present in the dictionary and, if it is,
     ///   retrieve the value associated with that key.
     /// </remarks>
-    function TryGetValue(const AKey: K; var AValue: V): boolean; inline;
+    function TryGetValue(const AKey: K; var AValue: V): Boolean; inline;
 
     /// <summary>
     ///   Retrieves the key-value pair associated with the specified key.
@@ -208,7 +210,7 @@ type
     /// </summary>
     /// <param name="APair">The key-value pair to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
-    function Add(const APair: TMapPair<K, V>): integer; overload; inline;
+    function Add(const APair: TMapPair<K, V>): Integer; overload; inline;
 
     /// <summary>
     ///   Adds a key-value pair to the map.
@@ -216,7 +218,7 @@ type
     /// <param name="AKey">The key to add.</param>
     /// <param name="AValue">The value to add.</param>
     /// <returns>The index at which the key-value pair was added.</returns>
-    function Add(const AKey: K; const AValue: V): integer; overload; inline;
+    function Add(const AKey: K; const AValue: V): Integer; overload; inline;
 
     /// <summary>
     ///   Adds or updates a key-value pair in the map.
@@ -230,7 +232,7 @@ type
     /// </summary>
     /// <param name="AKey">The key to check for.</param>
     /// <returns>True if the map contains the key; otherwise, False.</returns>
-    function Contains(const AKey: K): boolean; inline;
+    function Contains(const AKey: K): Boolean; inline;
 
     /// <summary>
     ///   Merges key-value pairs from the specified array into the map.
@@ -312,7 +314,7 @@ type
     /// </summary>
     /// <param name="AKey">The key of the key-value pair to remove.</param>
     /// <returns>True if the key-value pair was successfully removed; otherwise, False.</returns>
-    function Remove(const AKey: K): boolean; inline;
+    function Remove(const AKey: K): Boolean; inline;
 
     /// <summary>
     ///   Retrieves the first key-value pair in the map.
@@ -342,13 +344,13 @@ type
     ///   Returns the current capacity of the map.
     /// </summary>
     /// <returns>The current capacity of the map.</returns>
-    function Capacity: integer; inline;
+    function Capacity: Integer; inline;
 
     /// <summary>
     ///   Returns the number of key-value pairs in the map.
     /// </summary>
     /// <returns>The number of key-value pairs in the map.</returns>
-    function Count: integer; inline;
+    function Count: Integer; inline;
 
     /// <summary>
     ///   Returns an array containing all key-value pairs in the map.
@@ -373,9 +375,9 @@ implementation
 
 { TMap<TKey, TValue> }
 
-function TMap<K, V>._GetCount: integer;
+function TMap<K, V>._GetCount: Integer;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := 0;
   for LFor := 0 to High(FMapItems) do
@@ -387,10 +389,10 @@ begin
   end;
 end;
 
-function TMap<K, V>._GetBucketIndex(const AKey: K; const AHashCode: integer): integer;
+function TMap<K, V>._GetBucketIndex(const AKey: K; const AHashCode: Integer): Integer;
 //var
-//  LLength: integer;
-//  LHashCode: integer;
+//  LLength: Integer;
+//  LHashCode: Integer;
 //  LMapItems: PItemPair;
 //begin
 //  LLength := Length(FMapItems);
@@ -417,7 +419,7 @@ function TMap<K, V>._GetBucketIndex(const AKey: K; const AHashCode: integer): in
 //  end;
 
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := -1;
   for LFor := 0 to System.Length(FMapItems) -1 do
@@ -430,18 +432,18 @@ begin
   end;
 end;
 
-procedure TMap<K, V>.SetCapacity(const ACapacity: integer);
+procedure TMap<K, V>.SetCapacity(const ACapacity: Integer);
 begin
   FCapacity := ACapacity;
   _SetNewLength(ACapacity);
 end;
 
-procedure TMap<K, V>.SetDefaultCapacity(const ADefault: integer);
+procedure TMap<K, V>.SetDefaultCapacity(const ADefault: Integer);
 begin
   FDefaultCapacity.DefaultCapacity := ADefault;
 end;
 
-procedure TMap<K, V>._SetNewLength(const ALength: integer);
+procedure TMap<K, V>._SetNewLength(const ALength: Integer);
 begin
   SetLength(FMapItems, ALength);
 end;
@@ -479,10 +481,10 @@ begin
   Result.FMapItems := V;
 end;
 
-procedure TMap<K, V>.Insert(const AIndex: integer; const AItem: TItemPair);
+procedure TMap<K, V>.Insert(const AIndex: Integer; const AItem: TItemPair);
 var
-  LFor: integer;
-  LLength: integer;
+  LFor: Integer;
+  LLength: Integer;
 begin
   LLength := FCapacity;
   if LLength = 0 then
@@ -507,7 +509,7 @@ end;
 
 function TMap<K, V>.GetPair(const AKey: K): TItemPair;
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   LIndex := _GetBucketIndex(AKey);
   if LIndex <> -1 then
@@ -516,10 +518,10 @@ begin
     Result := TItemPair.Create(Default(K), Default(V));
 end;
 
-function TMap<K, V>.Add(const APair: TMapPair<K, V>): integer;
+function TMap<K, V>.Add(const APair: TMapPair<K, V>): Integer;
 var
-  LIndex: integer;
-  LLength: integer;
+  LIndex: Integer;
+  LLength: Integer;
 begin
   LIndex := -1;
   for LIndex := Low(FMapItems) to High(FMapItems) do
@@ -538,14 +540,14 @@ begin
   Result := FCapacity;
 end;
 
-function TMap<K, V>.Add(const AKey: K; const AValue: V): integer;
+function TMap<K, V>.Add(const AKey: K; const AValue: V): Integer;
 begin
   Result := Add(TMapPair<K, V>.Create(AKey, AValue));
 end;
 
 procedure TMap<K, V>.AddOrUpdate(const AKey: K; const AValue: V);
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   LIndex := _GetBucketIndex(AKey);
   if LIndex > -1 then
@@ -554,10 +556,10 @@ begin
     Add(TMapPair<K, V>.Create(AKey, AValue));
 end;
 
-procedure TMap<K, V>._DoAdd(const AKey: K; const AValue: V; const AIndex: integer);
+procedure TMap<K, V>._DoAdd(const AKey: K; const AValue: V; const AIndex: Integer);
 var
-  LLength: integer;
-  LIndex: integer;
+  LLength: Integer;
+  LIndex: Integer;
 begin
   LIndex := AIndex;
   if (LIndex = -1) or (LIndex = System.Length(FMapItems)) then
@@ -571,7 +573,7 @@ begin
   FMapItems[LIndex].HashCode := _Hash(AKey);
 end;
 
-function TMap<K, V>.Capacity: integer;
+function TMap<K, V>.Capacity: Integer;
 begin
   Result := FCapacity;
 end;
@@ -581,7 +583,7 @@ begin
   FMapItems := nil;
 end;
 
-function TMap<K, V>.Contains(const AKey: K): boolean;
+function TMap<K, V>.Contains(const AKey: K): Boolean;
 begin
   Result := _GetBucketIndex(AKey) <> -1;
 end;
@@ -596,9 +598,9 @@ begin
   Add(AKey, AValue);
 end;
 
-procedure TMap<K, V>.Delete(const AIndex: integer);
+procedure TMap<K, V>.Delete(const AIndex: Integer);
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   for LFor := AIndex + 1 to FCapacity - 1 do
     FMapItems[LFor - 1] := FMapItems[LFor];
@@ -610,10 +612,10 @@ begin
   Result.FMapItems := [];
 end;
 
-function TMap<K, V>.Remove(const AKey: K): boolean;
+function TMap<K, V>.Remove(const AKey: K): Boolean;
 var
-  LIndex: integer;
-  LCount: integer;
+  LIndex: Integer;
+  LCount: Integer;
 begin
   LIndex := _GetBucketIndex(AKey);
   Result := LIndex >= 0;
@@ -623,7 +625,7 @@ end;
 
 function TMap<K, V>.Last: TMapPair<K, V>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   for LFor := System.Length(FMapItems) - 1 downto 0 do
   begin
@@ -636,7 +638,7 @@ begin
   raise Exception.Create('No non-empty elements found');
 end;
 
-function TMap<K, V>.Count: integer;
+function TMap<K, V>.Count: Integer;
 begin
   Result := _GetCount;
 end;
@@ -763,9 +765,9 @@ begin
   end;
 end;
 
-function TMap<K, V>.TryGetValue(const AKey: K; var AValue: V): boolean;
+function TMap<K, V>.TryGetValue(const AKey: K; var AValue: V): Boolean;
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   LIndex := _GetBucketIndex(AKey);
   Result := LIndex >= 0;
@@ -817,14 +819,14 @@ begin
   end;
 end;
 
-function TMap<K, V>._Hash(const Key: K): integer;
+function TMap<K, V>._Hash(const Key: K): Integer;
 const
   POSITIVEMASK = not integer($80000000);
 begin
   Result := POSITIVEMASK and ((POSITIVEMASK and TEqualityComparer<K>.Default.GetHashCode(Key)) + 1);
 end;
 
-function TMap<K, V>._IsEquals<T>(const ALeft: T; ARight: T): boolean;
+function TMap<K, V>._IsEquals<T>(const ALeft: T; ARight: T): Boolean;
 begin
   Result := TEqualityComparer<T>.Default.Equals(ALeft, ARight);
 end;
@@ -848,7 +850,7 @@ begin
   Result := _GetCurrent;
 end;
 
-function TMap<K, V>.TMapEnumerator.DoMoveNext: boolean;
+function TMap<K, V>.TMapEnumerator.DoMoveNext: Boolean;
 begin
   Result := MoveNext;
 end;
@@ -859,12 +861,12 @@ begin
   Result.Value := FItems^[FIndex].Value;
 end;
 
-function TMap<K, V>.TMapEnumerator._IsEquals<T>(const ALeft: T; ARight: T): boolean;
+function TMap<K, V>.TMapEnumerator._IsEquals<T>(const ALeft: T; ARight: T): Boolean;
 begin
   Result := TEqualityComparer<T>.Default.Equals(ALeft, ARight);
 end;
 
-function TMap<K, V>.TMapEnumerator.MoveNext: boolean;
+function TMap<K, V>.TMapEnumerator.MoveNext: Boolean;
 begin
   repeat
     Inc(FIndex);
@@ -877,7 +879,7 @@ end;
 { TMap<K, V>.TItemPair }
 
 constructor TMap<K, V>.TItemPair.Create(const AKey: K; const AValue: V;
-  const AHashCode: integer);
+  const AHashCode: Integer);
 begin
   Key := AKey;
   Value := AValue;

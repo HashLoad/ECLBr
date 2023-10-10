@@ -256,13 +256,13 @@ end;
 procedure TVectorTest.TestFactorialCalculation;
 var
   LVector: TVector<integer>;
-  LFactorial: integer;
+  LFactorial: Integer;
 begin
   // Arrange
   LVector := TVector<integer>.Create([1, 2, 3, 4, 5, 6, 7]);
 
   // Act
-  LFactorial := LVector.Reduce(function(Acc: integer; Item: integer): integer
+  LFactorial := LVector.Reduce(function(Acc: Integer; Item: Integer): Integer
                                begin
                                  Result := Acc * Item;
                                end, 1);
@@ -282,7 +282,7 @@ begin
   LVector.Add(53);
 
   LArrayFiltered := LVector.Filter(
-    function(AValue: Integer): boolean
+    function(AValue: Integer): Boolean
     begin
       Result := AValue mod 2 = 0;
     end
@@ -311,11 +311,11 @@ var
   LResult: Tuple;
 begin
   LNumbers := TVector<string>.Create(TStd.Split('12345678900'));
-  LResult := LNumbers.Filter(function(Value: string): boolean
+  LResult := LNumbers.Filter(function(Value: string): Boolean
                              begin
                                Result := Pos(Value, '0123456789') > 0;
                              end)
-                     .Filter(function(Value: string; Index: integer): boolean
+                     .Filter(function(Value: string; Index: Integer): Boolean
                              begin
                                Result := Index <= 10;
                              end)
@@ -394,8 +394,8 @@ end;
 procedure TVectorTest.TestEnumerator;
 var
   LVector: TVector<String>;
-  Item: String;
-  Last: String;
+  Item: string;
+  Last: string;
 begin
   LVector.Add('One');
   LVector.Add('Two');

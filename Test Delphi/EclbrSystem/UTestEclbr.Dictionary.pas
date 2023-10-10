@@ -283,7 +283,7 @@ procedure TDictionaryHelperTest.TestRotate;
 var
   LDictionary: TDictEx<Integer, string>;
   LRotatedPairs: TArray<TPair<Integer, string>>;
-  LResult: integer;
+  LResult: Integer;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -345,7 +345,7 @@ procedure TDictionaryHelperTest.TestSortedKeys;
 var
   LDictionary: TDictEx<Integer, string>;
   LSortedKeys: TArray<Integer>;
-  LResult: integer;
+  LResult: Integer;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -373,7 +373,7 @@ procedure TDictionaryHelperTest.TestShuffleKeys;
 var
   LDictionary: TDictEx<Integer, string>;
   LShuffledKeys: TArray<Integer>;
-  LResult: integer;
+  LResult: Integer;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -481,7 +481,7 @@ begin
 
     // Act
     LFilteredDict := LDictionary.FindAll(
-      function(Value: string): boolean
+      function(Value: string): Boolean
       begin
         // Filtra elementos cujo valor contenha a letra 'e'
         Result := Pos('e', Value) > 0;
@@ -642,7 +642,7 @@ begin
     LMap.Add(7, '250');
 
     LIlteredMap := LMap.Filter(
-                           function(Key: Integer; Value: String): boolean
+                           function(Key: Integer; Value: string): Boolean
                            begin
                              Result := 28 mod Key = 0;
                            end)
@@ -686,7 +686,7 @@ end;
 procedure TDictionaryHelperTest.TestMaxValue;
 var
   LDictionary: TDictEx<Integer, string>;
-  LMaxValue: String;
+  LMaxValue: string;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -734,7 +734,7 @@ end;
 procedure TDictionaryHelperTest.TestMinValue;
 var
   LDictionary: TDictEx<Integer, string>;
-  LMinValue: String;
+  LMinValue: string;
 begin
   // Arrange
   LDictionary := TDictEx<Integer, string>.Create;
@@ -854,7 +854,7 @@ begin
 
     // Act
     LTakenDict := LDictionary.TakeWhile(
-      function(Key: Integer): boolean
+      function(Key: Integer): Boolean
       begin
         // Continue até que a chave seja menor ou igual a 3
         Result := Key <= 3;
@@ -952,7 +952,7 @@ begin
 
     // Act
     LSkipDict := LDictionary.SkipWhile(
-      function(Key: Integer): boolean
+      function(Key: Integer): Boolean
       begin
         // Pule até que a chave seja maior que 3
         Result := Key <= 3;

@@ -200,7 +200,7 @@ type
     /// <param name="AStartIndex">The starting index for slicing.</param>
     /// <param name="AEndIndex">The ending index for slicing.</param>
     /// <returns>A new dictionary with the sliced key-value pairs.</returns>
-    function Slice(const AStartIndex: integer; const AEndIndex: integer): TMap<K, V>;
+    function Slice(const AStartIndex: Integer; const AEndIndex: Integer): TMap<K, V>;
 
     /// <summary>
     ///   Combines two dictionaries with a specified function to create a new dictionary.
@@ -456,7 +456,7 @@ function TDictEx<K, V>.Join(const ASeparator: string): string;
 var
   LPair: TPair<K, V>;
   LSortKeys: TArray<K>;
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := '';
   LSortKeys := SortedKeys;
@@ -472,7 +472,7 @@ function TDictEx<K,V>.MaxValue: V;
 var
   LPair: TPair<K, V>;
   LMaxValue: V;
-  LIsFirst: boolean;
+  LIsFirst: Boolean;
 begin
   LIsFirst := True;
   for LPair in Self do
@@ -492,7 +492,7 @@ function TDictEx<K, V>.MinValue: V;
 var
   LPair: TPair<K, V>;
   LMinValue: V;
-  LIsFirst: boolean;
+  LIsFirst: Boolean;
 begin
   if Count = 0 then
     raise Exception.Create('The dictionary is empty.');
@@ -555,7 +555,7 @@ function TDictEx<K, V>.MaxKey: K;
 var
   LPair: TPair<K, V>;
   LMaxKey: K;
-  LIsFirst: boolean;
+  LIsFirst: Boolean;
 begin
   LIsFirst := True;
   for LPair in Self do
@@ -575,7 +575,7 @@ function TDictEx<K, V>.MinKey: K;
 var
   LPair: TPair<K, V>;
   LMinKey: K;
-  LIsFirst: boolean;
+  LIsFirst: Boolean;
 begin
   if Count = 0 then
     raise Exception.Create('The dictionary is empty.');
@@ -618,7 +618,7 @@ var
   LSortedKeys: TArray<K>;
   LKey: K;
   LValue: V;
-  LResult: boolean;
+  LResult: Boolean;
   LList: TVector<V>;
 begin
   Result := [];
@@ -694,7 +694,7 @@ function TDictEx<K, V>.SkipWhile(
   const APredicate: TPredicate<K>): TMap<K, V>;
 var
   LKey: K;
-  LFound: boolean;
+  LFound: Boolean;
   LSortedKeys: TArray<K>;
 begin
   Result := [];
@@ -709,8 +709,8 @@ begin
   end;
 end;
 
-function TDictEx<K, V>.Slice(const AStartIndex: integer;
-  const AEndIndex: integer): TMap<K, V>;
+function TDictEx<K, V>.Slice(const AStartIndex: Integer;
+  const AEndIndex: Integer): TMap<K, V>;
 var
   LSortedKeys: TArray<K>;
   LIndex: Integer;

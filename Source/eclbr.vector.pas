@@ -24,6 +24,8 @@
   @Discord(https://discord.gg/S5yvvGu7)
 }
 
+{$T+}
+
 unit eclbr.vector;
 
 interface
@@ -43,7 +45,7 @@ type
   IVectorEnumerator<T> = interface
     ['{1E9F92D8-4EF1-4D15-9160-9B00013BA97D}']
     function GetCurrent: T;
-    function MoveNext: boolean;
+    function MoveNext: Boolean;
     property Current: T read GetCurrent;
   end;
 
@@ -55,45 +57,45 @@ type
 
       TArrayManager = record
       private
-        class var FCapacity: integer;
+        class var FCapacity: Integer;
       private
-        class function _GetCapacity: integer; static; inline;
-        class procedure _SetCapacity(var AArray: TArrayType; const ACapacity: integer); static; inline;
-        class function _GetCount(var AArray: TArrayType): integer; static; inline;
-        class function _IsEquals<I>(const ALeft: I; ARight: I): boolean; static; inline;
+        class function _IsEquals<I>(const ALeft: I; ARight: I): Boolean; static; inline;
+        class function _GetCount(var AArray: TArrayType): Integer; static; inline;
+        class function _GetCapacity: Integer; static; inline;
+        class procedure _SetCapacity(var AArray: TArrayType; const ACapacity: Integer); static; inline;
       public
         class procedure Add(var AArray: TArrayType; const AItem: T); static; inline;
-        class procedure Insert(var AArray: TArrayType; const AIndex: integer; const AItem: T); static; inline;
-        class procedure Delete(var AArray: TArrayType; const AIndex: integer); static; inline;
+        class procedure Insert(var AArray: TArrayType; const AIndex: Integer; const AItem: T); static; inline;
+        class procedure Delete(var AArray: TArrayType; const AIndex: Integer); static; inline;
         class procedure Remove(var AArray: TArrayType; const AItem: T); static; inline;
-        class procedure SetLength(var AArray: TArrayType; ALength: integer); static; inline;
+        class procedure SetLength(var AArray: TArrayType; ALength: Integer); static; inline;
         class function GetEnumerator(var AArray: TArrayType): IVectorEnumerator<T>; static; inline;
-        class function Contains(const AArray: TArrayType; const AItem: T): boolean; static; inline;
-        class function IndexOf(const AArray: TArrayType; const AItem: T): integer; static; inline;
+        class function Contains(const AArray: TArrayType; const AItem: T): Boolean; static; inline;
+        class function IndexOf(const AArray: TArrayType; const AItem: T): Integer; static; inline;
       end;
     type
       TVectorEnumerator = class(TInterfacedObject, IVectorEnumerator<T>)
       private
         FItems: PArrayType;
-        FIndex: integer;
+        FIndex: Integer;
       protected
         function GetCurrent: T;
-        function MoveNext: boolean;
+        function MoveNext: Boolean;
       public
         constructor Create(const AArray: PArrayType);
         destructor Destroy; override;
       end;
   private
     FItems: TArrayType;
-    procedure _SetItem(Index: integer; const V: T);
-    function _GetItem(Index: integer): T;
+    procedure _SetItem(Index: Integer; const V: T);
+    function _GetItem(Index: Integer): T;
     function _TrimItems: TArrayType;
-    function _IsEquals<I>(const ALeft: I; ARight: I): boolean;
+    function _IsEquals<I>(const ALeft: I; ARight: I): Boolean;
   public
     class operator Implicit(const V: TVector<T>): TArrayType; inline;
     class operator Implicit(const V: TArrayType): TVector<T>; inline;
-    class operator Equal(const Left, Right: TVector<T>): boolean; inline;
-    class operator NotEqual(const Left, Right: TVector<T>): boolean; inline;
+    class operator Equal(const Left, Right: TVector<T>): Boolean; inline;
+    class operator NotEqual(const Left, Right: TVector<T>): Boolean; inline;
     class operator Add(const Left, Right: TVector<T>): TVector<T>; inline;
     class operator Add(const Left: TVector<T>; const Right: TArrayType): TVector<T>; inline;
     class operator Add(const Left: TArrayType; const Right: TVector<T>): TVector<T>; inline;
@@ -101,9 +103,9 @@ type
     class operator Add(const Left: T; const Right: TVector<T>): TVector<T>; inline;
     class operator Subtract(const Left, Right: TVector<T>): TVector<T>; inline;
     class operator Subtract(const Left: TVector<T>; const Right: T): TVector<T>; inline;
-    class operator In(const Left: T; const Right: TVector<T>): boolean; inline;
-    class operator In(const Left, Right: TVector<T>): boolean; inline;
-    class operator In(const Left: TArrayType; const Right: TVector<T>): boolean; inline;
+    class operator In(const Left: T; const Right: TVector<T>): Boolean; inline;
+    class operator In(const Left, Right: TVector<T>): Boolean; inline;
+    class operator In(const Left: TArrayType; const Right: TVector<T>): Boolean; inline;
 
     /// <summary>
     ///   Creates and returns an empty vector of the specified type.
@@ -161,7 +163,7 @@ type
     ///   the new element. After insertion, the list contains all previous elements as
     ///   well as the newly inserted element.
     /// </remarks>
-    procedure Insert(const AIndex: integer; const AItem: T); inline;
+    procedure Insert(const AIndex: Integer; const AItem: T); inline;
 
     /// <summary>
     ///   Deletes the element at the specified index from the list.
@@ -175,7 +177,7 @@ type
     ///   after the deleted element are shifted to fill the gap. After deletion,
     ///   the list contains all previous elements except for the one that was deleted.
     /// </remarks>
-    procedure Delete(const AIndex: integer); inline;
+    procedure Delete(const AIndex: Integer); inline;
 
     /// <summary>
     ///   Removes the first occurrence of a specific element from the list.
@@ -232,7 +234,7 @@ type
     ///   initialized with default values. If <paramref name="ALength"/> is less than the
     ///   current number of elements, excess elements are removed from the end of the list.
     /// </remarks>
-    procedure SetLength(const ALength: integer); inline;
+    procedure SetLength(const ALength: Integer); inline;
 
     /// <summary>
     ///   Sets the capacity of the list to the specified value.
@@ -248,7 +250,7 @@ type
     ///   If <paramref name="ACapacity"/> is less than the current capacity, the list remains
     ///   unchanged, but it may release excess memory if applicable.
     /// </remarks>
-    procedure SetCapacity(const ACapacity: integer); inline;
+    procedure SetCapacity(const ACapacity: Integer); inline;
 
     /// <summary>
     ///   Adds multiple elements from an array to the end of the list.
@@ -364,7 +366,7 @@ type
     ///   <paramref name="AItem"/> exists in the current list. It returns True if
     ///   the element is found, and False if it is not found.
     /// </remarks>
-    function Contains(const AItem: T): boolean; overload; inline;
+    function Contains(const AItem: T): Boolean; overload; inline;
 
     /// <summary>
     ///   Checks if the list contains all elements from a specified array.
@@ -382,7 +384,7 @@ type
     ///   <paramref name="AItems"/> array exist in the current list. It returns True if
     ///   all elements are found, and False if any of them are not found.
     /// </remarks>
-    function Contains(const AItems: TArrayType): boolean; overload;
+    function Contains(const AItems: TArrayType): Boolean; overload;
 
     /// <summary>
     ///   Returns the index of the first occurrence of a specific element in the list.
@@ -399,7 +401,7 @@ type
     ///   <paramref name="AItem"/> in the current list and returns its zero-based index if
     ///   found. If the element is not found in the list, it returns -1.
     /// </remarks>
-    function IndexOf(const AItem: T): integer; inline;
+    function IndexOf(const AItem: T): Integer; inline;
 
     /// <summary>
     ///   Merges the elements of the list with those from a specified array.
@@ -579,7 +581,7 @@ type
     ///   It returns True if the list is empty and contains no elements, and False if the
     ///   list contains one or more elements.
     /// </remarks>
-    function IsEmpty: boolean; inline;
+    function IsEmpty: Boolean; inline;
 
     /// <summary>
     ///   Retrieves the type information for the elements in the list.
@@ -658,7 +660,7 @@ type
     ///   The Length function returns the count of elements in the current list, providing
     ///   the total number of elements stored in the list.
     /// </remarks>
-    function Length: integer; inline;
+    function Length: Integer; inline;
 
     /// <summary>
     ///   Retrieves the number of elements in the list.
@@ -670,7 +672,7 @@ type
     ///   The Count function returns the count of elements in the current list, providing
     ///   the total number of elements stored in the list.
     /// </remarks>
-    function Count: integer; inline;
+    function Count: Integer; inline;
 
     /// <summary>
     ///   Retrieves the current capacity of the list.
@@ -683,7 +685,7 @@ type
     ///   the maximum number of elements that the list can hold efficiently without
     ///   reallocation. It can be used to check the current capacity of the list.
     /// </remarks>
-    function Capacity: integer; inline;
+    function Capacity: Integer; inline;
 
     /// <summary>
     ///   Provides access to elements in the list using an indexer.
@@ -704,32 +706,32 @@ type
     ///   accessor. This property enables you to treat the list like an array for element
     ///   access.
     /// </remarks>
-    property Items[Index: integer]: T read _GetItem write _SetItem; default;
+    property Items[Index: Integer]: T read _GetItem write _SetItem; default;
   end;
 
 implementation
 
 { TArrayDictionary<T> }
 
-function TVector<T>._GetItem(Index: integer): T;
+function TVector<T>._GetItem(Index: Integer): T;
 begin
   Result := FItems[Index];
 end;
 
-function TVector<T>._IsEquals<I>(const ALeft: I; ARight: I): boolean;
+function TVector<T>._IsEquals<I>(const ALeft: I; ARight: I): Boolean;
 begin
   Result := TEqualityComparer<I>.Default.Equals(ALeft, ARight);
 end;
 
-procedure TVector<T>._SetItem(Index: integer; const V: T);
+procedure TVector<T>._SetItem(Index: Integer; const V: T);
 begin
   FItems[Index] := V;
 end;
 
 function TVector<T>._TrimItems: TArrayType;
 var
-  LFor: integer;
-  LIndex: integer;
+  LFor: Integer;
+  LIndex: Integer;
 begin
   System.SetLength(Result, Length);
   LIndex := 0;
@@ -742,7 +744,7 @@ begin
   end;
 end;
 
-procedure TVector<T>.SetCapacity(const ACapacity: integer);
+procedure TVector<T>.SetCapacity(const ACapacity: Integer);
 begin
   TArrayManager._SetCapacity(FItems, ACapacity);
 end;
@@ -757,12 +759,12 @@ begin
   TArrayManager.Add(FItems, AValue);
 end;
 
-procedure TVector<T>.Insert(const AIndex: integer; const AItem: T);
+procedure TVector<T>.Insert(const AIndex: Integer; const AItem: T);
 begin
   TArrayManager.Insert(FItems, AIndex, AItem);
 end;
 
-function TVector<T>.IsEmpty: boolean;
+function TVector<T>.IsEmpty: Boolean;
 begin
   Result := TArrayManager._GetCount(FItems) = 0;
 end;
@@ -798,7 +800,7 @@ end;
 
 function TVector<T>.Last: T;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   for LFor := System.Length(FItems) - 1 downto 0 do
   begin
@@ -832,7 +834,7 @@ begin
   Result := Self;
 end;
 
-class operator TVector<T>.NotEqual(const Left, Right: TVector<T>): boolean;
+class operator TVector<T>.NotEqual(const Left, Right: TVector<T>): Boolean;
 begin
   Result := not (Left = Right);
 end;
@@ -847,7 +849,7 @@ begin
   FItems := TArray.Copy<T>(Items);
 end;
 
-procedure TVector<T>.Delete(const AIndex: integer);
+procedure TVector<T>.Delete(const AIndex: Integer);
 begin
   TArrayManager.Delete(FItems, AIndex);
 end;
@@ -867,7 +869,7 @@ end;
 function TVector<T>.Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>;
 var
   LItem: T;
-  LIndex: integer;
+  LIndex: Integer;
 begin
   Result := TVector<T>.Create([]);
   LIndex := 0;
@@ -927,7 +929,7 @@ end;
 
 procedure TVector<T>.Remove(const AItems: TArray<T>);
 var
-  LFor, LIndex: integer;
+  LFor, LIndex: Integer;
 begin
   for LFor := 0 to System.Length(AItems) - 1 do
   begin
@@ -972,7 +974,7 @@ begin
   end;
 end;
 
-procedure TVector<T>.SetLength(const ALength: integer);
+procedure TVector<T>.SetLength(const ALength: Integer);
 begin
   TArrayManager.SetLength(FItems, ALength);
 end;
@@ -1030,17 +1032,17 @@ begin
   Result.Remove(Right.FItems);
 end;
 
-class operator TVector<T>.In(const Left: T; const Right: TVector<T>): boolean;
+class operator TVector<T>.In(const Left: T; const Right: TVector<T>): Boolean;
 begin
   Result := Right.Contains(Left);
 end;
 
-class operator TVector<T>.In(const Left, Right: TVector<T>): boolean;
+class operator TVector<T>.In(const Left, Right: TVector<T>): Boolean;
 begin
   Result := Right.Contains(Left.FItems);
 end;
 
-class operator TVector<T>.In(const Left: TArrayType; const Right: TVector<T>): boolean;
+class operator TVector<T>.In(const Left: TArrayType; const Right: TVector<T>): Boolean;
 begin
   Result := Right.Contains(Left);
 end;
@@ -1068,7 +1070,7 @@ end;
 function TVector<T>.ToArray: TArray<T>;
 var
   LItem: T;
-  LIndex: integer;
+  LIndex: Integer;
 begin
   System.SetLength(Result, Self.Count);
   LIndex := -1;
@@ -1085,7 +1087,7 @@ function TVector<T>.ToString: string;
 var
   LItem: T;
   LFormat: TValue;
-  FirstNonEmpty: boolean;
+  FirstNonEmpty: Boolean;
 begin
   Result := '';
   FirstNonEmpty := true;
@@ -1102,7 +1104,7 @@ begin
   end;
 end;
 
-function TVector<T>.Capacity: integer;
+function TVector<T>.Capacity: Integer;
 begin
   Result := TArrayManager._GetCapacity;
 end;
@@ -1112,12 +1114,12 @@ begin
   TArrayManager._SetCapacity(FItems, 0);
 end;
 
-function TVector<T>.Contains(const AItem: T): boolean;
+function TVector<T>.Contains(const AItem: T): Boolean;
 begin
   Result := TArrayManager.Contains(FItems, AItem);
 end;
 
-function TVector<T>.Contains(const AItems: TArrayType): boolean;
+function TVector<T>.Contains(const AItems: TArrayType): Boolean;
 var
   LFor: Integer;
 begin
@@ -1128,12 +1130,12 @@ begin
   Result := true;
 end;
 
-function TVector<T>.Count: integer;
+function TVector<T>.Count: Integer;
 begin
   Result := TArrayManager._GetCount(FItems);
 end;
 
-function TVector<T>.Length: integer;
+function TVector<T>.Length: Integer;
 begin
   Result := Count;
 end;
@@ -1143,7 +1145,7 @@ begin
   FItems := Value;
 end;
 
-function TVector<T>.IndexOf(const AItem: T): integer;
+function TVector<T>.IndexOf(const AItem: T): Integer;
 begin
   Result := TArrayManager.IndexOf(FItems, AItem);
 end;
@@ -1153,7 +1155,7 @@ begin
   Result.FItems := [];
 end;
 
-class operator TVector<T>.Equal(const Left, Right: TVector<T>): boolean;
+class operator TVector<T>.Equal(const Left, Right: TVector<T>): Boolean;
 var
   LComparer: IEqualityComparer<T>;
   LFor: Integer;
@@ -1184,18 +1186,18 @@ end;
 { TArrayDictionary<T>.TArrayHelper }
 
 class function TVector<T>.TArrayManager._IsEquals<I>(const ALeft: I;
-  ARight: I): boolean;
+  ARight: I): Boolean;
 begin
   Result := TEqualityComparer<I>.Default.Equals(ALeft, ARight);
 end;
 
-class function TVector<T>.TArrayManager._GetCapacity: integer;
+class function TVector<T>.TArrayManager._GetCapacity: Integer;
 begin
   Result := FCapacity;
 end;
 
 class function TVector<T>.TArrayManager._GetCount(
-  var AArray: TArrayType): integer;
+  var AArray: TArrayType): Integer;
 var
   LFor: Integer;
 begin
@@ -1207,7 +1209,7 @@ begin
   end;
 end;
 
-class procedure TVector<T>.TArrayManager._SetCapacity(var AArray: TArrayType; const ACapacity: integer);
+class procedure TVector<T>.TArrayManager._SetCapacity(var AArray: TArrayType; const ACapacity: Integer);
 begin
   FCapacity := ACapacity;
   System.SetLength(AArray, FCapacity);
@@ -1243,10 +1245,10 @@ begin
 end;
 
 class procedure TVector<T>.TArrayManager.Insert(var AArray: TArrayType;
-  const AIndex: integer; const AItem: T);
+  const AIndex: Integer; const AItem: T);
 var
-  LFor: integer;
-  LLength: integer;
+  LFor: Integer;
+  LLength: Integer;
 begin
   LLength := FCapacity;
   if LLength = 0 then
@@ -1266,9 +1268,9 @@ begin
 end;
 
 class procedure TVector<T>.TArrayManager.Delete(var AArray: TArrayType;
-  const AIndex: integer);
+  const AIndex: Integer);
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   for LFor := AIndex + 1 to FCapacity - 1 do
     AArray[LFor - 1] := AArray[LFor];
@@ -1277,8 +1279,8 @@ end;
 
 class procedure TVector<T>.TArrayManager.Remove(var AArray: TArrayType; const AItem: T);
 var
-  LFor, LIndex: integer;
-  LFound: boolean;
+  LFor, LIndex: Integer;
+  LFound: Boolean;
 begin
   LIndex := -1;
   LFound := false;
@@ -1296,9 +1298,9 @@ begin
 end;
 
 class function TVector<T>.TArrayManager.Contains(const AArray: TArrayType;
-  const AItem: T): boolean;
+  const AItem: T): Boolean;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   for LFor := 0 to System.Length(AArray) - 1 do
   begin
@@ -1309,9 +1311,9 @@ begin
 end;
 
 class function TVector<T>.TArrayManager.IndexOf(const AArray: TArrayType;
-  const AItem: T): integer;
+  const AItem: T): Integer;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := -1;
   for LFor := Low(AArray) to High(AArray) do
@@ -1323,7 +1325,7 @@ begin
   end;
 end;
 
-class procedure TVector<T>.TArrayManager.SetLength(var AArray: TArrayType; ALength: integer);
+class procedure TVector<T>.TArrayManager.SetLength(var AArray: TArrayType; ALength: Integer);
 begin
   if System.Length(AArray) >= ALength then
     raise Exception.Create('Memory allocation was not performed.');
@@ -1349,7 +1351,7 @@ begin
   Result := FItems^[FIndex];
 end;
 
-function TVector<T>.TVectorEnumerator.MoveNext: boolean;
+function TVector<T>.TVectorEnumerator.MoveNext: Boolean;
 begin
   repeat
     Inc(FIndex);

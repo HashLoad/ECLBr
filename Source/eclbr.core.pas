@@ -46,22 +46,22 @@ type
     /// <summary>
     ///   Copies an open array to a dynamic array.
     /// </summary>
-    class function Copy<T>(const Values: array of T): TArray<T>; static;
+    class function Copy<T>(const AValues: array of T): TArray<T>; static;
   end;
 
 implementation
 
+
 { TArrayHelper }
 
-class function TArrayHelper.Copy<T>(const Values: array of T): TArray<T>;
+class function TArrayHelper.Copy<T>(const AValues: array of T): TArray<T>;
 var
   LFor: Integer;
 begin
-  SetLength(Result, Length(Values));
-  for LFor := Low(Values) to High(Values) do
-    Result[LFor] := Values[LFor];
+  SetLength(Result, Length(AValues));
+  for LFor := Low(AValues) to High(AValues) do
+    Result[LFor] := AValues[LFor];
 end;
 
 end.
-
 

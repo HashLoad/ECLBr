@@ -58,6 +58,7 @@ type
   IAutoRef<T: class, constructor> = interface
     ['{F1196B06-4C61-4512-B06D-1691199A073C}']
     function Get: T;
+    procedure Release;
   end;
 
   TAutoRef<T: class, constructor> = class sealed(TInterfacedObject, IAutoRef<T>)
@@ -76,12 +77,14 @@ type
     class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
     class function New: IAutoRef<T>; overload;
     class function New(const AObject: T): IAutoRef<T>; overload;
+    class function LazyLoad: IAutoRef<T>;
     function Get: T;
+    procedure Release;
   end;
 
 implementation
 
-{ TObject<T> }
+{ TAutoRef<T> }
 
 constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
   const AArgs: TArray<TValue>);
@@ -95,11 +98,8 @@ begin
 end;
 
 constructor TAutoRef<T>.Create;
-var
-  LNewT: IObject;
 begin
-  LNewT := TObjectEx.New;
-  FObjectInternal := LNewT.Factory(T, []) as T;
+  FObjectInternal := T.Create;
 end;
 
 constructor TAutoRef<T>.Create(const AObject: T);
@@ -109,8 +109,8 @@ end;
 
 destructor TAutoRef<T>.Destroy;
 begin
-  if Assigned(FObjectInternal) then
-    FObjectInternal.Free;
+  Self.Release;
+  inherited;
 end;
 
 class function TAutoRef<T>.New(const ACallbackNew: TFunc<T>): IAutoRef<T>;
@@ -126,7 +126,15 @@ end;
 
 function TAutoRef<T>.Get: T;
 begin
+  // LazyLoad
+  if FObjectInternal = nil then
+    FObjectInternal := T.Create;
   Result := FObjectInternal;
+end;
+
+class function TAutoRef<T>.LazyLoad: IAutoRef<T>;
+begin
+  Result := TAutoRef<T>.Create(nil);
 end;
 
 class function TAutoRef<T>.New(const AObject: T): IAutoRef<T>;
@@ -134,10 +142,21 @@ begin
   Result := TAutoRef<T>.Create(AObject);
 end;
 
+procedure TAutoRef<T>.Release;
+begin
+  if Assigned(FObjectInternal) then
+  begin
+    FObjectInternal.Free;
+    FObjectInternal := nil;
+  end;
+end;
+
 class function TAutoRef<T>.New: IAutoRef<T>;
 begin
   Result := TAutoRef<T>.Create;
 end;
+
+{ TObject<T> }
 
 constructor TObjectEx.Create;
 begin

@@ -363,7 +363,7 @@ begin
       begin
         LSuccessCalled := True;
       end,
-      procedure (Value: String)
+      procedure (Value: string)
       begin
         LFailureCalled := True;
       end

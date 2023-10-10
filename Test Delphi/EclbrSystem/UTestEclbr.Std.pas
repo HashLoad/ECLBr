@@ -91,7 +91,7 @@ end;
 procedure TTesTStd.TestArrayMerge_IntegerArrays;
 var
   LArray1, LArray2, LMergedArray: TArray<Integer>;
-  LFor: integer;
+  LFor: Integer;
 const
   LExpectedArray: TArray<Integer> = [1, 2, 3, 4, 5, 6];
 begin
@@ -115,7 +115,7 @@ end;
 procedure TTesTStd.TestArrayMerge_StringArrays;
 var
   LArray1, LArray2, LMergedArray: TArray<String>;
-  LFor: integer;
+  LFor: Integer;
 const
   LExpectedArray: TArray<String> = ['Hello', 'Word', 'DUnitX', 'Testing'];
 begin
@@ -139,7 +139,7 @@ procedure TTesTStd.TestAsList_IntegerArray;
 var
   LInputArray: TArray<Integer>;
   LList: TList<Integer>;
-  LLength: integer;
+  LLength: Integer;
 begin
   // Arrange
   LInputArray := TArray<Integer>.Create(1, 2, 3, 4, 5);
@@ -177,8 +177,8 @@ var
   LResultBytes: TBytes;
   LDecodedString: string;
   LExpectedString: string;
-  LLength: integer;
-  LResult: integer;
+  LLength: Integer;
+  LResult: Integer;
 begin
   // Arrange
   LInputBase64 := 'SGVsbG8sIFdvcmxkIQ==';
@@ -381,7 +381,7 @@ procedure TTesTStd.TestSplit;
 var
   LS: string;
   LResultArray: TArray<string>;
-  LLength: integer;
+  LLength: Integer;
 begin
   // Arrange
   LS := 'Hello,World';

@@ -26,7 +26,7 @@ type
     [Test]
     procedure TestAutoRef_New;
     [Test]
-    procedure TestAutoRef_Auto_Create;
+    procedure TestAutoRef_LazyLoad;
   end;
 
 implementation
@@ -41,11 +41,11 @@ begin
 
 end;
 
-procedure TTestObectLib.TestAutoRef_Auto_Create;
+procedure TTestObectLib.TestAutoRef_LazyLoad;
 var
   LOption: IAutoRef<TMyClass>;
 begin
-  LOption := TAutoRef<TMyClass>.New;
+  LOption := TAutoRef<TMyClass>.LazyLoad;
 
   Assert.IsNotNull(LOption.Get);
   Assert.AreEqual('Hello word', LOption.Get.GetMessage);

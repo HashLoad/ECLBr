@@ -54,34 +54,34 @@ type
     constructor Create(const Stream: TStream); reintroduce; overload;
     constructor Create(const Stream: TStream; const DetectBOM: Boolean); reintroduce; overload;
     constructor Create(const Stream: TStream; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: integer = 4096); reintroduce; overload;
+      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096); reintroduce; overload;
     constructor Create(const Filename: string); reintroduce; overload;
     constructor Create(const Filename: string; const DetectBOM: Boolean); reintroduce; overload;
     constructor Create(const Filename: string; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: integer = 4096); reintroduce; overload;
+      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096); reintroduce; overload;
     constructor Create; overload;
     destructor Destroy; override;
     class function New(const Stream: TStream): TStreamReaderEx; overload;
     class function New(const Stream: TStream; const DetectBOM: Boolean): TStreamReaderEx; overload;
     class function New(const Stream: TStream; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: integer = 4096): TStreamReaderEx; overload;
+      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096): TStreamReaderEx; overload;
     class function New(const Filename: string): TStreamReaderEx; overload;
     class function New(const Filename: string; const DetectBOM: Boolean): TStreamReaderEx; overload;
     class function New(const Filename: string; const Encoding: TEncoding;
-      const DetectBOM: Boolean = False; const BufferSize: integer = 4096): TStreamReaderEx; overload;
+      const DetectBOM: Boolean = False; const BufferSize: Integer = 4096): TStreamReaderEx; overload;
     function BaseStream: TStream;
     function CurrentEncoding: TEncoding;
     function Map(const AFunc: TFunc<string, string>): TStreamReaderEx; overload;
     function Map<TResult>(const AMappingFunc: TFunc<string, TResult>): TVector<TResult>; overload;
     function Filter(const APredicate: TPredicate<string>): TStreamReaderEx;
     function Reduce(const AFunc: TFunc<integer, string, integer>;
-      const AInitialValue: integer): integer;
+      const AInitialValue: Integer): Integer;
     function ForEach(const AAction: TProc<string>): TStreamReaderEx;
     function GroupBy(const AKeySelector: TFunc<string, string>): TMap<string, TVector<string>>;
     function Distinct: TStreamReaderEx;
-    function Skip(const ACount: integer): TStreamReaderEx;
+    function Skip(const ACount: Integer): TStreamReaderEx;
     function Sort: TStreamReaderEx;
-    function Take(const ACount: integer): TStreamReaderEx;
+    function Take(const ACount: Integer): TStreamReaderEx;
     function Concat(const AStreamReader: TStreamReaderEx): TStreamReaderEx;
     function Partition(const APredicate: TPredicate<string>): TPair<TStreamReaderEx, TStreamReaderEx>;
     function Join(const ASeparator: string): string;
@@ -219,7 +219,7 @@ begin
 end;
 
 class function TStreamReaderEx.New(const Stream: TStream; const Encoding: TEncoding;
-  const DetectBOM: Boolean; const BufferSize: integer): TStreamReaderEx;
+  const DetectBOM: Boolean; const BufferSize: Integer): TStreamReaderEx;
 begin
   Result := TStreamReaderEx.Create(Stream, Encoding, DetectBOM, BufferSize);
 end;
@@ -232,7 +232,7 @@ end;
 
 class function TStreamReaderEx.New(const Filename: string;
   const Encoding: TEncoding; const DetectBOM: Boolean;
-  const BufferSize: integer): TStreamReaderEx;
+  const BufferSize: Integer): TStreamReaderEx;
 begin
   Result := TStreamReaderEx.Create(Filename, Encoding, DetectBOM, BufferSize);
 end;
@@ -256,7 +256,7 @@ begin
 end;
 
 function TStreamReaderEx.Reduce(const AFunc: TFunc<integer, string, integer>;
-  const AInitialValue: integer): integer;
+  const AInitialValue: Integer): Integer;
 var
   LLine: string;
 begin
@@ -292,7 +292,7 @@ end;
 
 constructor TStreamReaderEx.Create(const Stream: TStream;
   const Encoding: TEncoding; const DetectBOM: Boolean;
-  const BufferSize: integer);
+  const BufferSize: Integer);
 begin
   Create;
   FDataInternal := TStreamReader.Create(Stream, Encoding, DetectBOM, BufferSize);
@@ -307,7 +307,7 @@ end;
 
 constructor TStreamReaderEx.Create(const Filename: string;
   const Encoding: TEncoding; const DetectBOM: Boolean;
-  const BufferSize: integer);
+  const BufferSize: Integer);
 begin
   Create;
   FDataInternal := TStreamReader.Create(Filename, Encoding, DetectBOM, BufferSize);
@@ -374,9 +374,9 @@ begin
   end;
 end;
 
-function TStreamReaderEx.Skip(const ACount: integer): TStreamReaderEx;
+function TStreamReaderEx.Skip(const ACount: Integer): TStreamReaderEx;
 var
-  LSkippedCount: integer;
+  LSkippedCount: Integer;
   LResultBuilder: IAutoRef<TStringBuilder>;
   LLine: string;
 begin
@@ -422,11 +422,11 @@ begin
   Result := Self;
 end;
 
-function TStreamReaderEx.Take(const ACount: integer): TStreamReaderEx;
+function TStreamReaderEx.Take(const ACount: Integer): TStreamReaderEx;
 var
   LResultBuilder: IAutoRef<TStringBuilder>;
   LLine: string;
-  LLineCount: integer;
+  LLineCount: Integer;
 begin
   LResultBuilder := TAutoRef<TStringBuilder>.New;
   LLineCount := 0;

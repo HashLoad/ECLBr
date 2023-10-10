@@ -24,6 +24,8 @@
   @Discord(https://discord.gg/S5yvvGu7)
 }
 
+{$T+}
+
 unit eclbr.threading;
 
 interface
@@ -41,8 +43,8 @@ type
   private
     FValue: TValue;
     FErr: string;
-    FIsOK: boolean;
-    FIsErr: boolean;
+    FIsOK: Boolean;
+    FIsErr: Boolean;
     procedure SetOk(const AValue: TValue);
     procedure SetErr(const AErr: string);
   public
@@ -140,7 +142,7 @@ begin
     Result := _ExecProc
   else
   if Assigned(FFunc) then
-    Result.SetErr('O método "Exec" não deve ser chamado como função. Use o método "Await" para aguardar a conclusão da tarefa e acessar o resultado, ou chame-o como procedure.');
+    Result.SetErr('The "Exec" method should not be invoked as a function. Utilize the "Await" method to wait for task completion and access the result, or invoke it as a procedure.');
 end;
 
 function TAsync.GetId: Integer;

@@ -31,6 +31,8 @@ interface
 uses
   Rtti,
   Classes,
+  Windows,
+  TypInfo,
   SysUtils,
   DateUtils,
   Generics.Collections;
@@ -57,9 +59,9 @@ type
     class var FormatSettings: TFormatSettings;
     class function ArrayMerge<T>(const AArray1: TArray<T>;
       const AArray2: TArray<T>): TArray<T>; inline;
-    class function ArrayCopy(const ASource: TArrayString; const AIndex: integer;
-      const ACount: integer): TArrayString; inline;
-    class function IfThen<T>(AValue: boolean; const ATrue: T; const AFalse: T): T; inline;
+    class function ArrayCopy(const ASource: TArrayString; const AIndex: Integer;
+      const ACount: Integer): TArrayString; inline;
+    class function IfThen<T>(AValue: Boolean; const ATrue: T; const AFalse: T): T; inline;
     class function AsList<T>(const AArray: TArray<T>): TList<T>; inline;
     class function JoinStrings(const AStrings: TArrayString;
       const ASeparator: string): string; overload; inline;
@@ -78,10 +80,10 @@ type
     class function Min(const A, B: Double): Double; overload; inline;
     class function Min(const A, B: Currency): Currency; overload; inline;
     class function Split(const S: string): TArray<string>; inline;
-    class function Clone<T>(const First: Pointer; Size: Cardinal; var Return): Pointer;
+    class function Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer;
     class procedure EncodeStream(const AInput, AOutput: TStream);
     class procedure DecodeStream(const AInput, AOutput: TStream);
-    class procedure Fill<T>(const First: Pointer; Size: Cardinal; const Value: T);
+    class procedure Fill<T>(const AFirst: Pointer; ASize: Cardinal; const Value: T);
   end;
 
 {$IFDEF DEBUG}
@@ -89,9 +91,6 @@ procedure DebugPrint(const AMessage: string);
 {$ENDIF}
 
 implementation
-
-uses
-  Winapi.Windows, System.TypInfo;
 
 {$IFDEF DEBUG}
 procedure DebugPrint(const AMessage: string);
@@ -131,9 +130,9 @@ type
 { TSysLib }
 
 class function TStd.ArrayCopy(const ASource: TArrayString; const AIndex,
-  ACount: integer): TArrayString;
+  ACount: Integer): TArrayString;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   SetLength(Result, ACount);
   for LFor := 0 to ACount - 1 do
@@ -143,8 +142,8 @@ end;
 class function TStd.ArrayMerge<T>(const AArray1,
   AArray2: TArray<T>): TArray<T>;
 var
-  LLength1: integer;
-  LLength2: integer;
+  LLength1: Integer;
+  LLength2: Integer;
 begin
   LLength1 := Length(AArray1);
   LLength2 := Length(AArray2);
@@ -162,7 +161,7 @@ end;
 
 class function TStd.AsList<T>(const AArray: TArray<T>): TList<T>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := TList<T>.Create;
   for LFor := 0 to High(AArray) do
@@ -172,7 +171,8 @@ end;
 class function TStd.DateTimeToIso8601(const AValue: TDateTime;
   const AUseISO8601DateFormat: Boolean): string;
 var
-  LDatePart, LTimePart: string;
+  LDatePart: string;
+  LTimePart: string;
 begin
   Result := '';
   if AValue = 0 then
@@ -182,15 +182,15 @@ begin
   else
     LDatePart := DateToStr(AValue, FormatSettings);
   if Frac(AValue) = 0 then
-    Result := ifThen(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, FormatSettings))
+    Result := ifThen<String>(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, FormatSettings))
   else
   begin
     LTimePart := FormatDateTime('hh:nn:ss', AValue);
-    Result := ifThen(AUseISO8601DateFormat, LDatePart + 'T' + LTimePart, LDatePart + ' ' + LTimePart);
+    Result := ifThen<String>(AUseISO8601DateFormat, LDatePart + 'T' + LTimePart, LDatePart + ' ' + LTimePart);
   end;
 end;
 
-class function TStd.IfThen<T>(AValue: boolean; const ATrue, AFalse: T): T;
+class function TStd.IfThen<T>(AValue: Boolean; const ATrue, AFalse: T): T;
 begin
   if AValue then
     Result := ATrue
@@ -201,7 +201,13 @@ end;
 class function TStd.Iso8601ToDateTime(const AValue: string;
   const AUseISO8601DateFormat: Boolean): TDateTime;
 var
-  LYYYY, LMM, LDD, LHH, LMI, LSS, LMS: integer;
+  LYYYY: Integer;
+  LMM: Integer;
+  LDD: Integer;
+  LHH: Integer;
+  LMI: Integer;
+  LSS: Integer;
+  LMS: Integer;
 begin
   if not AUseISO8601DateFormat then
   begin
@@ -225,7 +231,7 @@ end;
 class function TStd.JoinStrings(const AStrings: TListString;
   const ASeparator: string): string;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := '';
   for LFor := 0 to AStrings.Count - 1 do
@@ -263,7 +269,7 @@ end;
 class function TStd.RemoveTrailingChars(const AStr: string;
   const AChars: TSysCharSet): string;
 var
-  LLastCharIndex: integer;
+  LLastCharIndex: Integer;
 begin
   LLastCharIndex := Length(AStr);
   while (LLastCharIndex > 0) and CharInSet(AStr[LLastCharIndex], AChars) do
@@ -273,7 +279,7 @@ end;
 
 class function TStd.Split(const S: string): TArray<string>;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   SetLength(Result, Length(S));
   for LFor := 1 to Length(S) do
@@ -283,7 +289,7 @@ end;
 class function TStd.JoinStrings(const AStrings: TArrayString;
   const ASeparator: string): string;
 var
-  LFor: integer;
+  LFor: Integer;
 begin
   Result := '';
   for LFor := Low(AStrings) to High(AStrings) do
@@ -351,13 +357,13 @@ begin
 end;
 
 class procedure TStd.EncodeStream(const AInput, AOutput: TStream);
-type
-  PInteger = ^Integer;
 var
   LInBuffer: array[0..BUFFERSIZE] of Byte;
   LOutBuffer: array[0..1023] of AnsiChar;
   LBufferPtr: PAnsiChar;
-  LI, LJ, BytesRead: Integer;
+  LI: Integer;
+  LJ: Integer;
+  BytesRead: Integer;
   LPacket: TPacket;
 
   procedure WriteLineBreak;
@@ -397,7 +403,10 @@ var
   LInBuf: array[0..75] of AnsiChar;
   LOutBuf: array[0..60] of Byte;
   LInBufPtr, LOutBufPtr: PAnsiChar;
-  LI, LJ, LK, BytesRead: Integer;
+  LI: Integer;
+  LJ: Integer;
+  LK: Integer;
+  BytesRead: Integer;
   LPacket: TPacket;
 
   procedure SkipWhite;
@@ -423,8 +432,11 @@ var
 
   function ReadInput: Integer;
   var
-    LWhiteFound, LEndReached : Boolean;
-    LCntRead, LIdx, LIdxEnd: Integer;
+    LWhiteFound: Boolean;
+    LEndReached: Boolean;
+    LCntRead: Integer;
+    LIdx: Integer;
+    LIdxEnd: Integer;
   begin
     LIdxEnd:= 0;
     repeat
@@ -476,7 +488,8 @@ end;
 
 class function TStd.EncodeString(const AInput: string): string;
 var
-  LInStr, LOutStr: TStringStream;
+  LInStr: TStringStream;
+  LOutStr: TStringStream;
 begin
   LInStr := TStringStream.Create(AInput);
   try
@@ -494,7 +507,8 @@ end;
 
 class function TStd.DecodeString(const AInput: string): string;
 var
-  LInStr, LOutStr: TStringStream;
+  LInStr: TStringStream;
+  LOutStr: TStringStream;
 begin
   LInStr := TStringStream.Create(AInput);
   try
@@ -512,7 +526,8 @@ end;
 
 class function TStd.EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
 var
-  LInStream, LOutStream: TMemoryStream;
+  LInStream: TMemoryStream;
+  LOutStream: TMemoryStream;
 begin
   LInStream := TMemoryStream.Create;
   try
@@ -530,38 +545,39 @@ begin
   end;
 end;
 
-class function TStd.Clone<T>(const First: Pointer; Size: Cardinal; var Return): Pointer;
+class function TStd.Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer;
 var
-  LSource, LTarget: ^T;
+  LSource: ^T;
+  LTarget: ^T;
 begin
-  if (Size <= 0) or (First = nil) then
+  if (ASize <= 0) or (AFirst = nil) then
     raise Exception.Create('Invalid parameters in TStd.Clone');
 
-  LSource := First;
+  LSource := AFirst;
   LTarget := @Return;
-  while Size > 0 do
+  while ASize > 0 do
   begin
     LTarget^ := LSource^;
-    Inc(LSource);
-    Inc(LTarget);
-    Dec(Size);
+    Inc(PByte(LSource), sizeof(T));
+    Inc(PByte(LTarget), sizeof(T));
+    Dec(ASize);
   end;
   Result := @Return;
 end;
 
-class procedure TStd.Fill<T>(const First: Pointer; Size: Cardinal; const Value: T);
+class procedure TStd.Fill<T>(const AFirst: Pointer; ASize: Cardinal; const Value: T);
 var
   LPointer: ^T;
 begin
-  if (Size <= 0) or (First = nil) then
+  if (ASize <= 0) or (AFirst = nil) then
     raise Exception.Create('Invalid parameters in TStd.Fill');
 
-  LPointer := First;
+  LPointer := AFirst;
   repeat
     LPointer^ := Value;
-    Inc(LPointer);
-    Dec(Size);
-  until Size = 0;
+    Inc(PByte(LPointer), sizeof(T));
+    Dec(ASize);
+  until ASize = 0;
 end;
 
 { TPointerStream }
@@ -573,7 +589,9 @@ end;
 
 function TPointerStream.Write(const Buffer; Count: Longint): Longint;
 var
-  LPos, LEndPos, LSize: Longint;
+  LPos: Longint;
+  LEndPos: Longint;
+  LSize: Longint;
   LMem: Pointer;
 begin
   LPos := Self.Position;
@@ -593,6 +611,6 @@ begin
 end;
 
 initialization
-  FormatSettings := TFormatSettings.Create('en_US');
+  TStd.FormatSettings := TFormatSettings.Create('en_US');
 
 end.

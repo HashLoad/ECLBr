@@ -96,7 +96,7 @@ end;
 procedure TTesTStd.TestAwaitFuture;
 var
   LFuture: TFuture;
-  LContinue: boolean;
+  LContinue: Boolean;
 begin
   LContinue := false;
   LFuture := Async(function: TValue
@@ -142,7 +142,7 @@ begin
             .Run;
 
   Assert.IsTrue(LFuture.IsErr);
-  LErr := 'O método "Exec" não deve ser chamado como função. Use o método "Await" para aguardar a conclusão da tarefa e acessar o resultado, ou chame-o como procedure.';
+  LErr := 'The "Exec" method should not be invoked as a function. Utilize the "Await" method to wait for task completion and access the result, or invoke it as a procedure.';
   Assert.AreEqual(LErr, LFuture.Err);
 end;
 

@@ -1,3 +1,29 @@
+{
+               ECL Brasil - Essential Core Library for Delphi
+
+                   Copyright (c) 2023, Isaque Pinheiro
+                          All rights reserved.
+
+                    GNU Lesser General Public License
+                      Versão 3, 29 de junho de 2007
+
+       Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+       A todos é permitido copiar e distribuir cópias deste documento de
+       licença, mas mudá-lo não é permitido.
+
+       Esta versão da GNU Lesser General Public License incorpora
+       os termos e condições da versão 3 da GNU General Public License
+       Licença, complementado pelas permissões adicionais listadas no
+       arquivo LICENSE na pasta principal.
+}
+
+{
+  @abstract(ECLBr Library)
+  @created(23 Abr 2023)
+  @author(Isaque Pinheiro <isaquepsp@gmail.com>)
+  @Discord(https://discord.gg/S5yvvGu7)
+}
+
 unit eclbr.coroutine;
 
 interface
@@ -16,57 +42,58 @@ type
     procedure Send(const Value: TValue);
     function Add(const Routine: TFunc<TValue, TValue>; const Value: TValue;
       const Proc: TProc = nil): IScheduler; overload;
-    function Yield: TValue;
     function Value: TValue;
+    function Yield: TValue;
+    function Count: Integer;
+    function CountSend: Integer;
     function Run: IScheduler;
   end;
 
-  TRoutineState = (rsActive, rsPaused, rsFinished);
-
-  TSchedulerPair = record
+  TRoutine = record
   private
-    FState: TRoutineState;
     FFunc: TFunc<TValue, TValue>;
     FProc: TProc;
     FValue: TValue;
     FValueSend: TValue;
+    FCountSend: Integer;
   public
     constructor Create(const AFunc: TFunc<TValue, TValue>;
-      const AValue: TValue; const AProc: TProc = nil);
-    procedure Pause;
-    procedure Resume;
+      const AValue: TValue; const ACount: Integer; const AProc: TProc = nil);
     property Func: TFunc<TValue, TValue> read FFunc;
     property Proc: TProc read FProc;
-    property State: TRoutineState read FState;
     property Value: TValue read FValue write FValue;
-    property ValueSend: TValue read FValueSend write FValueSend;
+    property Yield: TValue read FValueSend write FValueSend;
+    property CountSend: Integer read FCountSend write FCountSend;
   end;
 
   TScheduler = class(TInterfacedObject, IScheduler)
   private
-    FCurrentValue: TSchedulerPair;
-    FRoutines: TQueue<TSchedulerPair>;
+    FCurrentRoutine: TRoutine;
+    FRoutines: TQueue<TRoutine>;
     FTask: ITask;
-  public
-    class function New: IScheduler;
+  protected
     constructor Create; overload;
     constructor Create(const Routine: TFunc<TValue, TValue>); overload;
     constructor Create(const Routine: TFunc<TValue, TValue>; const Value: TValue); overload;
     constructor Create(const Routine: TFunc<TValue, TValue>; const Value: TValue;
       const Proc: TProc); overload;
+  public
+    class function New: IScheduler;
     destructor Destroy; override;
     procedure Next;
     procedure Send(const Value: TValue);
     function Add(const Routine: TFunc<TValue, TValue>; const Value: TValue;
       const Proc: TProc = nil): IScheduler; overload;
-    function Yield: TValue;
     function Value: TValue;
+    function Yield: TValue;
+    function Count: Integer;
+    function CountSend: Integer;
     function Run: IScheduler;
   end;
 
 implementation
 
-{ TCoro }
+{ TScheduler }
 
 constructor TScheduler.Create(const Routine: TFunc<TValue, TValue>;
   const Value: TValue);
@@ -79,12 +106,27 @@ begin
   Create(Routine, TValue.Empty, nil);
 end;
 
+function TScheduler.Count: Integer;
+begin
+  Result := FRoutines.Count;
+end;
+
+function TScheduler.CountSend: Integer;
+var
+  LRoutine: TRoutine;
+begin
+  if FRoutines.Count = 0 then
+    exit;
+  LRoutine := FRoutines.Peek;
+  Result := LRoutine.CountSend;
+end;
+
 constructor TScheduler.Create(const Routine: TFunc<TValue, TValue>;
   const Value: TValue; const Proc: TProc);
 begin
-  FRoutines := TQueue<TSchedulerPair>.Create;
+  FRoutines := TQueue<TRoutine>.Create;
   if Assigned(Routine) then
-    FRoutines.Enqueue(TSchedulerPair.Create(Routine, Value, Proc));
+    FRoutines.Enqueue(TRoutine.Create(Routine, Value, 1, Proc));
 end;
 
 constructor TScheduler.Create;
@@ -100,39 +142,36 @@ end;
 
 function TScheduler.Yield: TValue;
 var
-  LPair: TSchedulerPair;
+  LRoutine: TRoutine;
 begin
   if FRoutines.Count = 0 then
     exit;
-  LPair := FRoutines.Peek;
-  Result := LPair.FValueSend;
-  LPair.FValueSend := TValue.Empty;
+  LRoutine := FRoutines.Peek;
+  Result := LRoutine.Yield;
+  LRoutine.Yield := TValue.Empty;
 end;
 
 procedure TScheduler.Send(const Value: TValue);
 var
-  LPair: TSchedulerPair;
+  LRoutine: TRoutine;
 begin
   if FRoutines.Count = 0 then
     exit;
-  LPair := FRoutines.Dequeue;
-  if LPair.Value.IsEmpty then
-    LPair.Value := Value
-  else
-    LPair.ValueSend := Value;
-  FRoutines.Enqueue(LPair);
+  LRoutine := FRoutines.Peek;
+  LRoutine.Yield := Value;
+  LRoutine.CountSend := LRoutine.CountSend + 1;
 end;
 
 function TScheduler.Value: TValue;
 begin
-  Result := FCurrentValue.Value;
+  Result := FCurrentRoutine.Value;
 end;
 
 function TScheduler.Add(const Routine: TFunc<TValue, TValue>;
   const Value: TValue; const Proc: TProc = nil): IScheduler;
 begin
   Result := Self;
-  FRoutines.Enqueue(TSchedulerPair.Create(Routine, Value, Proc));
+  FRoutines.Enqueue(TRoutine.Create(Routine, Value, 1, Proc));
 end;
 
 class function TScheduler.New: IScheduler;
@@ -146,19 +185,20 @@ var
 begin
   if FRoutines.Count = 0 then
     exit;
-  FCurrentValue := FRoutines.Dequeue;
-  LResultValue := FCurrentValue.Func(FCurrentValue.Value);
+  FCurrentRoutine := FRoutines.Dequeue;
+  LResultValue := FCurrentRoutine.Func(FCurrentRoutine.Value);
   if not LResultValue.IsEmpty then
-    FRoutines.Enqueue(TSchedulerPair.Create(FCurrentValue.Func,
-                                            LResultValue,
-                                            FCurrentValue.Proc));
+    FRoutines.Enqueue(TRoutine.Create(FCurrentRoutine.Func,
+                                      LResultValue,
+                                      FCurrentRoutine.CountSend,
+                                      FCurrentRoutine.Proc));
   if (LResultValue.IsEmpty) and (FRoutines.Count = 0) then
     exit;
-  if Assigned(FCurrentValue.Proc) then
+  if Assigned(FCurrentRoutine.Proc) then
   begin
     TThread.Synchronize(nil, procedure
                              begin
-                               FCurrentValue.Proc();
+                               FCurrentRoutine.Proc();
                              end);
   end;
 end;
@@ -173,24 +213,15 @@ begin
                      end);
 end;
 
-{ TCoroPair }
+{ TRoutine }
 
-constructor TSchedulerPair.Create(const AFunc: TFunc<TValue, TValue>;
-  const AValue: TValue; const AProc: TProc = nil);
+constructor TRoutine.Create(const AFunc: TFunc<TValue, TValue>;
+  const AValue: TValue; const ACount: Integer; const AProc: TProc = nil);
 begin
   FFunc := AFunc;
   FProc := AProc;
   FValue := AValue;
-end;
-
-procedure TSchedulerPair.Pause;
-begin
-  FState := TRoutineState.rsPaused;
-end;
-
-procedure TSchedulerPair.Resume;
-begin
-  FState := TRoutineState.rsActive;
+  FCountSend := ACount;
 end;
 
 end.

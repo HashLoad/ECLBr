@@ -166,7 +166,7 @@ procedure TestTMatch.TestCaseIfAndGuard;
 var
   LResult: TResultPair<boolean, string>;
   LResultString: string;
-  LValue: integer;
+  LValue: Integer;
 begin
   LValue := 1;
   LResult := TMatch<Integer>.Value(LValue)
@@ -186,7 +186,7 @@ end;
 procedure TestTMatch.TestCaseArray;
 var
   LMatchResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
 begin
   LIsMatch := false;
   LMatchResult := TMatch<Integer>.Value(2)
@@ -204,7 +204,7 @@ end;
 procedure TestTMatch.TestCaseEqArrayChar;
 var
   LMatchResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
   LValue: TArray<Char>;
 begin
   LIsMatch := false;
@@ -226,7 +226,7 @@ end;
 procedure TestTMatch.TestCaseEqArrayInteger;
 var
   LMatchResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
   LValue: TArray<integer>;
 begin
   LIsMatch := false;
@@ -252,7 +252,7 @@ end;
 procedure TestTMatch.TestCaseEqArrayString;
 var
   LMatchResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
   LValue: TArray<String>;
 begin
   LIsMatch := false;
@@ -274,7 +274,7 @@ procedure TestTMatch.TestCaseGtWithInteger;
 var
   LValue: Integer;
   LResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
 begin
   LValue := 10;
   LIsMatch := false;
@@ -303,7 +303,7 @@ end;
 procedure TestTMatch.TestCaseChar;
 var
   LMatchResult: TResultPair<boolean, string>;
-  isMatch: boolean;
+  isMatch: Boolean;
 begin
   isMatch := false;
   try
@@ -322,7 +322,7 @@ end;
 procedure TestTMatch.TestCaseDefault;
 var
   LMatchResult: TResultPair<boolean, string>;
-  isMatch: boolean;
+  isMatch: Boolean;
 begin
   isMatch := false;
   try
@@ -533,7 +533,7 @@ end;
 procedure TestTMatch.TestCaseIfNotGuard;
 var
   LResultString: string;
-  LValue: integer;
+  LValue: Integer;
   LResult: TResultPair<boolean, string>;
 begin
   LValue := 1;
@@ -552,7 +552,7 @@ procedure TestTMatch.TestCaseIfOrGuard;
 var
   LResult: TResultPair<boolean, string>;
   LResultString: string;
-  LValue: integer;
+  LValue: Integer;
 begin
   LValue := 1;
   LResult := TMatch<Integer>.Value(LValue)
@@ -584,7 +584,7 @@ end;
 procedure TestTMatch.TestCaseRegex;
 var
   LMatchResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
 begin
   LIsMatch := false;
   try
@@ -634,7 +634,7 @@ end;
 procedure TestTMatch.TestCaseTryExcept;
 var
   LMatchResult: TResultPair<boolean, string>;
-  isMatch: boolean;
+  isMatch: Boolean;
 begin
   isMatch := false;
   try
@@ -799,6 +799,7 @@ begin
         end)
       .Execute;
 
+    Assert.IsTrue(LResult.isSuccess);
     Assert.AreEqual('Value is a Object: TDog', ResultString);
   finally
     LValueList[0].Free;
@@ -810,7 +811,7 @@ procedure TestTMatch.TestCaseLtWithInteger;
 var
   LValue: Integer;
   LResult: TResultPair<boolean, string>;
-  LIsMatch: boolean;
+  LIsMatch: Boolean;
 begin
   LValue := 10;
   LIsMatch := false;
@@ -840,7 +841,7 @@ end;
 procedure TestTMatch.TestPatternCombinator;
 var
   LResult: TResultPair<boolean, string>;
-  LValueString: String;
+  LValueString: string;
   LResultString: string;
   LStrPattern: TMatch<String>;
 begin
@@ -870,7 +871,7 @@ end;
 
 procedure TestTMatch.TestMultipleCombines;
 var
-  LValueString: String;
+  LValueString: string;
   LResultString: string;
   LStrPattern1, LStrPattern2: TMatch<String>;
   LResult: TResultPair<boolean, string>;
@@ -910,7 +911,7 @@ end;
 
 procedure TestTMatch.TestCombineWithDefault;
 var
-  LValueString: String;
+  LValueString: string;
   LResultString: string;
   LStrPattern1, LStrPattern2: TMatch<String>;
   LCombinedPattern: TResultPair<boolean, string>;
@@ -993,7 +994,7 @@ end;
 procedure TestTMatch.TestMatchHttpStatus;
 var
   LMatchResult: TResultPair<string, string>;
-  LStatus: integer;
+  LStatus: Integer;
 begin
   LStatus := 400;
 
@@ -1008,11 +1009,11 @@ begin
 
   // Com TArrow.Fn
   LMatchResult := TMatch<integer>.Value(LStatus)
-                       .CaseEq(200, TArrow.Fn<TValue>('Ok'))
-                       .CaseEq(400, TArrow.Fn<TValue>('Bad request'))
-                       .CaseEq(404, TArrow.Fn<TValue>('Not found'))
-                       .CaseEq(418, TArrow.Fn<TValue>('I´m a teapot'))
-                       .Default(    TArrow.Fn<TValue>('Something´s wrong with the Internet'))
+                       .CaseEq(200, TArrow.Fn('Ok'))
+                       .CaseEq(400, TArrow.Fn('Bad request'))
+                       .CaseEq(404, TArrow.Fn('Not found'))
+                       .CaseEq(418, TArrow.Fn('I´m a teapot'))
+                       .Default(    TArrow.Fn('Something´s wrong with the Internet'))
                        .Execute<string>;
 
   try
@@ -1030,8 +1031,8 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['_', 'Alice'], TArrow.Fn<TValue>('Personagem'))
-    .CaseEq(['_', 25],      TArrow.Fn<TValue>('Jovem'))
+    .CaseEq(['_', 'Alice'], TArrow.Fn('Personagem'))
+    .CaseEq(['_', 25],      TArrow.Fn('Jovem'))
     .CaseEq(['_', false],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(               function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
@@ -1069,7 +1070,7 @@ begin
   LTuple := ['Idade', 25, true];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_*', true],  TArrow.Fn<TValue>('Jovem'))
+    .CaseEq(['_*', true],  TArrow.Fn('Jovem'))
     .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
@@ -1088,7 +1089,7 @@ begin
   LTuple := ['Idade', 25, true];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', '_', true],  TArrow.Fn<TValue>('Jovem'))
+    .CaseEq(['_', '_', true],  TArrow.Fn('Jovem'))
     .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                  function:               TValue begin Result := 'Default'; end)
     .Execute<string>;
@@ -1107,7 +1108,7 @@ begin
   LTuple := [1, 2, 3];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq([0, '_', '_'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', 2, '_'], TArrow.Fn<TValue>('Jovem'))
+    .CaseEq(['_', 2, '_'], TArrow.Fn('Jovem'))
     .CaseEq([2, '_', '_'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<string>;

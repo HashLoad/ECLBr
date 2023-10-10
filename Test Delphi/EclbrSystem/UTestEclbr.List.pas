@@ -11,11 +11,11 @@ uses
 type
   TProduct = class
   private
-    FName: String;
+    FName: string;
     FPrice: Double;
     FDescount: Double;
   public
-    constructor Create(AName: String; APrice: Double; ADescount: Double);
+    constructor Create(AName: string; APrice: Double; ADescount: Double);
     function Price: Double;
     function Descount: Double;
   end;
@@ -92,7 +92,7 @@ begin
                                      TProduct.Create('...', 7.43, 0.05),
                                      TProduct.Create('...', 12355.33, 0.15)]);
   try
-    LResult := LList.Filter(function(AProduct: TProduct): boolean
+    LResult := LList.Filter(function(AProduct: TProduct): Boolean
                             begin
                               Result := AProduct.Price >= 1000;
                             end)
@@ -185,12 +185,12 @@ end;
 procedure TListTest.TestListReducer;
 var
   LList: TListEx<integer>;
-  LResult: integer;
-  LValorEsperado: integer;
+  LResult: Integer;
+  LValorEsperado: Integer;
 begin
   LList := TListEx<integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   try
-    LResult := LList.Reduce(function(Arg1, Arg2: integer): integer
+    LResult := LList.Reduce(function(Arg1, Arg2: Integer): Integer
                             begin
                               Result := Arg1 + Arg2;
                             end);
@@ -209,9 +209,9 @@ var
 begin
   LList := TListEx<integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   try
-    LResult := LList.Reduce(function(Arg1: integer; Arg2: Tuple): Tuple
+    LResult := LList.Reduce(function(Arg1: Integer; Arg2: Tuple): Tuple
                             var
-                              LSum, LCount: integer;
+                              LSum, LCount: Integer;
                               LAvg: Double;
                             begin
                               LSum   := Arg2[0].AsType<integer> + Arg1;
@@ -235,7 +235,7 @@ end;
 
 { TProduct }
 
-constructor TProduct.Create(AName: String; APrice, ADescount: Double);
+constructor TProduct.Create(AName: string; APrice, ADescount: Double);
 begin
   FName := AName;
   FPrice := APrice;

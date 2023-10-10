@@ -52,8 +52,8 @@ type
   public
     class operator Implicit(const P: TTuple<K>): TArray<TPair<K, TValue>>; inline;
     class operator Implicit(const P: TArray<TPair<K, TValue>>): TTuple<K>; inline;
-    class operator Equal(const Left, Right: TTuple<K>): boolean; inline;
-    class operator NotEqual(const Left, Right: TTuple<K>): boolean; inline;
+    class operator Equal(const Left, Right: TTuple<K>): Boolean; inline;
+    class operator NotEqual(const Left, Right: TTuple<K>): Boolean; inline;
 
     /// <summary>
     ///   Creates a new instance of the TTuple class with the specified keys and values.
@@ -97,7 +97,7 @@ type
     /// <returns>
     ///   An integer value representing the number of elements in the collection.
     /// </returns>
-    function Count: integer; inline;
+    function Count: Integer; inline;
   end;
 
   PTuple = ^TTuple;
@@ -115,8 +115,8 @@ type
   public
     class operator Implicit(const P: TTuple): TArray<TValue>; inline;
     class operator Implicit(const P: TArray<TValue>): TTuple; inline;
-    class operator Equal(const Left, Right: TTuple): boolean; inline;
-    class operator NotEqual(const Left, Right: TTuple): boolean; inline;
+    class operator Equal(const Left, Right: TTuple): Boolean; inline;
+    class operator NotEqual(const Left, Right: TTuple): Boolean; inline;
 
     /// <summary>
     ///   Creates a new instance of TTuple with the values provided in AValues.
@@ -135,7 +135,7 @@ type
     /// <returns>
     ///   The value stored at the specified index, converted to the generic type T.
     /// </returns>
-    function Get<T>(const AIndex: integer): T; inline;
+    function Get<T>(const AIndex: Integer): T; inline;
 
     /// <summary>
     ///   Returns the number of elements in the tuple.
@@ -143,14 +143,14 @@ type
     /// <returns>
     ///   The number of elements in the tuple.
     /// </returns>
-    function Count: integer; inline;
+    function Count: Integer; inline;
   end;
 
 implementation
 
 { TTupla<K, TValue> }
 
-function TTuple<K>.Count: integer;
+function TTuple<K>.Count: Integer;
 begin
   Result := Length(FTuplesPair);
 end;
@@ -160,7 +160,7 @@ begin
   FTuplesPair := ATuples;
 end;
 
-class operator TTuple<K>.Equal(const Left, Right: TTuple<K>): boolean;
+class operator TTuple<K>.Equal(const Left, Right: TTuple<K>): Boolean;
 var
   LComp1: IEqualityComparer<K>;
   LComp2: IEqualityComparer<TValue>;
@@ -212,7 +212,7 @@ class function TTuple<K>.New(const AKeys: TArray<K>;
   const AValues: TArray<TValue>): TTuple<K>;
 var
   LPairs: TArray<TPair<K, TValue>>;
-  LFor: integer;
+  LFor: Integer;
 begin
   if Length(AKeys) <> Length(AValues) then
     raise Exception.Create('Number of keys and values must match');
@@ -224,14 +224,14 @@ begin
   Result := TTuple<K>.Create(LPairs);
 end;
 
-class operator TTuple<K>.NotEqual(const Left, Right: TTuple<K>): boolean;
+class operator TTuple<K>.NotEqual(const Left, Right: TTuple<K>): Boolean;
 begin
   Result := not (Left = Right);
 end;
 
 { TTuple }
 
-function TTuple.Count: integer;
+function TTuple.Count: Integer;
 begin
   Result := Length(FTuples);
 end;
@@ -241,7 +241,7 @@ begin
   FTuples := ATuples;
 end;
 
-class operator TTuple.Equal(const Left, Right: TTuple): boolean;
+class operator TTuple.Equal(const Left, Right: TTuple): Boolean;
 var
   LComp: IEqualityComparer<TValue>;
   LFor: Integer;
@@ -256,7 +256,7 @@ begin
   Result := true;
 end;
 
-function TTuple.Get<T>(const AIndex: integer): T;
+function TTuple.Get<T>(const AIndex: Integer): T;
 begin
   Result := FTuples[AIndex].AsType<T>;
 end;
@@ -276,7 +276,7 @@ begin
   Result := TTuple.Create(AValues);
 end;
 
-class operator TTuple.NotEqual(const Left, Right: TTuple): boolean;
+class operator TTuple.NotEqual(const Left, Right: TTuple): Boolean;
 begin
   Result := not (Left = Right);
 end;

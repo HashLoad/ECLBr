@@ -15,12 +15,12 @@ type
   TPerson = class
   private
     FName: string;
-    FAge: integer;
+    FAge: Integer;
     FDate: TDateTime;
   public
-    constructor Create(const AName: string; const AAge: integer; const ADate: TDateTime);
+    constructor Create(const AName: string; const AAge: Integer; const ADate: TDateTime);
     function GetName: string;
-    function GetAge: integer;
+    function GetAge: Integer;
     function GetDate: TDateTime;
   end;
 
@@ -408,7 +408,7 @@ end;
 
 { TPerson }
 
-constructor TPerson.Create(const AName: string; const AAge: integer;
+constructor TPerson.Create(const AName: string; const AAge: Integer;
   const ADate: TDateTime);
 begin
   FName := AName;
@@ -416,7 +416,7 @@ begin
   FDate := ADate;
 end;
 
-function TPerson.GetAge: integer;
+function TPerson.GetAge: Integer;
 begin
   Result := FAge;
 end;
