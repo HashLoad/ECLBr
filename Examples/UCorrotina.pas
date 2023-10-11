@@ -46,12 +46,12 @@ end;
 procedure TForm2.Button4Click(Sender: TObject);
 begin
   FScheduler := TScheduler.New
-                          .Add(Contador, 1, procedure
+                          .Add(Contador, 0, procedure
                               begin
                                 LBL.Caption := '<=';
                                 Memo1.Lines.Add(FScheduler.Value.ToString);
                               end)
-                          .Add(Contador_Regressivo, 15, procedure
+                          .Add(Contador_Regressivo, 16, procedure
                               begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
@@ -68,7 +68,7 @@ begin
     Result := Value.AsInteger + 1
   else
     Result := TValue.Empty;
-  Sleep(200)
+  Sleep(200);
 end;
 
 function TForm2.Contador_Regressivo(Value: TValue): TValue;
@@ -76,22 +76,22 @@ var
   LValueSend: TValue;
 begin
   LValueSend := FScheduler.Yield;
-  if (Value.AsInteger > 0) and (Value.AsInteger <= 15) then
+  if (Value.AsInteger > 1) and (Value.AsInteger <= 16) then
     Result := Value.AsInteger - 1
   else
     Result := TValue.Empty;
-  Sleep(200)
+  Sleep(200);
 end;
 
 procedure TForm2.Button2Click(Sender: TObject);
 begin
   FScheduler := TScheduler.New
-                          .Add(Contador_Async, 1, procedure
+                          .Add(Contador_Async, 0, procedure
                               begin
                                 LBL.Caption := '<=';
                                 Memo1.Lines.Add(FScheduler.Value.ToString);
                               end)
-                          .Add(Contador_Regressivo_Async, 15, procedure
+                          .Add(Contador_Regressivo_Async, 16, procedure
                               begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
@@ -125,7 +125,8 @@ begin
   LFuture := Async(function: TValue
                    begin
                      FScheduler.Yield;
-                     if (Value.AsInteger > 0) and (Value.AsInteger <= 15) then
+                     Result := Value;
+                     if (Value.AsInteger > 1) and (Value.AsInteger <= 16) then
                        Result := Value.AsInteger - 1
                      else
                        Result := TValue.Empty;
