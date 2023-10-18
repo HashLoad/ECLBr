@@ -34,44 +34,36 @@ uses
   Rtti,
   SysUtils,
   Classes,
-  Threading;
+  Threading,
+  eclbr.std;
 
 type
   TValue = Rtti.TValue;
+  TFuture = eclbr.std.TFuture;
 
-  TFuture = record
-  private
-    FValue: TValue;
-    FErr: string;
-    FIsOK: Boolean;
-    FIsErr: Boolean;
-    procedure SetOk(const AValue: TValue);
-    procedure SetErr(const AErr: string);
-  public
-    function IsOk: Boolean;
-    function IsErr: Boolean;
-    function Ok<T>: T;
-    function Err: string;
-  end;
+  EAsyncAwait = Exception;
 
   PAsync = ^TAsync;
   TAsync = record
-  private
+  strict private
     FTask: ITask;
     FProc: TProc;
     FFunc: TFunc<TValue>;
-  private
+    FError: TFunc<Exception, TFuture>;
+  strict private
     function _AwaitProc(const AContinue: TProc; const ATimeout: Cardinal): TFuture; overload;
     function _AwaitFunc(const AContinue: TProc; const ATimeout: Cardinal): TFuture; overload;
     function _AwaitProc(const ATimeout: Cardinal): TFuture; overload;
     function _AwaitFunc(const ATimeout: Cardinal): TFuture; overload;
     function _ExecProc: TFuture;
+  private
     constructor Create(const AProc: TProc); overload;
     constructor Create(const AFunc: TFunc<TValue>); overload;
   public
     function Await(const AContinue: TProc; const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
     function Await(const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
-    function Run: TFuture; inline;
+    function Run: TFuture; overload; inline;
+    function Run(const AError: TFunc<Exception, TFuture>): TFuture; overload; inline;
     function Status: TTaskStatus; inline;
     function GetId: Integer; inline;
     procedure Cancel; inline;
@@ -142,12 +134,18 @@ begin
     Result := _ExecProc
   else
   if Assigned(FFunc) then
-    Result.SetErr('The "Exec" method should not be invoked as a function. Utilize the "Await" method to wait for task completion and access the result, or invoke it as a procedure.');
+    Result.SetErr('The "Run" method should not be invoked as a function. Utilize the "Await" method to wait for task completion and access the result, or invoke it as a procedure.');
 end;
 
 function TAsync.GetId: Integer;
 begin
   Result := FTask.GetId;
+end;
+
+function TAsync.Run(const AError: TFunc<Exception, TFuture>): TFuture;
+begin
+  FError := AError;
+  Result := Self.Run;
 end;
 
 function TAsync.Status: TTaskStatus;
@@ -159,22 +157,37 @@ function TAsync._AwaitProc(const AContinue: TProc;
   const ATimeout: Cardinal): TFuture;
 var
   LSelf: PAsync;
+  LMessage: string;
 begin
   LSelf := @Self;
   try
     FTask := TTask.Run(procedure
                        begin
-                         LSelf^.FProc();
+                         try
+                           LSelf^.FProc();
+                         except
+                           on E: Exception do
+                             LMessage := E.Message;
+                         end;
                        end);
     FTask.Wait(ATimeout);
+    if LMessage <> '' then
+      raise EAsyncAwait.Create(LMessage);
 
     if not Assigned(AContinue) then
       exit;
-    TThread.Synchronize(TThread.CurrentThread,
-                        procedure
-                        begin
-                          AContinue();
-                        end);
+    TThread.Queue(TThread.CurrentThread,
+                  procedure
+                  begin
+                    try
+                      AContinue();
+                    except
+                      on E: Exception do
+                        LMessage := E.Message;
+                    end;
+                  end);
+    if LMessage <> '' then
+      raise EAsyncAwait.Create(LMessage);
 
     Result.SetOk(true);
   except
@@ -186,12 +199,31 @@ end;
 function TAsync._ExecProc: TFuture;
 var
   LProc: TProc;
+  LError: TFunc<Exception, TFuture>;
 begin
   LProc := FProc;
+  LError := FError;
   try
     FTask := TTask.Run(procedure
+                       var
+                         LMessage: string;
                        begin
-                         LProc();
+                         try
+                           LProc();
+                         except
+                           on E: Exception do
+                           begin
+                             LMessage := E.Message;
+                             if Assigned(LError) then
+                             begin
+                               TThread.Queue(TThread.CurrentThread,
+                                 procedure
+                                 begin
+                                   LError(Exception.Create(LMessage));
+                                 end);
+                             end;
+                           end;
+                         end;
                        end);
     Result.SetOk(true);
   except
@@ -205,22 +237,37 @@ function TAsync._AwaitFunc(const AContinue: TProc;
 var
   LValue: TValue;
   LSelf: PAsync;
+  LMessage: string;
 begin
   LSelf := @Self;
   try
     FTask := TTask.Run(procedure
                        begin
-                         LValue := LSelf^.FFunc();
+                         try
+                           LValue := LSelf^.FFunc();
+                         except
+                           on E: Exception do
+                             LMessage := E.Message;
+                         end;
                        end);
     FTask.Wait(ATimeout);
+    if (LMessage <> '') then
+      raise EAsyncAwait.Create(LMessage);
 
     if not Assigned(AContinue) then
       exit;
-    TThread.Synchronize(TThread.CurrentThread,
-                        procedure
-                        begin
-                          AContinue();
-                        end);
+    TThread.Queue(TThread.CurrentThread,
+                  procedure
+                  begin
+                    try
+                      AContinue();
+                    except
+                      on E: Exception do
+                        LMessage := E.Message;
+                    end;
+                  end);
+    if (LMessage <> '') then
+      raise EAsyncAwait.Create(LMessage);
 
     Result.SetOk(LValue);
   except
@@ -229,54 +276,26 @@ begin
   end;
 end;
 
-{ TFuture }
-
-function TFuture.Err: string;
-begin
-  Result := FErr;
-end;
-
-function TFuture.IsErr: Boolean;
-begin
-  Result := FIsErr;
-end;
-
-function TFuture.IsOk: Boolean;
-begin
-  Result := FIsOK;
-end;
-
-function TFuture.Ok<T>: T;
-begin
-  Result := FValue.AsType<T>;
-end;
-
-procedure TFuture.SetErr(const AErr: string);
-begin
-  FErr := AErr;
-  FIsErr := true;
-  FIsOK := false;
-end;
-
-procedure TFuture.SetOk(const AValue: TValue);
-begin
-  FValue := AValue;
-  FIsOK := true;
-  FIsErr := false;
-end;
-
 function TAsync._AwaitFunc(const ATimeout: Cardinal): TFuture;
 var
   LValue: TValue;
   LSelf: PAsync;
+  LMessage: string;
 begin
   LSelf := @Self;
   try
     FTask := TTask.Run(procedure
                        begin
-                         LValue := LSelf^.FFunc();
+                         try
+                           LValue := LSelf^.FFunc();
+                         except
+                           on E: Exception do
+                             LMessage := E.Message;
+                         end;
                        end);
     FTask.Wait(ATimeout);
+    if (LMessage <> '') then
+      raise EAsyncAwait.Create(LMessage);
 
     Result.SetOk(LValue);
   except
@@ -288,14 +307,22 @@ end;
 function TAsync._AwaitProc(const ATimeout: Cardinal): TFuture;
 var
   LSelf: PAsync;
+  LMessage: string;
 begin
   LSelf := @Self;
   try
     FTask := TTask.Run(procedure
                        begin
-                         LSelf^.FProc();
+                         try
+                           LSelf^.FProc();
+                         except
+                           on E: Exception do
+                             LMessage := E.Message;
+                         end;
                        end);
     FTask.Wait(ATimeout);
+    if (LMessage <> '') then
+      raise EAsyncAwait.Create(LMessage);
 
     Result.SetOk(true);
   except

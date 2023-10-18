@@ -37,10 +37,10 @@ uses
   TypInfo,
   Generics.Defaults,
   Generics.Collections,
-  eclbr.core;
+  eclbr.std;
 
 type
-  Tuple = eclbr.core.Tuple;
+  Tuple = eclbr.std.Tuple;
 
   IVectorEnumerator<T> = interface
     ['{1E9F92D8-4EF1-4D15-9160-9B00013BA97D}']
@@ -50,7 +50,7 @@ type
   end;
 
   TVector<T> = record
-  private
+  strict private
     type
       PArrayType = ^TArrayType;
       TArrayType = TArray<T>;
@@ -85,7 +85,7 @@ type
         constructor Create(const AArray: PArrayType);
         destructor Destroy; override;
       end;
-  private
+  strict private
     FItems: TArrayType;
     procedure _SetItem(Index: Integer; const V: T);
     function _GetItem(Index: Integer): T;

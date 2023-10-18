@@ -105,6 +105,7 @@
         </DelphiCompile>
         <DCCReference Include="UTestEclbr.Threading.pas"/>
         <DCCReference Include="..\..\Source\eclbr.threading.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.std.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -151,6 +152,18 @@
                 <DeployFile LocalName="Win32\Debug\PTestThreading.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>PTestThreading.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\PTestThreading.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>PTestThreading.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\PTestThreading.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>PTestThreading.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

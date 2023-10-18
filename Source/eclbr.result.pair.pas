@@ -62,19 +62,19 @@ type
   end;
 
   TResultPair<S, F> = record
-  private
+  strict private
     type
       TMapFunc<Return> = reference to function(const ASelf: TResultPair<S, F>): Return;
       TFuncOk = reference to function(const ASuccess: S): TResultPair<S, F>;
       TFuncFail = reference to function(const AFailure: F): TResultPair<S, F>;
       TFuncExec = reference to function: TResultPair<S, F>;
-  private
+  strict private
     FSuccess: TResultPairValue<S>;
     FFailure: TResultPairValue<F>;
     FSuccessFuncs: TArray<TFuncOk>;
     FFailureFuncs: TArray<TFuncFail>;
     FResultType: TResultType;
-  private
+  strict private
     procedure _DestroySuccess;
     procedure _DestroyFailure;
 
@@ -562,14 +562,13 @@ var
   LTypeInfo: PTypeInfo;
   LObject: TValue;
 begin
-  if Assigned(Pointer(FSuccess)) then
+  if @FSuccess = nil then
+    Exit;
+  LTypeInfo := TypeInfo(S);
+  if LTypeInfo.Kind = tkClass then
   begin
-    LTypeInfo := TypeInfo(S);
-    if LTypeInfo.Kind = tkClass then
-    begin
-      LObject := TValue.From<S>(FSuccess.GetValue);
-      LObject.AsObject.Free;
-    end;
+    LObject := TValue.From<S>(FSuccess.GetValue);
+    LObject.AsObject.Free;
   end;
 end;
 
@@ -601,14 +600,13 @@ var
   LTypeInfo: PTypeInfo;
   LObject: TValue;
 begin
-  if Assigned(Pointer(FFailure)) then
+  if @FFailure = nil then
+    Exit;
+  LTypeInfo := TypeInfo(F);
+  if LTypeInfo.Kind = tkClass then
   begin
-    LTypeInfo := TypeInfo(F);
-    if LTypeInfo.Kind = tkClass then
-    begin
-      LObject := TValue.From<F>(FFailure.GetValue);
-      LObject.AsObject.Free;
-    end;
+    LObject := TValue.From<F>(FFailure.GetValue);
+    LObject.AsObject.Free;
   end;
 end;
 

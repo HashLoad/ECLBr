@@ -59,7 +59,7 @@ type
   end;
 
   TMap<K, V> = record
-  private
+  strict private
     type
       PItemPair = ^TItemPair;
       TItemPair = record
@@ -86,7 +86,7 @@ type
         function MoveNext: Boolean;
         property Current: TMapPair<K, V> read _GetCurrent;
       end;
-  private
+  strict private
     FMapItems: TArrayPair;
     FDefaultCapacity: TDefaultCapacity;
     FCapacity: Integer;

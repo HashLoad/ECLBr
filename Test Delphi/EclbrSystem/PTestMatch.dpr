@@ -20,7 +20,7 @@ uses
   eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas',
   eclbr.tuple in '..\..\Source\eclbr.tuple.pas',
   eclbr.arrow.fun in '..\..\Source\eclbr.arrow.fun.pas',
-  eclbr.core in '..\..\Source\eclbr.core.pas';
+  eclbr.std in '..\..\Source\eclbr.std.pas';
 
 var
   runner : ITestRunner;

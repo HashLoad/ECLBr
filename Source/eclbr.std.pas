@@ -30,6 +30,7 @@ interface
 
 uses
   Rtti,
+  Math,
   Classes,
   Windows,
   TypInfo,
@@ -40,6 +41,7 @@ uses
 type
   TArrayString = array of string;
   TListString = TList<string>;
+  Tuple = array of TValue;
 
   PPacket = ^TPacket;
   TPacket = packed record
@@ -50,8 +52,33 @@ type
       3: (c: array[0..3] of AnsiChar);
   end;
 
-  TStd = class
+  IObserverEx = interface
+    ['{5887CDFF-DA23-4466-A5CB-FBA1DFEAF907}']
+    procedure Update(const Progress: Integer);
+  end;
+
+  TArrayHelper = class helper for TArray
+  public
+    class function Copy<T>(const AValues: array of T): TArray<T>; static;
+  end;
+
+  TFuture = record
   private
+    FValue: TValue;
+    FErr: string;
+    FIsOK: Boolean;
+    FIsErr: Boolean;
+  public
+    function IsOk: Boolean;
+    function IsErr: Boolean;
+    function Ok<T>: T;
+    function Err: string;
+    procedure SetOk(const AValue: TValue);
+    procedure SetErr(const AErr: string);
+  end;
+
+  TStd = class
+  strict private
     class function _DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket; static;
     class procedure _EncodePacket(const Packet: TPacket; NumChars: Integer;
       OutBuf: PAnsiChar); static;
@@ -79,11 +106,21 @@ type
     class function Min(const A, B: Integer): Integer; overload; inline;
     class function Min(const A, B: Double): Double; overload; inline;
     class function Min(const A, B: Currency): Currency; overload; inline;
+    class function Max(const A, B: Integer): Integer; overload; inline;
+    class function Max(const A, B: Double): Double; overload; inline;
+    class function Max(const A, B: Currency): Currency; overload; inline;
+    class function Sum(const Data: array of Single): Single; overload;
+    class function Sum(const Data: array of Double): Double; overload;
+    class function Sum(const Data: array of Extended): Extended; overload;
+    class function Total(const Data: array of Single): Single; overload;
+    class function Total(const Data: array of Double): Double; overload;
+    class function Total(const Data: array of Extended): Extended; overload;
     class function Split(const S: string): TArray<string>; inline;
-    class function Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer;
+    class function Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer; inline;
+    class function Hash(const AValue: MarshaledAString): Cardinal;
     class procedure EncodeStream(const AInput, AOutput: TStream);
     class procedure DecodeStream(const AInput, AOutput: TStream);
-    class procedure Fill<T>(const AFirst: Pointer; ASize: Cardinal; const Value: T);
+    class procedure Fill<T>(const AFirst: Pointer; ASize: Cardinal; const Value: T); inline;
   end;
 
 {$IFDEF DEBUG}
@@ -177,10 +214,12 @@ begin
   Result := '';
   if AValue = 0 then
     exit;
+
   if AUseISO8601DateFormat then
     LDatePart := FormatDateTime('yyyy-mm-dd', AValue)
   else
     LDatePart := DateToStr(AValue, FormatSettings);
+
   if Frac(AValue) = 0 then
     Result := ifThen<String>(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, FormatSettings))
   else
@@ -244,26 +283,32 @@ end;
 
 class function TStd.Min(const A, B: Integer): Integer;
 begin
-  if A < B then
-    Result := A
-  else
-    Result := B;
+  Result := Math.Min(A, B);
 end;
 
 class function TStd.Min(const A, B: Double): Double;
 begin
-  if A < B then
-    Result := A
-  else
-    Result := B;
+  Result := Math.Min(A, B);
+end;
+
+class function TStd.Max(const A, B: Integer): Integer;
+begin
+  Result := Math.Max(A, B);
+end;
+
+class function TStd.Max(const A, B: Double): Double;
+begin
+  Result := Math.Max(A, B);
+end;
+
+class function TStd.Max(const A, B: Currency): Currency;
+begin
+  Result := Math.Max(A, B);
 end;
 
 class function TStd.Min(const A, B: Currency): Currency;
 begin
-  if A < B then
-    Result := A
-  else
-    Result := B;
+  Result := Math.Min(A, B);
 end;
 
 class function TStd.RemoveTrailingChars(const AStr: string;
@@ -284,6 +329,36 @@ begin
   SetLength(Result, Length(S));
   for LFor := 1 to Length(S) do
     Result[LFor - 1] := S[LFor];
+end;
+
+class function TStd.Sum(const Data: array of Single): Single;
+begin
+  Result := Math.Sum(Data);
+end;
+
+class function TStd.Sum(const Data: array of Double): Double;
+begin
+  Result := Math.Sum(Data);
+end;
+
+class function TStd.Sum(const Data: array of Extended): Extended;
+begin
+  Result := Math.Sum(Data);
+end;
+
+class function TStd.Total(const Data: array of Single): Single;
+begin
+  Result := Math.TotalVariance(Data);
+end;
+
+class function TStd.Total(const Data: array of Double): Double;
+begin
+  Result := Math.TotalVariance(Data);
+end;
+
+class function TStd.Total(const Data: array of Extended): Extended;
+begin
+  Result := Math.TotalVariance(Data);
 end;
 
 class function TStd.JoinStrings(const AStrings: TArrayString;
@@ -580,6 +655,11 @@ begin
   until ASize = 0;
 end;
 
+class function TStd.Hash(const AValue: MarshaledAString): Cardinal;
+begin
+  Result := SysUtils.HashName(AValue);
+end;
+
 { TPointerStream }
 
 constructor TPointerStream.Create(P: Pointer; ASize: Integer);
@@ -610,7 +690,55 @@ begin
   Result := 0;
 end;
 
+{ TArrayHelper }
+
+class function TArrayHelper.Copy<T>(const AValues: array of T): TArray<T>;
+var
+  LFor: Integer;
+begin
+  SetLength(Result, Length(AValues));
+  for LFor := Low(AValues) to High(AValues) do
+    Result[LFor] := AValues[LFor];
+end;
+
+{ TFuture }
+
+function TFuture.Err: string;
+begin
+  Result := FErr;
+end;
+
+function TFuture.IsErr: Boolean;
+begin
+  Result := FIsErr;
+end;
+
+function TFuture.IsOk: Boolean;
+begin
+  Result := FIsOK;
+end;
+
+function TFuture.Ok<T>: T;
+begin
+  Result := FValue.AsType<T>;
+end;
+
+procedure TFuture.SetErr(const AErr: string);
+begin
+  FErr := AErr;
+  FIsErr := true;
+  FIsOK := false;
+end;
+
+procedure TFuture.SetOk(const AValue: TValue);
+begin
+  FValue := AValue;
+  FIsOK := true;
+  FIsErr := false;
+end;
+
 initialization
   TStd.FormatSettings := TFormatSettings.Create('en_US');
 
 end.
+

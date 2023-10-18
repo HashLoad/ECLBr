@@ -9,7 +9,7 @@ uses
   Generics.Collections,
   eclbr.match,
   eclbr.tuple,
-  eclbr.core,
+  eclbr.std,
   eclbr.arrow.fun,
   eclbr.result.pair,
   DUnitX.TestFramework;

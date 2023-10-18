@@ -34,11 +34,11 @@ uses
   Generics.Defaults,
   Generics.Collections,
   eclbr.map,
-  eclbr.core,
+  eclbr.std,
   eclbr.vector;
 
 type
-  Tuple = eclbr.core.Tuple;
+  Tuple = eclbr.std.Tuple;
 
   TPairList<L, R> = record
     Left: L;
@@ -346,9 +346,6 @@ type
   end;
 
 implementation
-
-uses
-  eclbr.std;
 
 { TListHelper<T> }
 

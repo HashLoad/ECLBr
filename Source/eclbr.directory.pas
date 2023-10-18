@@ -43,7 +43,7 @@ type
   TPathPrefixType = IOUtils.TPathPrefixType;
 
   TDirEx = record
-  private
+  strict private
     class var FDirectory: string;
   public
     class function New(const ADirectory: string): TDirEx; static; inline;

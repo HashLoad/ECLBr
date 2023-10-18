@@ -142,7 +142,7 @@ begin
             .Run;
 
   Assert.IsTrue(LFuture.IsErr);
-  LErr := 'The "Exec" method should not be invoked as a function. Utilize the "Await" method to wait for task completion and access the result, or invoke it as a procedure.';
+  LErr := 'The "Run" method should not be invoked as a function. Utilize the "Await" method to wait for task completion and access the result, or invoke it as a procedure.';
   Assert.AreEqual(LErr, LFuture.Err);
 end;
 

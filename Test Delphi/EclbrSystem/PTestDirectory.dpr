@@ -17,7 +17,7 @@ uses
   UTestEclbr.Directory in 'UTestEclbr.Directory.pas',
   eclbr.directory in '..\..\Source\eclbr.directory.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas',
-  eclbr.core in '..\..\Source\eclbr.core.pas';
+  eclbr.std in '..\..\Source\eclbr.std.pas';
 
 var
   runner : ITestRunner;

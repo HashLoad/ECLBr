@@ -15,7 +15,8 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   UTestEclbr.Threading in 'UTestEclbr.Threading.pas',
-  eclbr.threading in '..\..\Source\eclbr.threading.pas';
+  eclbr.threading in '..\..\Source\eclbr.threading.pas',
+  eclbr.std in '..\..\Source\eclbr.std.pas';
 
 var
   runner : ITestRunner;

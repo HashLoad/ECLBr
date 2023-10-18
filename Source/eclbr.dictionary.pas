@@ -40,7 +40,7 @@ uses
 
 type
   TDictEx<K,V> = class(TDictionary<K,V>)
-  private
+  strict private
     type
       TItemPair = TPair<K, V>;
   public

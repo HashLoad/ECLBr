@@ -33,13 +33,13 @@ uses
   SysUtils,
   TypInfo,
   Generics.Collections,
-  eclbr.core;
+  eclbr.std;
 
 type
   EArrowException = Exception;
 
   TArrow = record
-  private
+  strict private
     class var FValue: TValue;
   public
     class destructor Destroy;
@@ -146,9 +146,9 @@ begin
                         tkClass:
                           TArray<TObject>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<TObject>>;
                         tkEnumeration:
-                          TArray<boolean>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<boolean>>;
+                          TArray<Boolean>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<Boolean>>;
                         tkRecord, tkVariant:
-                          TArray<variant>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<variant>>;
+                          TArray<Variant>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<Variant>>;
                         else
                           raise Exception.Create('The array contains elements of an unsupported type.');
                       end;

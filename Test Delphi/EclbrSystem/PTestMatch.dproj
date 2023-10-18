@@ -124,7 +124,7 @@
         <DCCReference Include="..\..\Source\eclbr.result.pair.pas"/>
         <DCCReference Include="..\..\Source\eclbr.tuple.pas"/>
         <DCCReference Include="..\..\Source\eclbr.arrow.fun.pas"/>
-        <DCCReference Include="..\..\Source\eclbr.core.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.std.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

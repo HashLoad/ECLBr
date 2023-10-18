@@ -114,7 +114,7 @@ begin
     .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
     .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
-    .Default(                function:               TValue begin Result := 'Default'; end)
+    .Default(                function:                TValue begin Result := 'Default'; end)
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);

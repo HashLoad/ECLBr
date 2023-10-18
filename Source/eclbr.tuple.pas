@@ -33,15 +33,14 @@ uses
   SysUtils,
   Generics.Collections,
   Generics.Defaults,
-  eclbr.core;
+  eclbr.std;
 
 type
-  Tuple = eclbr.core.Tuple;
+  Tuple = eclbr.std.Tuple;
 
   TTuple<K> = record
-  private
+  strict private
     FTuplesPair: TArray<TPair<K, TValue>>;
-  private
     /// <summary>
     ///   Creates a new instance of the TTuple class with the specified key-value pairs.
     /// </summary>

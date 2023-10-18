@@ -45,7 +45,7 @@ type
   end;
 
   TObjectEx = class sealed(TInterfacedObject, IObject)
-  private
+  strict private
     FContext: TRttiContext;
   public
     constructor Create;
@@ -62,7 +62,7 @@ type
   end;
 
   TAutoRef<T: class, constructor> = class sealed(TInterfacedObject, IAutoRef<T>)
-  private
+  strict private
     FObjectInternal: T;
   protected
     constructor Create(const ACallbackNew: TFunc<T>); overload;
@@ -194,4 +194,7 @@ begin
 end;
 
 end.
+
+
+
 

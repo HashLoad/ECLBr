@@ -35,31 +35,32 @@ uses
   Variants,
   Generics.Collections,
   Generics.Defaults,
-  eclbr.core,
+  eclbr.std,
   eclbr.regexlib,
   eclbr.result.pair;
 
-const CASE_IF_PROC = 'CaseIf_Proc';
-const CASE_IF_FUNC = 'CaseIf_Func';
-const CASE_EQ_PROC = 'CaseEq_Proc';
-const CASE_EQ_FUNC = 'CaseEq_Func';
-const CASE_GT_PROC = 'CaseGt_Proc';
-const CASE_GT_FUNC = 'CaseGt_Func';
-const CASE_LT_PROC = 'CaseLt_Proc';
-const CASE_LT_FUNC = 'CaseLt_Func';
-const CASE_IN_PROC = 'CaseIn_Proc';
-const CASE_IN_FUNC = 'CaseIn_Func';
-const CASE_IS_PROC = 'CaseIs_Proc';
-const CASE_IS_FUNC = 'CaseIs_Func';
-const DEFAULT_PROC = 'Default_Proc';
-const DEFAULT_FUNC = 'Default_Func';
-const CASE_RANGE_PROC = 'CaseRange_Proc';
-const CASE_RANGE_FUNC = 'CaseRange_Func';
-const TRY_EXCEPT = 'TryExcept';
+const
+  CASE_IF_PROC: string = 'CaseIf_Proc';
+  CASE_IF_FUNC: string = 'CaseIf_Func';
+  CASE_EQ_PROC: string = 'CaseEq_Proc';
+  CASE_EQ_FUNC: string = 'CaseEq_Func';
+  CASE_GT_PROC: string = 'CaseGt_Proc';
+  CASE_GT_FUNC: string = 'CaseGt_Func';
+  CASE_LT_PROC: string = 'CaseLt_Proc';
+  CASE_LT_FUNC: string = 'CaseLt_Func';
+  CASE_IN_PROC: string = 'CaseIn_Proc';
+  CASE_IN_FUNC: string = 'CaseIn_Func';
+  CASE_IS_PROC: string = 'CaseIs_Proc';
+  CASE_IS_FUNC: string = 'CaseIs_Func';
+  DEFAULT_PROC: string = 'Default_Proc';
+  DEFAULT_FUNC: string = 'Default_Func';
+  CASE_RANGE_PROC: string = 'CaseRange_Proc';
+  CASE_RANGE_FUNC: string = 'CaseRange_Func';
+  TRY_EXCEPT: string = 'TryExcept';
 
 type
   PTuple = ^Tuple;
-  Tuple = eclbr.core.Tuple;
+  Tuple = eclbr.std.Tuple;
 
   // Enumeration to represent different states of the match session
   TMatchSession = (sMatch, sGuard, sCase, sDefault, sTryExcept);
@@ -87,8 +88,9 @@ type
   // Class implementing the pattern matching
   TMatch<T> = record
   private
-    // Class variables to store relevant matching information
     FValue: TValue;           // Value to be matched
+  strict private
+    // Class variables to store relevant matching information
     FResult: TValue;          // Result to be matched
     FSession: TMatchSession;  // Current state of the matching session
     FUseGuard: Boolean;       // Indicates if guard is being used
@@ -96,7 +98,7 @@ type
     FGuardCount: Integer;     // Counter for guard
     FRegexCount: Integer;     // Counter for regex
     FCases: TDictionary<string, TCaseGroup>;  // Dictionary of simple cases
-  private
+  strict private
     // Private Guards
     function _MatchingProcCaseIf: Boolean; inline;
     function _MatchingFuncCaseIf: Boolean; inline;
@@ -164,7 +166,7 @@ type
     function _ExecuteFuncCaseRange: Boolean; inline;
     function _ExecuteProcCaseDefault: Boolean; inline;
     function _ExecuteFuncCaseDefault: Boolean; inline;
-    function _ExecuteProcCasesValidation: TResultPair<boolean, string>; inline;
+    function _ExecuteProcCasesValidation: TResultPair<Boolean, string>; inline;
     function _ExecuteFuncCasesValidation<R>: TResultPair<R, string>; inline;
     //
     function _IsEquals<I>(const ALeft: I; ARight: I): Boolean; inline;
@@ -211,8 +213,8 @@ type
     function CaseIf(const ACondition: Boolean): TMatch<T>; overload; inline;
     function CaseIf(const ACondition: Boolean; const AProc: TProc): TMatch<T>; overload; inline;
     function CaseIf(const ACondition: Boolean; const AProc: TProc<T>): TMatch<T>; overload; inline;
-    function CaseIf(const ACondition: Boolean; const AFunc: TFunc<boolean>): TMatch<T>; overload; inline;
-    function CaseIf(const ACondition: Boolean; const AFunc: TFunc<T, boolean>): TMatch<T>; overload; inline;
+    function CaseIf(const ACondition: Boolean; const AFunc: TFunc<Boolean>): TMatch<T>; overload; inline;
+    function CaseIf(const ACondition: Boolean; const AFunc: TFunc<T, Boolean>): TMatch<T>; overload; inline;
 
     {$REGION 'Doc - CaseEq'}
     /// <summary>
@@ -446,7 +448,7 @@ type
     ///   indicating whether the match was successful.
     /// </returns>
     {$ENDREGION}
-    function Execute: TResultPair<boolean, string>; overload; inline;
+    function Execute: TResultPair<Boolean, string>; overload; inline;
     function Execute<R>: TResultPair<R, string>; overload; inline;
   end;
 
@@ -495,7 +497,7 @@ begin
   Result := Self;
   if not (FSession in [sCase, sDefault]) then
     exit;
-  FCases[TRY_EXCEPT].AddOrSetValue(TValue.From<boolean>(true),
+  FCases[TRY_EXCEPT].AddOrSetValue(TValue.From<Boolean>(true),
                                              TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sTryExcept;
 end;
@@ -734,7 +736,7 @@ begin
     exit;
   if ACondition then
   begin
-    FCases[CASE_IF_PROC].AddOrSetValue(TValue.From<boolean>(ACondition),
+    FCases[CASE_IF_PROC].AddOrSetValue(TValue.From<Boolean>(ACondition),
                                                 TValue.From<TProc<T>>(AProc));
     Result.FSession := TMatchSession.sGuard;
   end;
@@ -747,35 +749,35 @@ begin
     exit;
   if ACondition then
   begin
-    FCases[CASE_IF_PROC].AddOrSetValue(TValue.From<boolean>(ACondition),
+    FCases[CASE_IF_PROC].AddOrSetValue(TValue.From<Boolean>(ACondition),
                                                 TValue.From<TProc>(AProc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
 
-function TMatch<T>.CaseIf(const ACondition: Boolean; const AFunc: TFunc<T, boolean>): TMatch<T>;
+function TMatch<T>.CaseIf(const ACondition: Boolean; const AFunc: TFunc<T, Boolean>): TMatch<T>;
 begin
   Result := Self;
   if not (FSession in [sMatch, sGuard]) then
     exit;
   if ACondition then
   begin
-    FCases[CASE_IF_FUNC].AddOrSetValue(TValue.From<boolean>(ACondition),
-                                                TValue.From<TFunc<T, boolean>>(AFunc));
+    FCases[CASE_IF_FUNC].AddOrSetValue(TValue.From<Boolean>(ACondition),
+                                                TValue.From<TFunc<T, Boolean>>(AFunc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
 
 function TMatch<T>.CaseIf(const ACondition: Boolean;
-  const AFunc: TFunc<boolean>): TMatch<T>;
+  const AFunc: TFunc<Boolean>): TMatch<T>;
 begin
   Result := Self;
   if not (FSession in [sMatch, sGuard]) then
     exit;
   if ACondition then
   begin
-    FCases[CASE_IF_FUNC].AddOrSetValue(TValue.From<boolean>(ACondition),
-                                                TValue.From<TFunc<boolean>>(AFunc));
+    FCases[CASE_IF_FUNC].AddOrSetValue(TValue.From<Boolean>(ACondition),
+                                                TValue.From<TFunc<Boolean>>(AFunc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
@@ -861,7 +863,7 @@ begin
   Result := Self;
   if not (FSession in [sCase]) then
     exit;
-  FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<boolean>(true),
+  FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<Boolean>(true),
                                               TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sDefault;
 end;
@@ -871,7 +873,7 @@ begin
   Result := Self;
   if not (FSession in [sCase]) then
     exit;
-  FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<boolean>(true),
+  FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<Boolean>(true),
                                               TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sDefault;
 end;
@@ -881,7 +883,7 @@ begin
   Result := Self;
   if not (FSession in [sCase]) then
     exit;
-  FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<boolean>(true),
+  FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<Boolean>(true),
                                               TValue.From<TProc<TValue>>(AProc));
   Result.FSession := TMatchSession.sDefault;
 end;
@@ -891,7 +893,7 @@ begin
   Result := Self;
   if not (FSession in [sCase]) then
     exit;
-  FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<boolean>(true),
+  FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<Boolean>(true),
                                               TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sDefault;
 end;
@@ -909,18 +911,18 @@ begin
   Result.FSession := TMatchSession.sCase;
 end;
 
-function TMatch<T>.Execute: TResultPair<boolean, string>;
+function TMatch<T>.Execute: TResultPair<Boolean, string>;
 begin
   try
     if not _ExecuteProcSession then
     begin
-      Result := TResultPair<boolean, string>.New.Failure('Use Execute after session [sCase, sDefault, sTryExcept]');
+      Result := TResultPair<Boolean, string>.New.Failure('Use Execute after session [sCase, sDefault, sTryExcept]');
       exit;
     end
     else
     if (not _ExecuteProcGuard) or (not _ExecuteProcRegex) then
     begin
-      Result := TResultPair<boolean, string>.New.Failure('No matching Guard/Regex.');
+      Result := TResultPair<Boolean, string>.New.Failure('No matching Guard/Regex.');
       exit;
     end;
     try
@@ -928,13 +930,13 @@ begin
     except
       on E: Exception do
       begin
-        Result := TResultPair<boolean, string>.New.Failure(E.Message);
+        Result := TResultPair<Boolean, string>.New.Failure(E.Message);
         try
           if (FCases[TRY_EXCEPT].Count > 0) and (_MatchingTryExcept) then
             exit;
         except
           on E: Exception do
-            Result := TResultPair<boolean, string>.New.Failure(Result.ValueFailure + sLineBreak + E.Message);
+            Result := TResultPair<Boolean, string>.New.Failure(Result.ValueFailure + sLineBreak + E.Message);
         end;
       end;
     end;
@@ -977,11 +979,11 @@ begin
   end;
 end;
 
-function TMatch<T>._ExecuteProcCasesValidation: TResultPair<boolean, string>;
+function TMatch<T>._ExecuteProcCasesValidation: TResultPair<Boolean, string>;
 begin
   if (not _ExecuteProcCaseIf) or (not _ExecuteFuncCaseIf) then
   begin
-    Result := TResultPair<boolean, string>.New.Failure('No matching Guard.');
+    Result := TResultPair<Boolean, string>.New.Failure('No matching Guard.');
     exit;
   end
   else
@@ -989,10 +991,10 @@ begin
      (_ExecuteProcCaseIn) or (_ExecuteProcCaseIs) or (_ExecuteProcCaseRange) or
      (_ExecuteProcCaseDefault) then
   begin
-    Result := TResultPair<boolean, string>.New.Success(true);
+    Result := TResultPair<Boolean, string>.New.Success(true);
     exit;
   end;
-  Result := TResultPair<boolean, string>.New.Failure('No matching case found.');
+  Result := TResultPair<Boolean, string>.New.Failure('No matching case found.');
 end;
 
 function TMatch<T>._ExecuteProcSession: Boolean;
@@ -1194,13 +1196,13 @@ end;
 
 function TMatch<T>._ArraysAreEqualInteger(const Arr1, Arr2: TValue): Boolean;
 var
-  LArray1: TArray<integer>;
-  LArray2: TArray<integer>;
+  LArray1: TArray<Integer>;
+  LArray2: TArray<Integer>;
   LFor: Integer;
 begin
   Result := false;
-  LArray1 := Arr1.AsType<TArray<integer>>;
-  LArray2 := Arr2.AsType<TArray<integer>>;
+  LArray1 := Arr1.AsType<TArray<Integer>>;
+  LArray2 := Arr2.AsType<TArray<Integer>>;
   if Length(LArray1) <> Length(LArray2) then
     exit;
   for LFor := Low(LArray1) to High(LArray1) do
@@ -1656,11 +1658,11 @@ end;
 function TMatch<T>._ExecuteFuncMatchingCaseIf(const ProcValue: TValue): Boolean;
 begin
   Result := false;
-  if ProcValue.IsType<TFunc<boolean>> then
-    Result := ProcValue.AsType<TFunc<boolean>>()()
+  if ProcValue.IsType<TFunc<Boolean>> then
+    Result := ProcValue.AsType<TFunc<Boolean>>()()
   else
-  if ProcValue.IsType<TFunc<T, boolean>> then
-    Result := ProcValue.AsType<TFunc<T, boolean>>()(FValue.AsType<T>);
+  if ProcValue.IsType<TFunc<T, Boolean>> then
+    Result := ProcValue.AsType<TFunc<T, Boolean>>()(FValue.AsType<T>);
 end;
 
 procedure TMatch<T>._ExecuteFuncMatchingEq(const FuncValue: TValue);
@@ -1793,7 +1795,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_EQ_FUNC].AddOrSetValue(TValue.From<Tuple>(AValue),
-                                              TValue.From<TFunc<Tuple, TValue>>(AFunc));
+                                     TValue.From<TFunc<Tuple, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -1803,7 +1805,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_EQ_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc<TValue>>(AProc));
+                                     TValue.From<TProc<TValue>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 

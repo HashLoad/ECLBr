@@ -43,7 +43,7 @@ type
   TStreamReaderListenerEvent = procedure(const Line: string) of object;
 
   TStreamReaderEx = class
-  private
+  strict private
     FDataInternal: TStreamReader;
     FDataReader: TStreamReader;
     FDataString: TStringStream;
