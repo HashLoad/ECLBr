@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Discord(https://discord.gg/S5yvvGu7)
+  @Discord(https://discord.gg/T2zJC8zX)
 }
 
 {$T+}

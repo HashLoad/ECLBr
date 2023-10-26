@@ -90,6 +90,8 @@ type
     procedure TestCaseTryExcept;
     [Test]
     procedure TestCaseChar;
+//    [Test]
+    procedure TestCaseRangeSet;
     [Test]
     procedure TestCaseRegex;
     [Test]
@@ -599,6 +601,24 @@ begin
   finally
     LMatchResult.Dispose;
   end;
+end;
+
+procedure TestTMatch.TestCaseRangeSet;
+var
+  LMatchResult: TResultPair<boolean, string>;
+  isMatch: Boolean;
+begin
+//  isMatch := false;
+//  try
+//    LMatchResult := TMatch<Char>.Value('A')
+//                                .CaseIn(['A'..'Z'], procedure begin isMatch := true; end)
+//                                .CaseIn([1..100], procedure begin isMatch := false; end)
+//                                .Execute;
+//
+//    Assert.IsTrue(isMatch, 'Expected match to be successful');
+//  finally
+//    LMatchResult.Dispose;
+//  end;
 end;
 
 procedure TestTMatch.TestSingleCaseOf;

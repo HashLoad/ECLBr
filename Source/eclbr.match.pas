@@ -21,7 +21,7 @@
   @abstract(ECLBr Library)
   @created(23 Abr 2023)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
-  @Discord(https://discord.gg/S5yvvGu7)
+  @Discord(https://discord.gg/T2zJC8zX)
 }
 
 unit eclbr.match;
@@ -61,6 +61,8 @@ const
 type
   PTuple = ^Tuple;
   Tuple = eclbr.std.Tuple;
+  TRangeChar = set of Char;
+  TRangeInteger = set of 0..255;
 
   // Enumeration to represent different states of the match session
   TMatchSession = (sMatch, sGuard, sCase, sDefault, sTryExcept);
@@ -315,6 +317,8 @@ type
     function CaseIn(const ARange: TArray<T>; const AFunc: TFunc<TValue>): TMatch<T>; overload; inline;
     function CaseIn(const ARange: TArray<T>; const AProc: TProc<T>): TMatch<T>; overload; inline;
     function CaseIn(const ARange: TArray<T>; const AFunc: TFunc<T, TValue>): TMatch<T>; overload; inline;
+//    function CaseIn(const ARange: TRangeChar; const AProc: TProc): TMatch<T>; overload; inline;
+//    function CaseIn(const ARange: TRangeInteger; const AProc: TProc): TMatch<T>; overload;
 
     {$REGION 'Doc - CaseIs'}
     /// <summary>
@@ -498,7 +502,7 @@ begin
   if not (FSession in [sCase, sDefault]) then
     exit;
   FCases[TRY_EXCEPT].AddOrSetValue(TValue.From<Boolean>(true),
-                                             TValue.From<TProc>(AProc));
+                                   TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sTryExcept;
 end;
 
@@ -511,7 +515,7 @@ begin
     exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCases[CASE_RANGE_PROC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
-                                                  TValue.From<TProc<T>>(AProc));
+                                        TValue.From<TProc<T>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -523,8 +527,8 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
-  FCases[CASE_RANGE_FUNC].AddOrSetValue(TValue.From<TPair<T , T>>(LRange),
-                                                  TValue.From<TFunc<TValue>>(AFunc));
+  FCases[CASE_RANGE_FUNC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
+                                        TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -537,7 +541,7 @@ begin
     exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCases[CASE_RANGE_FUNC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
-                                                  TValue.From<TFunc<T, TValue>>(AFunc));
+                                        TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -561,10 +565,10 @@ begin
     exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_FUNC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
-                                                TValue.From<TFunc<Typ, TValue>>(AFunc))
+                                       TValue.From<TFunc<Typ, TValue>>(AFunc))
   else
     FCases[CASE_IS_FUNC].AddOrSetValue(TValue.From<TTypeKind>(PTypeInfo(TypeInfo(Typ)).Kind),
-                                                TValue.From<TFunc<Typ, TValue>>(AFunc));
+                                       TValue.From<TFunc<Typ, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -575,10 +579,10 @@ begin
     exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_FUNC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
-                                                TValue.From<TFunc<TValue>>(AFunc))
+                                       TValue.From<TFunc<TValue>>(AFunc))
   else
     FCases[CASE_IS_FUNC].AddOrSetValue(TValue.From<TTypeKind>(PTypeInfo(TypeInfo(Typ)).Kind),
-                                                TValue.From<TFunc<TValue>>(AFunc));
+                                       TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -589,10 +593,10 @@ begin
     exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
-                                                TValue.From<TProc<Typ>>(AProc))
+                                       TValue.From<TProc<Typ>>(AProc))
   else
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(PTypeInfo(TypeInfo(Typ)).Kind),
-                                                TValue.From<TProc<Typ>>(AProc));
+                                       TValue.From<TProc<Typ>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -602,7 +606,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_LT_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc>(AProc));
+                                     TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -612,7 +616,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_LT_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc<T>>(AProc));
+                                     TValue.From<TProc<T>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -622,7 +626,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_LT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TFunc<TValue>>(AFunc));
+                                     TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -632,7 +636,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_LT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TFunc<T, TValue>>(AFunc));
+                                     TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -644,8 +648,8 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
-  FCases[CASE_RANGE_PROC].AddOrSetValue(TValue.From<TPair<T , T>>(LRange),
-                                                 TValue.From<TProc>(AProc));
+  FCases[CASE_RANGE_PROC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
+                                        TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -655,7 +659,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_EQ_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc>(AProc));
+                                     TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -665,7 +669,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_EQ_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc<T>>(AProc));
+                                     TValue.From<TProc<T>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -675,7 +679,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_EQ_FUNC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TFunc<TValue>>(AFunc));
+                                     TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -685,7 +689,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_EQ_FUNC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TFunc<T, TValue>>(AFunc));
+                                     TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -695,7 +699,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_GT_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc>(AProc));
+                                     TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -705,7 +709,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_GT_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc<T>>(AProc));
+                                     TValue.From<TProc<T>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -715,7 +719,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_GT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TFunc<TValue>>(AFunc));
+                                     TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -725,7 +729,7 @@ begin
   if not (FSession in [sMatch, sGuard, sCase]) then
     exit;
   FCases[CASE_GT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TFunc<T, TValue>>(AFunc));
+                                     TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -737,7 +741,7 @@ begin
   if ACondition then
   begin
     FCases[CASE_IF_PROC].AddOrSetValue(TValue.From<Boolean>(ACondition),
-                                                TValue.From<TProc<T>>(AProc));
+                                       TValue.From<TProc<T>>(AProc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
@@ -750,7 +754,7 @@ begin
   if ACondition then
   begin
     FCases[CASE_IF_PROC].AddOrSetValue(TValue.From<Boolean>(ACondition),
-                                                TValue.From<TProc>(AProc));
+                                       TValue.From<TProc>(AProc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
@@ -763,7 +767,7 @@ begin
   if ACondition then
   begin
     FCases[CASE_IF_FUNC].AddOrSetValue(TValue.From<Boolean>(ACondition),
-                                                TValue.From<TFunc<T, Boolean>>(AFunc));
+                                       TValue.From<TFunc<T, Boolean>>(AFunc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
@@ -777,7 +781,7 @@ begin
   if ACondition then
   begin
     FCases[CASE_IF_FUNC].AddOrSetValue(TValue.From<Boolean>(ACondition),
-                                                TValue.From<TFunc<Boolean>>(AFunc));
+                                       TValue.From<TFunc<Boolean>>(AFunc));
     Result.FSession := TMatchSession.sGuard;
   end;
 end;
@@ -791,7 +795,7 @@ begin
     exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
-                                                TValue.From<TProc<T>>(AProc));
+                                       TValue.From<TProc<T>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -804,7 +808,7 @@ begin
     exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_FUNC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
-                                                TValue.From<TFunc<TValue>>(AFunc));
+                                       TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -817,7 +821,7 @@ begin
     exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_FUNC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
-                                                TValue.From<TFunc<T, TValue>>(AFunc));
+                                       TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -830,7 +834,7 @@ begin
     exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
-                                                TValue.From<TProc<TValue>>(AProc));
+                                       TValue.From<TProc<TValue>>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -841,10 +845,10 @@ begin
     exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
-                                                TValue.From<TProc>(AProc))
+                                       TValue.From<TProc>(AProc))
   else
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(PTypeInfo(TypeInfo(Typ)).Kind),
-                                                TValue.From<TProc>(AProc));
+                                       TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -854,7 +858,7 @@ begin
   if not (FSession in [sCase]) then
     exit;
   FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<T>(AValue),
-                                              TValue.From<TProc<T>>(AProc));
+                                     TValue.From<TProc<T>>(AProc));
   Result.FSession := TMatchSession.sDefault;
 end;
 
@@ -864,7 +868,7 @@ begin
   if not (FSession in [sCase]) then
     exit;
   FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<Boolean>(true),
-                                              TValue.From<TFunc<TValue>>(AFunc));
+                                     TValue.From<TFunc<TValue>>(AFunc));
   Result.FSession := TMatchSession.sDefault;
 end;
 
@@ -874,7 +878,7 @@ begin
   if not (FSession in [sCase]) then
     exit;
   FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<Boolean>(true),
-                                              TValue.From<TFunc<T, TValue>>(AFunc));
+                                     TValue.From<TFunc<T, TValue>>(AFunc));
   Result.FSession := TMatchSession.sDefault;
 end;
 
@@ -884,7 +888,7 @@ begin
   if not (FSession in [sCase]) then
     exit;
   FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<Boolean>(true),
-                                              TValue.From<TProc<TValue>>(AProc));
+                                     TValue.From<TProc<TValue>>(AProc));
   Result.FSession := TMatchSession.sDefault;
 end;
 
@@ -894,7 +898,7 @@ begin
   if not (FSession in [sCase]) then
     exit;
   FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<Boolean>(true),
-                                              TValue.From<TProc>(AProc));
+                                     TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sDefault;
 end;
 
@@ -907,7 +911,7 @@ begin
     exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
-                                                TValue.From<TProc>(AProc));
+                                       TValue.From<TProc>(AProc));
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -1815,5 +1819,27 @@ class function TMatch.Value<T>: T;
 begin
   Result := FMatch.AsType<TMatch<T>>.FValue.AsType<T>;
 end;
+
+//function TMatch<T>.CaseIn(const ARange: TRangeChar;
+//  const AProc: TProc): TMatch<T>;
+//begin
+//  Result := Self;
+//  if not (FSession in [sMatch, sGuard, sCase]) then
+//    exit;
+//  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TRangeChar>(ARange),
+//                                     TValue.From<TProc>(AProc));
+//  Result.FSession := TMatchSession.sCase;
+//end;
+
+//function TMatch<T>.CaseIn(const ARange: TRangeInteger;
+//  const AProc: TProc): TMatch<T>;
+//begin
+//  Result := Self;
+//  if not (FSession in [sMatch, sGuard, sCase]) then
+//    exit;
+//  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TRangeInteger>(ARange),
+//                                     TValue.From<TProc>(AProc));
+//  Result.FSession := TMatchSession.sCase;
+//end;
 
 end.
