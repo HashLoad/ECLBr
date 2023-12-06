@@ -821,7 +821,7 @@ end;
 
 function TMap<K, V>._Hash(const Key: K): Integer;
 const
-  POSITIVEMASK = not integer($80000000);
+  POSITIVEMASK = not Integer($80000000);
 begin
   Result := POSITIVEMASK and ((POSITIVEMASK and TEqualityComparer<K>.Default.GetHashCode(Key)) + 1);
 end;

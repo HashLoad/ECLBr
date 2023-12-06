@@ -1352,10 +1352,13 @@ begin
 end;
 
 function TVector<T>.TVectorEnumerator.MoveNext: Boolean;
+var
+  LComparer: IEqualityComparer<T>;
 begin
+  LComparer := TEqualityComparer<T>.Default;
   repeat
     Inc(FIndex);
-  until (FIndex >= System.Length(FItems^)) or not TEqualityComparer<T>.Default.Equals(FItems^[FIndex], Default(T));
+  until (FIndex >= System.Length(FItems^)) or not LComparer.Equals(FItems^[FIndex], Default(T));
   Result := FIndex < System.Length(FItems^);
 end;
 

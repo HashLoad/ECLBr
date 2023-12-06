@@ -1,4 +1,4 @@
-program PTestStd;
+program PTestStr;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -14,10 +14,9 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  UTestEclbr.Std in 'UTestEclbr.Std.pas',
-  eclbr.std in '..\..\Source\eclbr.std.pas',
-  eclbr.objects in '..\..\Source\eclbr.objects.pas',
+  UTestEclbr.Str in 'UTestEclbr.Str.pas',
   eclbr.str in '..\..\Source\eclbr.str.pas',
+  eclbr.std in '..\..\Source\eclbr.std.pas',
   eclbr.vector in '..\..\Source\eclbr.vector.pas';
 
 var

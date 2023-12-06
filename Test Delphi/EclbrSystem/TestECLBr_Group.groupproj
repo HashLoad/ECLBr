@@ -39,6 +39,9 @@
         <Projects Include="PTestStd.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="PTestStr.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -155,14 +158,23 @@
     <Target Name="PTestStd:Make">
         <MSBuild Projects="PTestStd.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PTestStr">
+        <MSBuild Projects="PTestStr.dproj"/>
+    </Target>
+    <Target Name="PTestStr:Clean">
+        <MSBuild Projects="PTestStr.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestStr:Make">
+        <MSBuild Projects="PTestStr.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestDictionary;PTestMatch;PTestTuple;PTestResultPair;PTestVector;PTestMap;PTestList;PTestStream;PTestDirectory;PTestObjects;PTestThreading;PTestStd"/>
+        <CallTarget Targets="PTestDictionary;PTestMatch;PTestTuple;PTestResultPair;PTestVector;PTestMap;PTestList;PTestStream;PTestDirectory;PTestObjects;PTestThreading;PTestStd;PTestStr"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestDictionary:Clean;PTestMatch:Clean;PTestTuple:Clean;PTestResultPair:Clean;PTestVector:Clean;PTestMap:Clean;PTestList:Clean;PTestStream:Clean;PTestDirectory:Clean;PTestObjects:Clean;PTestThreading:Clean;PTestStd:Clean"/>
+        <CallTarget Targets="PTestDictionary:Clean;PTestMatch:Clean;PTestTuple:Clean;PTestResultPair:Clean;PTestVector:Clean;PTestMap:Clean;PTestList:Clean;PTestStream:Clean;PTestDirectory:Clean;PTestObjects:Clean;PTestThreading:Clean;PTestStd:Clean;PTestStr:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestDictionary:Make;PTestMatch:Make;PTestTuple:Make;PTestResultPair:Make;PTestVector:Make;PTestMap:Make;PTestList:Make;PTestStream:Make;PTestDirectory:Make;PTestObjects:Make;PTestThreading:Make;PTestStd:Make"/>
+        <CallTarget Targets="PTestDictionary:Make;PTestMatch:Make;PTestTuple:Make;PTestResultPair:Make;PTestVector:Make;PTestMap:Make;PTestList:Make;PTestStream:Make;PTestDirectory:Make;PTestObjects:Make;PTestThreading:Make;PTestStd:Make;PTestStr:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

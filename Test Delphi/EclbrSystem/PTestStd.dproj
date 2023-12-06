@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{2E20266A-08AE-4515-B6A0-1F28C71087E1}</ProjectGuid>
+        <ProjectGuid>{08144F02-EF34-4AAB-B673-D46FF1A075DE}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
@@ -102,6 +102,8 @@
         <DCCReference Include="UTestEclbr.Std.pas"/>
         <DCCReference Include="..\..\Source\eclbr.std.pas"/>
         <DCCReference Include="..\..\Source\eclbr.objects.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.str.pas"/>
+        <DCCReference Include="..\..\Source\eclbr.vector.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
