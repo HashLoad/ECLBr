@@ -55,15 +55,17 @@ type
       const AArgs: TArray<TValue> = []; const AMethodName: string = 'Create'): TObject;
   end;
 
+  // [Deprecated('use AutoRef<T>')]
   IAutoRef<T: class, constructor> = interface
     ['{F1196B06-4C61-4512-B06D-1691199A073C}']
     function Get: T;
     procedure Release;
   end;
 
+  // [Deprecated('use AutoRef<T>')]
   TAutoRef<T: class, constructor> = class sealed(TInterfacedObject, IAutoRef<T>)
   strict private
-    FObjectInternal: T;
+    FObject: T;
   protected
     constructor Create(const ACallbackNew: TFunc<T>); overload;
     constructor Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
@@ -82,6 +84,34 @@ type
     procedure Release;
   end;
 
+  ISmartPtr<T: class, constructor> = interface
+    ['{17C30A2D-74C9-48B2-917D-6C5DC99D2B78}']
+    function IsNull: boolean;
+  end;
+
+  AutoRef<T: class, constructor> = record
+  strict private
+    FValue: T;
+    FSmartPtr: ISmartPtr<T>;
+    function GetValue: T;
+  strict private
+    type
+      TSmartPtr = class (TInterfacedObject, ISmartPtr<T>)
+      private
+        FObject: TObject;
+      public
+        constructor Create(const AObjectRef: TObject);
+        destructor Destroy; override;
+        function IsNull: boolean;
+      end;
+  public
+    constructor Create(const AObjectRef: T);
+    class operator Implicit(const AObjectRef: T): AutoRef<T>;
+    class operator Implicit(const AAutoRef: AutoRef<T>): T;
+    property Value: T read GetValue;
+    function IsNull: Boolean;
+  end;
+
 implementation
 
 { TAutoRef<T> }
@@ -89,22 +119,22 @@ implementation
 constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
   const AArgs: TArray<TValue>);
 begin
-  FObjectInternal := ACallbackNew(AArgs);
+  FObject := ACallbackNew(AArgs);
 end;
 
 constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<T>);
 begin
-  FObjectInternal := ACallbackNew();
+  FObject := ACallbackNew();
 end;
 
 constructor TAutoRef<T>.Create;
 begin
-  FObjectInternal := T.Create;
+  FObject := T.Create;
 end;
 
 constructor TAutoRef<T>.Create(const AObject: T);
 begin
-  FObjectInternal := AObject;
+  FObject := AObject;
 end;
 
 destructor TAutoRef<T>.Destroy;
@@ -127,9 +157,10 @@ end;
 function TAutoRef<T>.Get: T;
 begin
   // LazyLoad
-  if FObjectInternal = nil then
-    FObjectInternal := T.Create;
-  Result := FObjectInternal;
+  if FObject = nil then
+    FObject := T.Create;
+
+  Result := FObject;
 end;
 
 class function TAutoRef<T>.LazyLoad: IAutoRef<T>;
@@ -144,11 +175,11 @@ end;
 
 procedure TAutoRef<T>.Release;
 begin
-  if Assigned(FObjectInternal) then
-  begin
-    FObjectInternal.Free;
-    FObjectInternal := nil;
-  end;
+  if FObject = nil then
+    Exit;
+
+  FObject.Free;
+  FObject := nil;
 end;
 
 class function TAutoRef<T>.New: IAutoRef<T>;
@@ -156,7 +187,7 @@ begin
   Result := TAutoRef<T>.Create;
 end;
 
-{ TObject<T> }
+{ TObjectEx<T> }
 
 constructor TObjectEx.Create;
 begin
@@ -193,6 +224,57 @@ begin
   Result := Self.Create;
 end;
 
+{ TSmartPtr }
+
+constructor AutoRef<T>.TSmartPtr.Create(const AObjectRef: TObject);
+begin
+  FObject := AObjectRef;
+end;
+
+destructor AutoRef<T>.TSmartPtr.Destroy;
+begin
+  FObject.Free;
+  inherited;
+end;
+
+function AutoRef<T>.TSmartPtr.IsNull: boolean;
+begin
+  Result := FObject = nil;
+end;
+
+{ AutoRef<T> }
+
+constructor AutoRef<T>.Create(const AObjectRef: T);
+begin
+  FValue := AObjectRef;
+  FSmartPtr := TSmartPtr.Create(AObjectRef);
+end;
+
+function AutoRef<T>.GetValue: T;
+begin
+  if FSmartPtr = nil then
+    Self := AutoRef<T>.Create(T.Create);
+
+  Result := Self.FValue;
+end;
+
+class operator AutoRef<T>.Implicit(const AAutoRef: AutoRef<T>): T;
+begin
+  Result := AAutoRef.Value;
+end;
+
+function AutoRef<T>.IsNull: Boolean;
+begin
+  Result := True;
+  if FSmartPtr = nil then
+    Exit;
+
+  Result := FSmartPtr.IsNull;
+end;
+
+class operator AutoRef<T>.Implicit(const AObjectRef: T): AutoRef<T>;
+begin
+  Result := AutoRef<T>.Create(AObjectRef);
+end;
+
 end.
-
-

@@ -7,8 +7,7 @@ uses
   SysUtils,
   DateUtils,
   Classes,
-  Generics.Collections,
-  eclbr.str;
+  Generics.Collections;
 
 type
   [TestFixture]
@@ -21,6 +20,9 @@ type
   end;
 
 implementation
+
+uses
+  eclbr.str;
 
 procedure TTesTStd.Setup;
 begin

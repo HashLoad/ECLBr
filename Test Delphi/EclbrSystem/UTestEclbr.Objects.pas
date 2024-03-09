@@ -27,9 +27,14 @@ type
     procedure TestAutoRef_New;
     [Test]
     procedure TestAutoRef_LazyLoad;
+    [Test]
+    procedure TestAutoRefRecord;
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 procedure TTestObectLib.Setup;
 begin
@@ -69,6 +74,21 @@ begin
 
   Assert.IsNotNull(LOption.Get);
   Assert.AreEqual('Hello word', LOption.Get.GetMessage);
+end;
+
+procedure TTestObectLib.TestAutoRefRecord;
+var
+  LObject1: AutoRef<TMyClass>;
+  LObject2: AutoRef<TStringBuilder>;
+begin
+  LObject1 := TMyClass.Create;
+  LObject2 := TStringBuilder.Create;
+
+  Assert.IsFalse(LObject1.IsNull);
+  Assert.IsFalse(LObject2.IsNull);
+
+  Assert.IsNotNull(LObject1.Value);
+  Assert.IsNotNull(LObject2.Value);
 end;
 
 { TMyClass }

@@ -47,8 +47,8 @@ type
     function All(const APredicate: TFunc<Char, Boolean>): Boolean;
     function Any(const APredicate: TFunc<Char, Boolean>): Boolean;
     function Sort: string;
+//    function Split(const ASeparator: array of Char): TVector<string>;
     procedure Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: string);
-    function Split(const ASeparator: array of Char): TVector<string>;
   end;
 
 implementation
@@ -64,7 +64,8 @@ var
   LValue: String;
 begin
   if not Assigned(APredicate) then
-    raise Exception.Create('Error Message');
+    raise Exception.Create('Invalid predicate function in TStringEx.Filter');
+
   LValue := EmptyStr;
   for LChar in Self do
   begin
@@ -108,7 +109,8 @@ var
   LValue: String;
 begin
   if not Assigned(ATransform) then
-    raise Exception.Create('Error Message');
+    raise Exception.Create('Invalid transform function in TStringEx.Map');
+
   LValue := EmptyStr;
   for LChar in Self do
   begin
@@ -131,6 +133,9 @@ function TStringEx.Reduce<T>(const AInitialValue: T; const AAccumulator: TFunc<T
 var
   LChar: Char;
 begin
+  if not Assigned(AAccumulator) then
+    raise Exception.Create('Invalid accumulator function in TStringEx.Reduce<T>');
+
   Result := AInitialValue;
   for LChar in Self do
     Result := AAccumulator(Result, LChar);
@@ -140,6 +145,9 @@ function TStringEx.Exists(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
   LChar: Char;
 begin
+  if not Assigned(APredicate) then
+    raise Exception.Create('Invalid predicate function in TStringEx.Exists');
+
   for LChar in Self do
     if APredicate(LChar) then
       Exit(True);
@@ -151,6 +159,9 @@ function TStringEx.All(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
   LChar: Char;
 begin
+  if not Assigned(APredicate) then
+    raise Exception.Create('Invalid predicate function in TStringEx.All');
+
   for LChar in Self do
     if not APredicate(LChar) then
       Exit(False);
@@ -162,6 +173,9 @@ function TStringEx.Any(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
   LChar: Char;
 begin
+  if not Assigned(APredicate) then
+    raise Exception.Create('Invalid predicate function in TStringEx.Any');
+
   for LChar in Self do
     if APredicate(LChar) then
       Exit(True);
@@ -186,21 +200,24 @@ begin
     Result := Result + LChar;
 end;
 
-function TStringEx.Split(const ASeparator: array of Char): TVector<string>;
-var
-  LItem: string;
-  LArray: TArray<string>;
-begin
-  Result := TVector<string>.Create([]);
-  LArray := TStd.Split(Self);
-  for LItem in LArray do
-    Result.Add(LItem);
-end;
+//function TStringEx.Split(const ASeparator: array of Char): TVector<string>;
+//var
+//  LItem: string;
+//  LArray: TArray<string>;
+//begin
+//  Result := TVector<string>.Create([]);
+//  LArray := TStd.Split(Self);
+//  for LItem in LArray do
+//    Result.Add(LItem);
+//end;
 
 procedure TStringEx.Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: string);
 var
   LIndex: Integer;
 begin
+  if not Assigned(APredicate) then
+    raise Exception.Create('Invalid predicate function in TStringEx.Partition');
+
   LIndex := 1;
   while (LIndex <= Length(Self)) and APredicate(Self[LIndex]) do
     Inc(LIndex);
