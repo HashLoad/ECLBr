@@ -145,7 +145,7 @@ begin
       function(Key: Integer): Integer
       begin
         // Use uma chave seletora que retorna o resto da divisão por 2 (par ou ímpar)
-        Result := Key mod 2;
+        Result := Key mod 2;   // 0 ou 1
       end
     );
 

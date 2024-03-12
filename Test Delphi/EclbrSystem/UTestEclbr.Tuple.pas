@@ -75,14 +75,11 @@ end;
 procedure TestTuple.TestIntDoubleTuplaNew;
 var
   LTuplaIntDouble: TTuple<Integer>;
-  LValueDouble: Double;
 begin
   LTuplaIntDouble := TTuple<Integer>.New([1, 2, 3], [1.1, 2.2, True]);
 
   Assert.IsTrue(LTuplaIntDouble.Get<Double>(2) > 0);
-
-  LValueDouble := LTuplaIntDouble.Get<Double>(2);
-  Assert.AreEqual(2.2, LValueDouble, 0.01);
+  Assert.AreEqual(2.2, LTuplaIntDouble[2].AsExtended, 0.01);
 end;
 
 procedure TestTuple.TestMatchTupla;
@@ -99,6 +96,8 @@ begin
     .Execute<string>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
+    Assert.AreEqual(LTuple[0].AsString, 'Idade');
+    Assert.AreEqual(LTuple[1].AsInteger, 25);
   finally
     LResult.Dispose;
   end;
@@ -126,14 +125,11 @@ end;
 procedure TestTuple.TestStrIntTuplaNew;
 var
   LTuplaStrInt: TTuple<string>;
-  LValueInt: Integer;
 begin
   LTuplaStrInt := TTuple<string>.New(['A', 'B', 'C'], ['1', 2.3, 3]);
 
-  Assert.IsTrue(LTuplaStrInt.Get<Double>('B') > 0);
-
-  LValueInt := LTuplaStrInt.Get<Integer>('C');
-  Assert.AreEqual(3, LValueInt);
+  Assert.IsTrue(LTuplaStrInt['B'].AsExtended > 0);
+  Assert.AreEqual(3, LTuplaStrInt['C'].AsInteger);
 end;
 
 initialization

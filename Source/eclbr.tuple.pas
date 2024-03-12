@@ -48,6 +48,8 @@ type
     ///   An array of TPair instances representing the key-value pairs to be included in the tuple.
     /// </param>
     constructor Create(const ATuples: TArray<TPair<K, TValue>>);
+  private
+    function GetItem(const AKey: K): TValue;
   public
     class operator Implicit(const P: TTuple<K>): TArray<TPair<K, TValue>>; inline;
     class operator Implicit(const P: TArray<TPair<K, TValue>>): TTuple<K>; inline;
@@ -97,6 +99,8 @@ type
     ///   An integer value representing the number of elements in the collection.
     /// </returns>
     function Count: Integer; inline;
+
+    property Items[const Key: K]: TValue read GetItem; default;
   end;
 
   PTuple = ^TTuple;
@@ -104,6 +108,7 @@ type
   private
     FTuples: TArray<TValue>;
   private
+    function GetItem(const AIndex: Integer): TValue;
     /// <summary>
     ///   Constructs an instance of TTuple with the values provided in ATuples.
     /// </summary>
@@ -143,6 +148,8 @@ type
     ///   The number of elements in the tuple.
     /// </returns>
     function Count: Integer; inline;
+
+    property Items[const Key: Integer]: TValue read GetItem; default;
   end;
 
 implementation
@@ -195,6 +202,22 @@ begin
     exit;
   end;
   raise Exception.Create('Key not found');
+end;
+
+function TTuple<K>.GetItem(const AKey: K): TValue;
+var
+  LComp: IEqualityComparer<K>;
+  LPair: TPair<K, TValue>;
+begin
+  LComp := TEqualityComparer<K>.Default;
+  Result := Default(TValue);
+  for LPair in FTuplesPair do
+  begin
+    if not LComp.Equals(LPair.Key, AKey) then
+      Continue;
+    Result := LPair.Value;
+    Break;
+  end;
 end;
 
 class operator TTuple<K>.Implicit(const P: TArray<TPair<K, TValue>>): TTuple<K>;
@@ -258,6 +281,11 @@ end;
 function TTuple.Get<T>(const AIndex: Integer): T;
 begin
   Result := FTuples[AIndex].AsType<T>;
+end;
+
+function TTuple.GetItem(const AIndex: Integer): TValue;
+begin
+  Result := FTuples[AIndex];
 end;
 
 class operator TTuple.Implicit(const P: TTuple): TArray<TValue>;

@@ -604,9 +604,9 @@ begin
 end;
 
 procedure TestTMatch.TestCaseRangeSet;
-var
-  LMatchResult: TResultPair<boolean, string>;
-  isMatch: Boolean;
+//var
+//  LMatchResult: TResultPair<boolean, string>;
+//  isMatch: Boolean;
 begin
 //  isMatch := false;
 //  try

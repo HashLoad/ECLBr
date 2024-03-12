@@ -53,6 +53,18 @@ type
     procedure TestMinCurrency;
     [Test]
     procedure TestSplit;
+    [Test]
+    procedure TestArrayReduce;
+    [Test]
+    procedure TestArrayMap;
+    [Test]
+    procedure TestArrayFilter;
+    [Test]
+    procedure TestForEach;
+    [Test]
+    procedure TestAny;
+    [Test]
+    procedure TestAll;
   end;
 
 implementation
@@ -65,6 +77,38 @@ end;
 procedure TTesTStd.TearDown;
 begin
 
+end;
+
+procedure TTesTStd.TestAll;
+begin
+  // Act & Assert
+  Assert.IsTrue(TArray.All<Integer>([1, 2, 3, 4, 5],
+    function(AValue: Integer): Boolean
+    begin
+      Result := AValue < 6;
+    end));
+
+  Assert.IsFalse(TArray.All<Integer>([1, 2, 3, 4, 5],
+    function(AValue: Integer): Boolean
+    begin
+      Result := AValue < 4;
+    end));
+end;
+
+procedure TTesTStd.TestAny;
+begin
+  // Act & Assert
+  Assert.IsTrue(TArray.Any<Integer>([1, 2, 3, 4, 5],
+    function(AValue: Integer): Boolean
+    begin
+      Result := AValue > 3;
+    end));
+
+  Assert.IsFalse(TArray.Any<Integer>([1, 2, 3, 4, 5],
+    function(AValue: Integer): Boolean
+    begin
+      Result := AValue > 5;
+    end));
 end;
 
 procedure TTesTStd.TestArrayCopy_StringArrays;
@@ -86,6 +130,39 @@ begin
   Assert.AreEqual(Length(LExpectedArray), Length(LCopiedArray));
   for LIndex := Low(LExpectedArray) to High(LExpectedArray) do
     Assert.AreEqual(LExpectedArray[LIndex], LCopiedArray[LIndex]);
+end;
+
+procedure TTesTStd.TestArrayFilter;
+var
+  LEvenNumbers: TArray<Integer>;
+begin
+  LEvenNumbers := TArray.Filter<Integer>([1, 2, 3, 4, 5],
+    function(AValue: Integer): Boolean
+    begin
+      Result := AValue mod 2 = 0;
+    end);
+
+  // Assert
+  Assert.AreEqual<Integer>(2, Length(LEvenNumbers));
+  Assert.AreEqual(2, LEvenNumbers[0]);
+  Assert.AreEqual(4, LEvenNumbers[1]);
+end;
+
+procedure TTesTStd.TestArrayMap;
+var
+  LDoubledArray: TArray<Integer>;
+begin
+  LDoubledArray := TArray.Map<Integer, Integer>([1, 2, 3, 4, 5],
+    function(AValue: Integer): Integer
+    begin
+      Result := AValue * 2;
+    end);
+    // Assert
+  Assert.AreEqual<Integer>(2, LDoubledArray[0]);
+  Assert.AreEqual<Integer>(4, LDoubledArray[1]);
+  Assert.AreEqual<Integer>(6, LDoubledArray[2]);
+  Assert.AreEqual<Integer>(8, LDoubledArray[3]);
+  Assert.AreEqual<Integer>(10, LDoubledArray[4]);
 end;
 
 procedure TTesTStd.TestArrayMerge_IntegerArrays;
@@ -133,6 +210,18 @@ begin
   Assert.AreEqual(Length(LExpectedArray), Length(LMergedArray));
   for LFor := Low(LExpectedArray) to High(LExpectedArray) do
     Assert.AreEqual(LExpectedArray[LFor], LMergedArray[LFor]);
+end;
+
+procedure TTesTStd.TestArrayReduce;
+var
+  LSum: Integer;
+begin
+  LSum := TArray.Reduce<Integer>([1, 2, 3, 4, 5],
+    function(accumulated, current: Integer): Integer
+    begin
+      Result := accumulated + current;
+    end);
+  Assert.AreEqual(15, LSum);
 end;
 
 procedure TTesTStd.TestAsList_IntegerArray;
@@ -257,6 +346,24 @@ begin
   // Verifique se o ResultString corresponde à string codificada esperada
   // Ajuste a string esperada conforme necessário
   Assert.AreEqual('SGVsbG8sIFdvcmxkIQ==', LResultString);
+end;
+
+procedure TTesTStd.TestForEach;
+var
+  LSum: Integer;
+begin
+  // Arrange
+  LSum := 0;
+
+  // Act
+  TArray.ForEach<Integer>([1, 2, 3, 4, 5],
+    procedure(AValue: Integer)
+    begin
+      LSum := LSum + AValue;
+    end);
+
+  // Assert
+  Assert.AreEqual<Integer>(15, LSum);
 end;
 
 procedure TTesTStd.TestIso8601ToDateTime;

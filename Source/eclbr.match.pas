@@ -61,7 +61,7 @@ const
 type
   PTuple = ^Tuple;
   Tuple = eclbr.std.Tuple;
-  TRangeChar = set of Char;
+//  TRangeChar = set of Char;
   TRangeInteger = set of 0..255;
 
   // Enumeration to represent different states of the match session

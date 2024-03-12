@@ -59,7 +59,13 @@ type
 
   TArrayHelper = class helper for TArray
   public
+    class procedure ForEach<T>(const AValues: array of T; AAction: TProc<T>); static;
     class function Copy<T>(const AValues: array of T): TArray<T>; static;
+    class function Reduce<T>(const AValues: array of T; AReducer: TFunc<T, T, T>): T; static;
+    class function Map<T, TResult>(const AValues: array of T; AFunc: TFunc<T, TResult>): TArray<TResult>; static;
+    class function Filter<T>(const AValues: array of T; APredicate: TFunc<T, Boolean>): TArray<T>; static;
+    class function Any<T>(const AValues: array of T; APredicate: TFunc<T, Boolean>): Boolean; static;
+    class function All<T>(const AValues: array of T; APredicate: TFunc<T, Boolean>): Boolean; static;
   end;
 
   TFuture = record
@@ -79,9 +85,9 @@ type
 
   TStd = class
   strict private
-    class function _DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket; static;
-    class procedure _EncodePacket(const Packet: TPacket; NumChars: Integer;
-      OutBuf: PAnsiChar); static;
+    class function _DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket; static;
+    class procedure _EncodePacket(const APacket: TPacket; NumChars: Integer;
+      AOutBuf: PAnsiChar); static;
   public
     class var FormatSettings: TFormatSettings;
     class function ArrayMerge<T>(const AArray1: TArray<T>;
@@ -402,32 +408,33 @@ begin
   end;
 end;
 
-class procedure TStd._EncodePacket(const Packet: TPacket; NumChars: Integer; OutBuf: PAnsiChar);
+class procedure TStd._EncodePacket(const APacket: TPacket; NumChars: Integer;
+ AOutBuf: PAnsiChar);
 begin
-  OutBuf[0] := ENCODETABLE[Packet.a[0] shr 2];
-  OutBuf[1] := ENCODETABLE[((Packet.a[0] shl 4) or (Packet.a[1] shr 4)) and $0000003f];
+  AOutBuf[0] := ENCODETABLE[APacket.a[0] shr 2];
+  AOutBuf[1] := ENCODETABLE[((APacket.a[0] shl 4) or (APacket.a[1] shr 4)) and $0000003f];
   if NumChars < 2 then
-    OutBuf[2] := '='
-  else OutBuf[2] := ENCODETABLE[((Packet.a[1] shl 2) or (Packet.a[2] shr 6)) and $0000003f];
+    AOutBuf[2] := '='
+  else AOutBuf[2] := ENCODETABLE[((APacket.a[1] shl 2) or (APacket.a[2] shr 6)) and $0000003f];
   if NumChars < 3 then
-    OutBuf[3] := '='
-  else OutBuf[3] := ENCODETABLE[Packet.a[2] and $0000003f];
+    AOutBuf[3] := '='
+  else AOutBuf[3] := ENCODETABLE[APacket.a[2] and $0000003f];
 end;
 
-class function TStd._DecodePacket(InBuf: PAnsiChar; var nChars: Integer): TPacket;
+class function TStd._DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket;
 begin
-  Result.a[0] := (DECODETABLE[InBuf[0]] shl 2) or
-    (DECODETABLE[InBuf[1]] shr 4);
+  Result.a[0] := (DECODETABLE[AInBuf[0]] shl 2) or
+    (DECODETABLE[AInBuf[1]] shr 4);
   NChars := 1;
-  if InBuf[2] <> '=' then
+  if AInBuf[2] <> '=' then
   begin
     Inc(NChars);
-    Result.a[1] := Byte((DECODETABLE[InBuf[1]] shl 4) or (DECODETABLE[InBuf[2]] shr 2));
+    Result.a[1] := Byte((DECODETABLE[AInBuf[1]] shl 4) or (DECODETABLE[AInBuf[2]] shr 2));
   end;
-  if InBuf[3] <> '=' then
+  if AInBuf[3] <> '=' then
   begin
     Inc(NChars);
-    Result.a[2] := Byte((DECODETABLE[InBuf[2]] shl 6) or DECODETABLE[InBuf[3]]);
+    Result.a[2] := Byte((DECODETABLE[AInBuf[2]] shl 6) or DECODETABLE[AInBuf[3]]);
   end;
 end;
 
@@ -699,6 +706,78 @@ begin
   SetLength(Result, Length(AValues));
   for LFor := Low(AValues) to High(AValues) do
     Result[LFor] := AValues[LFor];
+end;
+
+class function TArrayHelper.Filter<T>(const AValues: array of T;
+  APredicate: TFunc<T, Boolean>): TArray<T>;
+var
+  LItem: T;
+begin
+  for LItem in AValues do
+  begin
+    if APredicate(LItem) then
+      Result := Result + [LItem];
+  end;
+end;
+
+class procedure TArrayHelper.ForEach<T>(const AValues: array of T;
+  AAction: TProc<T>);
+var
+  LItem: T;
+begin
+  for LItem in AValues do
+    AAction(LItem);
+end;
+
+class function TArrayHelper.Any<T>(const AValues: array of T;
+  APredicate: TFunc<T, Boolean>): Boolean;
+var
+  LItem: T;
+begin
+  for LItem in AValues do
+    if APredicate(LItem) then
+      Exit(True);
+
+  Result := False;
+end;
+
+class function TArrayHelper.All<T>(const AValues: array of T;
+  APredicate: TFunc<T, Boolean>): Boolean;
+var
+  LItem: T;
+begin
+  for LItem in AValues do
+    if not APredicate(LItem) then
+      Exit(False);
+
+  Result := True;
+end;
+
+class function TArrayHelper.Map<T, TResult>(const AValues: array of T;
+  AFunc: TFunc<T, TResult>): TArray<TResult>;
+var
+  LItem: T;
+  LIndex: Integer;
+begin
+  SetLength(Result, Length(AValues));
+  for LIndex := 0 to High(AValues) do
+    Result[LIndex] := AFunc(AValues[LIndex]);
+end;
+
+class function TArrayHelper.Reduce<T>(const AValues: array of T;
+  AReducer: TFunc<T, T, T>): T;
+var
+  LValue: T;
+  LItem: T;
+begin
+  if Length(AValues) = 0 then
+    raise EArgumentException.Create('Cannot reduce an empty array');
+
+  LValue := Default(T);
+  for LItem in AValues do
+    LValue := AReducer(LValue, LItem);
+
+  Result := LValue;
 end;
 
 { TFuture }

@@ -34,11 +34,18 @@ uses
   eclbr.vector;
 
 type
-  TStringEx = record helper for string
+  TCharHelperEx = record helper for Char
   public
-    function Filter(const APredicate: TFunc<Char, Boolean>): string;
-    function Collect: TVector<string>;
-    function Map(const ATransform: TFunc<Char, Char>): string;
+    function ToUpper: Char;
+    function ToLower: Char;
+    function IsLetter: Boolean;
+  end;
+
+  TStringHelperEx = record helper for String
+  public
+    function Filter(const APredicate: TFunc<Char, Boolean>): String;
+    function Collect: TVector<String>;
+    function Map(const ATransform: TFunc<Char, Char>): String;
     function Sum: Integer;
     function First: Char;
     function Last: Char;
@@ -46,9 +53,9 @@ type
     function Exists(const APredicate: TFunc<Char, Boolean>): Boolean;
     function All(const APredicate: TFunc<Char, Boolean>): Boolean;
     function Any(const APredicate: TFunc<Char, Boolean>): Boolean;
-    function Sort: string;
-//    function Split(const ASeparator: array of Char): TVector<string>;
-    procedure Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: string);
+    function Sort: String;
+//    function Split(const ASeparator: array of Char): TVector<String>;
+    procedure Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: String);
   end;
 
 implementation
@@ -58,7 +65,7 @@ uses
 
 { TStringEx }
 
-function TStringEx.Filter(const APredicate: TFunc<Char, Boolean>): string;
+function TStringHelperEx.Filter(const APredicate: TFunc<Char, Boolean>): String;
 var
   LChar: Char;
   LValue: String;
@@ -76,7 +83,7 @@ begin
   Result := Self;
 end;
 
-function TStringEx.First: Char;
+function TStringHelperEx.First: Char;
 begin
   if Length(Self) > 0 then
     Result := Self[1]
@@ -84,7 +91,7 @@ begin
     raise Exception.Create('String is empty');
 end;
 
-function TStringEx.Last: Char;
+function TStringHelperEx.Last: Char;
 begin
   if Length(Self) > 0 then
     Result := Self[Length(Self)]
@@ -92,18 +99,16 @@ begin
     raise Exception.Create('String is empty');
 end;
 
-function TStringEx.Collect: TVector<string>;
+function TStringHelperEx.Collect: TVector<String>;
 var
   LChar: Char;
-  LIndex: Integer;
 begin
-  Result := TVector<string>.Create([]);
-  LIndex := 0;
+  Result := TVector<String>.Create([]);
   for LChar in Self do
     Result.Add(LChar);
 end;
 
-function TStringEx.Map(const ATransform: TFunc<Char, Char>): string;
+function TStringHelperEx.Map(const ATransform: TFunc<Char, Char>): String;
 var
   LChar: Char;
   LValue: String;
@@ -120,7 +125,7 @@ begin
   Result := Self;
 end;
 
-function TStringEx.Sum: Integer;
+function TStringHelperEx.Sum: Integer;
 var
   LChar: Char;
 begin
@@ -129,7 +134,7 @@ begin
     Result := Result + StrToIntDef(LChar, 0);
 end;
 
-function TStringEx.Reduce<T>(const AInitialValue: T; const AAccumulator: TFunc<T, Char, T>): T;
+function TStringHelperEx.Reduce<T>(const AInitialValue: T; const AAccumulator: TFunc<T, Char, T>): T;
 var
   LChar: Char;
 begin
@@ -141,7 +146,7 @@ begin
     Result := AAccumulator(Result, LChar);
 end;
 
-function TStringEx.Exists(const APredicate: TFunc<Char, Boolean>): Boolean;
+function TStringHelperEx.Exists(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
   LChar: Char;
 begin
@@ -155,7 +160,7 @@ begin
   Result := False;
 end;
 
-function TStringEx.All(const APredicate: TFunc<Char, Boolean>): Boolean;
+function TStringHelperEx.All(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
   LChar: Char;
 begin
@@ -169,7 +174,7 @@ begin
   Result := True;
 end;
 
-function TStringEx.Any(const APredicate: TFunc<Char, Boolean>): Boolean;
+function TStringHelperEx.Any(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
   LChar: Char;
 begin
@@ -183,7 +188,7 @@ begin
   Result := False;
 end;
 
-function TStringEx.Sort: string;
+function TStringHelperEx.Sort: String;
 var
   LArray: TArray<Char>;
   LChar: Char;
@@ -200,30 +205,54 @@ begin
     Result := Result + LChar;
 end;
 
-//function TStringEx.Split(const ASeparator: array of Char): TVector<string>;
+//function TStringEx.Split(const ASeparator: array of Char): TVector<String>;
 //var
-//  LItem: string;
-//  LArray: TArray<string>;
+//  LItem: String;
+//  LArray: TArray<String>;
 //begin
-//  Result := TVector<string>.Create([]);
+//  Result := TVector<String>.Create([]);
 //  LArray := TStd.Split(Self);
 //  for LItem in LArray do
 //    Result.Add(LItem);
 //end;
 
-procedure TStringEx.Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: string);
+procedure TStringHelperEx.Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: String);
 var
   LIndex: Integer;
 begin
   if not Assigned(APredicate) then
-    raise Exception.Create('Invalid predicate function in TStringEx.Partition');
+    raise Exception.Create('Invalid predicate function in TStringHelperEx.Partition');
 
-  LIndex := 1;
-  while (LIndex <= Length(Self)) and APredicate(Self[LIndex]) do
-    Inc(LIndex);
+  for LIndex := 1 to Length(Self) do
+  begin
+    if APredicate(Self[LIndex]) then
+      Right := Right + Self[LIndex]
+    else
+      Left := Left + Self[LIndex];
+  end;
+end;
 
-  Left := Copy(Self, 1, LIndex - 1);
-  Right := Copy(Self, LIndex, Length(Self) - LIndex + 1);
+{ TCharHelperEx }
+
+function TCharHelperEx.IsLetter: Boolean;
+begin
+  Result := CharInSet(Self, ['a'..'z', 'A'..'Z']);
+end;
+
+function TCharHelperEx.ToLower: Char;
+begin
+  if CharInSet(Self, ['A'..'Z']) then
+    Result := Chr(Ord(Self) + 32)
+  else
+    Result := Self;
+end;
+
+function TCharHelperEx.ToUpper: Char;
+begin
+  if CharInSet(Self, ['a'..'z']) then
+    Result := Chr(Ord(Self) - 32)
+  else
+    Result := Self;
 end;
 
 end.
