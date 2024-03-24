@@ -406,7 +406,6 @@ end;
 
 procedure TTesTStd.TestJoinStrings_StringList;
 var
-  LStringList: TListString;
   LSeparator, LResultString: string;
   LIAutoRef: IAutoRef<TListString>;
 begin

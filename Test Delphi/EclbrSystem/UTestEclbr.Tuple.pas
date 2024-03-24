@@ -76,7 +76,7 @@ procedure TestTuple.TestIntDoubleTuplaNew;
 var
   LTuplaIntDouble: TTuple<Integer>;
 begin
-  LTuplaIntDouble := TTuple<Integer>.New([1, 2, 3], [1.1, 2.2, True]);
+  LTuplaIntDouble := LTuplaIntDouble.SetTuple([1, 2, 3], [1.1, 2.2, True]);
 
   Assert.IsTrue(LTuplaIntDouble.Get<Double>(2) > 0);
   Assert.AreEqual(2.2, LTuplaIntDouble[2].AsExtended, 0.01);

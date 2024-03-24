@@ -9,7 +9,8 @@ uses
   DateUtils,
   Classes,
   Generics.Collections,
-  eclbr.threading;
+  eclbr.threading,
+  eclbr.std;
 
 type
   [TestFixture]

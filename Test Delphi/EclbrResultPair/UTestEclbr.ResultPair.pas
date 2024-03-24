@@ -12,6 +12,7 @@ type
     FDivisor: Integer;
     FSuccessValue: Integer;
     FFailureValue: string;
+    function _ResultTryExcept: TResultPair<Integer, string>;
   public
     [Setup]
     procedure Setup;
@@ -68,6 +69,15 @@ type
 implementation
 
 { TestTResultPair }
+
+function TTestTResultPair._ResultTryExcept: TResultPair<Integer, string>;
+begin
+  try
+    Result.Success(42);
+  except
+    Result.Failure('Falilure');
+  end;
+end;
 
 procedure TTestTResultPair.Setup;
 begin
@@ -227,8 +237,7 @@ var
   LResult: Double;
 begin
   try
-    LResultPair := TResultPair<Double, string>
-               .New
+    LResultPair := LResultPair
                .Success(FDividend div FDivisor)
                .Map<Double>(function(Value: Double): Double
                             begin
@@ -248,12 +257,12 @@ var
   LResult: Double;
 begin
   try
-    LResultPair := TResultPair<Double, string>.New.Success(42)
-               .Map<Double>(
-                  function(Value: Double): Double
-                  begin
-                    Result := Value * 2.5;
-                  end);
+    LResultPair := TResultPair<Double, string>.New
+                   .Success(42)
+                   .Map<Double>(function(Value: Double): Double
+                                begin
+                                  Result := Value * 2.5;
+                                end);
 
     LResult := 42 * 2.5;
     Assert.AreEqual(LResultPair.ValueSuccess, LResult);
@@ -353,22 +362,23 @@ var
   LSuccessCalled: Boolean;
   LFailureCalled: Boolean;
 begin
-  LSuccessCalled := False;
+  LSuccessCalled := True;
   LFailureCalled := False;
-  try
-    LResultPair := TResultPair<Integer, string>.New
-                                               .Success(42)
-                                               .TryException(
-      procedure (Value: Integer)
-      begin
-        LSuccessCalled := True;
-      end,
-      procedure (Value: string)
-      begin
-        LFailureCalled := True;
-      end
-    );
 
+  LResultPair := _ResultTryExcept;
+
+  LResultPair.TryException(
+    procedure (Value: Integer)
+    begin
+      LSuccessCalled := True;
+    end,
+    procedure (Value: string)
+    begin
+      LFailureCalled := False;
+    end
+  );
+
+  try
     Assert.IsTrue(LSuccessCalled);
     Assert.IsFalse(LFailureCalled);
   finally
@@ -381,7 +391,7 @@ var
   LResultPair: TResultPair<Integer, string>;
   LSum: Integer;
 begin
-  LResultPair := TResultPair<Integer, string>.New.Success(FSuccessValue);
+  LResultPair := LResultPair.Success(FSuccessValue);
   try
     LSum := LResultPair.Reduce<Integer>(
       function(Value: Integer; Error: string): Integer
@@ -399,7 +409,7 @@ procedure TTestTResultPair.TestGetFailureOrDefaultNoDefault;
 var
   LResultPair: TResultPair<string, Integer>;
 begin
-  LResultPair := TResultPair<string, Integer>.New.Failure(42);
+  LResultPair := LResultPair.Failure(42);
   try
     Assert.AreEqual(LResultPair.FailureOrDefault, 42);
   finally
@@ -421,18 +431,18 @@ end;
 
 procedure TTestTResultPair.TestGetFailureOrElse;
 var
-  ResultPair: TResultPair<string, Integer>;
+  LResultPair: TResultPair<string, Integer>;
 begin
-  ResultPair := TResultPair<string, Integer>.New.Failure(42);
+  LResultPair := LResultPair.Failure(42);
   try
-    Assert.AreEqual(ResultPair.FailureOrElse(
+    Assert.AreEqual(LResultPair.FailureOrElse(
       function(Value: Integer): Integer
       begin
         Result := Value * 2;
       end
     ), 42);
   finally
-    ResultPair.Dispose;
+    LResultPair.Dispose;
   end;
 end;
 

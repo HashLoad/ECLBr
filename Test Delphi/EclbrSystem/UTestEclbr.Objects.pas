@@ -89,6 +89,8 @@ begin
 
   Assert.IsNotNull(LObject1.Value);
   Assert.IsNotNull(LObject2.Value);
+
+  LObject2.Free;
 end;
 
 { TMyClass }

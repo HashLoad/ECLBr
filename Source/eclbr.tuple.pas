@@ -99,6 +99,7 @@ type
     ///   An integer value representing the number of elements in the collection.
     /// </returns>
     function Count: Integer; inline;
+    function SetTuple(const AKeys: TArray<K>; const AValues: TArray<TValue>): TTuple<K>; inline;
 
     property Items[const Key: K]: TValue read GetItem; default;
   end;
@@ -188,6 +189,12 @@ begin
   Result := True;
 end;
 
+function TTuple<K>.SetTuple(const AKeys: TArray<K>;
+  const AValues: TArray<TValue>): TTuple<K>;
+begin
+  Result := TTuple<K>.New(AKeys, AValues);
+end;
+
 function TTuple<K>.Get<T>(const AKey: K): T;
 var
   LComp: IEqualityComparer<K>;
@@ -238,11 +245,10 @@ var
 begin
   if Length(AKeys) <> Length(AValues) then
     raise Exception.Create('Number of keys and values must match');
+
   SetLength(LPairs, Length(AKeys));
   for LFor := 0 to High(AKeys) do
-  begin
     LPairs[LFor] := TPair<K, TValue>.Create(AKeys[LFor], AValues[LFor]);
-  end;
   Result := TTuple<K>.Create(LPairs);
 end;
 

@@ -279,6 +279,8 @@ var
   LFor: Integer;
 begin
   Result := '';
+  if AStrings.Count = 0 then
+    Exit;
   for LFor := 0 to AStrings.Count - 1 do
   begin
     if Result <> '' then

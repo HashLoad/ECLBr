@@ -209,8 +209,8 @@ end;
 
 procedure TTesTStd.TestMap;
 var
-  LStr: string;
-  LMappedStr: string;
+  LStr: String;
+  LMappedStr: String;
 begin
   // Caso de teste 1: transformar todas as letras em maiúsculas
   LStr := 'Hello World';

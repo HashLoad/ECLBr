@@ -110,6 +110,7 @@ type
     class operator Implicit(const AAutoRef: AutoRef<T>): T;
     property Value: T read GetValue;
     function IsNull: Boolean;
+    procedure Free;
   end;
 
 implementation
@@ -248,6 +249,11 @@ constructor AutoRef<T>.Create(const AObjectRef: T);
 begin
   FValue := AObjectRef;
   FSmartPtr := TSmartPtr.Create(AObjectRef);
+end;
+
+procedure AutoRef<T>.Free;
+begin
+  // Free Fake
 end;
 
 function AutoRef<T>.GetValue: T;

@@ -41,7 +41,8 @@ type
     function IsLetter: Boolean;
   end;
 
-  TStringHelperEx = record helper for String
+  StringEx = String;
+  TStringHelperEx = record helper for StringEx
   public
     function Filter(const APredicate: TFunc<Char, Boolean>): String;
     function Collect: TVector<String>;
@@ -54,7 +55,6 @@ type
     function All(const APredicate: TFunc<Char, Boolean>): Boolean;
     function Any(const APredicate: TFunc<Char, Boolean>): Boolean;
     function Sort: String;
-//    function Split(const ASeparator: array of Char): TVector<String>;
     procedure Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: String);
   end;
 
@@ -204,17 +204,6 @@ begin
   for LChar in LArray do
     Result := Result + LChar;
 end;
-
-//function TStringEx.Split(const ASeparator: array of Char): TVector<String>;
-//var
-//  LItem: String;
-//  LArray: TArray<String>;
-//begin
-//  Result := TVector<String>.Create([]);
-//  LArray := TStd.Split(Self);
-//  for LItem in LArray do
-//    Result.Add(LItem);
-//end;
 
 procedure TStringHelperEx.Partition(APredicate: TFunc<Char, Boolean>; out Left, Right: String);
 var

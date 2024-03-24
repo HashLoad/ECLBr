@@ -62,7 +62,7 @@ type
   public
     function Await(const AContinue: TProc; const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
     function Await(const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
-    function Run: TFuture; overload; inline;
+    function Run: TFuture; overload;
     function Run(const AError: TFunc<Exception, TFuture>): TFuture; overload; inline;
     function Status: TTaskStatus; inline;
     function GetId: Integer; inline;
