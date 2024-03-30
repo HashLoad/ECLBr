@@ -55,14 +55,14 @@ type
       const AArgs: TArray<TValue> = []; const AMethodName: string = 'Create'): TObject;
   end;
 
-  // [Deprecated('use AutoRef<T>')]
+  {$MESSAGE WARN 'This interface has been deprecated. Use AutoRef<T> instead.'}
   IAutoRef<T: class, constructor> = interface
     ['{F1196B06-4C61-4512-B06D-1691199A073C}']
     function Get: T;
     procedure Release;
   end;
 
-  // [Deprecated('use AutoRef<T>')]
+  {$MESSAGE WARN 'This class has been deprecated. Use AutoRef<T> instead.'}
   TAutoRef<T: class, constructor> = class sealed(TInterfacedObject, IAutoRef<T>)
   strict private
     FObject: T;
@@ -75,7 +75,7 @@ type
   public
     destructor Destroy; override;
     class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
-      const AArgs: TArray<TValue>): IAutoRef<T>; overload;
+      const AArgs: TArray<TValue>): IAutoRef<T>; overload; deprecated 'Use AutoRef<T> instead';
     class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
     class function New: IAutoRef<T>; overload;
     class function New(const AObject: T): IAutoRef<T>; overload;
@@ -110,6 +110,8 @@ type
     class operator Implicit(const AAutoRef: AutoRef<T>): T;
     function IsNull: Boolean;
     procedure Free;
+    {$MESSAGE WARN 'This property has been deprecated, use AsRef instead.'}
+    property Value: T read _GetAsRef;
     property AsRef: T read _GetAsRef;
   end;
 
