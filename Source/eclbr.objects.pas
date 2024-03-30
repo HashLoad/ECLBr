@@ -110,7 +110,7 @@ type
     class operator Implicit(const AAutoRef: AutoRef<T>): T;
     function IsNull: Boolean;
     procedure Free;
-    {$MESSAGE WARN 'This property has been deprecated, use AsRef instead.'}
+    {$MESSAGE WARN 'This property [Value] has been deprecated, use AsRef instead.'}
     property Value: T read _GetAsRef;
     property AsRef: T read _GetAsRef;
   end;
