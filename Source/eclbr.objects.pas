@@ -93,7 +93,7 @@ type
   strict private
     FValue: T;
     FSmartPtr: ISmartPtr<T>;
-    function GetValue: T;
+    function _GetAsRef: T;
   strict private
     type
       TSmartPtr = class (TInterfacedObject, ISmartPtr<T>)
@@ -108,9 +108,9 @@ type
     constructor Create(const AObjectRef: T);
     class operator Implicit(const AObjectRef: T): AutoRef<T>;
     class operator Implicit(const AAutoRef: AutoRef<T>): T;
-    property Value: T read GetValue;
     function IsNull: Boolean;
     procedure Free;
+    property AsRef: T read _GetAsRef;
   end;
 
 implementation
@@ -256,7 +256,7 @@ begin
   // Free Fake
 end;
 
-function AutoRef<T>.GetValue: T;
+function AutoRef<T>._GetAsRef: T;
 begin
   if FSmartPtr = nil then
     Self := AutoRef<T>.Create(T.Create);
@@ -266,7 +266,7 @@ end;
 
 class operator AutoRef<T>.Implicit(const AAutoRef: AutoRef<T>): T;
 begin
-  Result := AAutoRef.Value;
+  Result := AAutoRef.AsRef;
 end;
 
 function AutoRef<T>.IsNull: Boolean;

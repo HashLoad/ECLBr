@@ -87,8 +87,8 @@ begin
   Assert.IsFalse(LObject1.IsNull);
   Assert.IsFalse(LObject2.IsNull);
 
-  Assert.IsNotNull(LObject1.Value);
-  Assert.IsNotNull(LObject2.Value);
+  Assert.IsNotNull(LObject1.AsRef);
+  Assert.IsNotNull(LObject2.AsRef);
 
   LObject2.Free;
 end;
