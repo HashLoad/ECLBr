@@ -34,6 +34,9 @@ uses
   eclbr.vector;
 
 type
+//  TShortStringHelper = record helper ShortString
+//  end;
+
   TCharHelperEx = record helper for Char
   public
     function ToUpper: Char;
@@ -41,8 +44,7 @@ type
     function IsLetter: Boolean;
   end;
 
-  StringEx = String;
-  TStringHelperEx = record helper for StringEx
+  TStringHelperEx = record helper for String
   public
     function Filter(const APredicate: TFunc<Char, Boolean>): String;
     function Collect: TVector<String>;
