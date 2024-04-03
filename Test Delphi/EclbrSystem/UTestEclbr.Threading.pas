@@ -23,11 +23,13 @@ type
     [TearDown]
     procedure TearDown;
     [Test]
-    procedure TestExec;
+    procedure TestRunProc;
+    [Test]
+    procedure TestNoAwaitProc;
     [Test]
     procedure TestAwaitProc;
     [Test]
-    procedure TestRunFuture;
+    procedure TestRunFutureProc;
     [Test]
     procedure TestAwaitFunc;
     [Test]
@@ -73,6 +75,20 @@ begin
   Assert.AreEqual(LFuture.Ok<string>, 'sucesso!');
 end;
 
+procedure TTesTStd.TestNoAwaitProc;
+var
+  LFuture: TFuture;
+  LExecuted: Boolean;
+begin
+  LFuture := Async(procedure
+                   begin
+                     LExecuted := True;
+                   end)
+            .NoAwait;
+
+  Assert.IsTrue(LFuture.Ok<boolean>);
+end;
+
 function TTesTStd.FetchData: TValue;
 begin
   Sleep(50);
@@ -114,7 +130,7 @@ begin
   Assert.AreEqual(LFuture.Ok<string>, 'Await and Continue');
 end;
 
-procedure TTesTStd.TestExec;
+procedure TTesTStd.TestRunProc;
 var
   LFuture: TFuture;
   LExecuted: Boolean;
@@ -128,7 +144,7 @@ begin
   Assert.IsTrue(LFuture.Ok<boolean>);
 end;
 
-procedure TTesTStd.TestRunFuture;
+procedure TTesTStd.TestRunFutureProc;
 var
   LFuture: TFuture;
   LErr: string;

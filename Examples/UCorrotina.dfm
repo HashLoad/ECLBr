@@ -23,7 +23,7 @@ object Form2: TForm2
     Alignment = taCenter
     AutoSize = False
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
+    Font.Color = clRed
     Font.Height = -80
     Font.Name = 'Segoe UI'
     Font.Style = []
@@ -104,9 +104,9 @@ object Form2: TForm2
   end
   object Button1: TButton
     Left = 368
-    Top = 443
+    Top = 458
     Width = 121
-    Height = 52
+    Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Clear'
     Font.Charset = DEFAULT_CHARSET
@@ -117,8 +117,6 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 3
     OnClick = Button1Click
-    ExplicitTop = 435
-    ExplicitWidth = 115
   end
   object BtnAsyncAwait: TButton
     Left = 368
@@ -137,10 +135,10 @@ object Form2: TForm2
     OnClick = BtnAsyncAwaitClick
   end
   object Button2: TButton
-    Left = 372
-    Top = 288
+    Left = 368
+    Top = 262
     Width = 121
-    Height = 52
+    Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Paused'
     Font.Charset = DEFAULT_CHARSET
@@ -151,14 +149,12 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 5
     OnClick = Button2Click
-    ExplicitTop = 282
-    ExplicitWidth = 115
   end
   object Button3: TButton
-    Left = 372
-    Top = 356
+    Left = 368
+    Top = 310
     Width = 121
-    Height = 52
+    Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Send'
     Font.Charset = DEFAULT_CHARSET
@@ -169,7 +165,37 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 6
     OnClick = Button3Click
-    ExplicitTop = 349
-    ExplicitWidth = 115
+  end
+  object Button4: TButton
+    Left = 368
+    Top = 358
+    Width = 121
+    Height = 42
+    Anchors = [akLeft, akRight]
+    Caption = 'Paused (Yield)'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    OnClick = Button4Click
+  end
+  object Button5: TButton
+    Left = 368
+    Top = 406
+    Width = 121
+    Height = 42
+    Anchors = [akLeft, akRight]
+    Caption = 'Send (Value)'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 8
+    OnClick = Button5Click
   end
 end

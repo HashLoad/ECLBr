@@ -64,6 +64,8 @@ type
     function Await(const ATimeout: Cardinal = INFINITE): TFuture; overload; inline;
     function Run: TFuture; overload;
     function Run(const AError: TFunc<Exception, TFuture>): TFuture; overload; inline;
+    function NoAwait: TFuture; overload;
+    function NoAwait(const AError: TFunc<Exception, TFuture>): TFuture; overload; inline;
     function Status: TTaskStatus; inline;
     function GetId: Integer; inline;
     procedure Cancel; inline;
@@ -140,6 +142,16 @@ end;
 function TAsync.GetId: Integer;
 begin
   Result := FTask.GetId;
+end;
+
+function TAsync.NoAwait(const AError: TFunc<Exception, TFuture>): TFuture;
+begin
+  Result :=  Run(AError);
+end;
+
+function TAsync.NoAwait: TFuture;
+begin
+  Result := Run;
 end;
 
 function TAsync.Run(const AError: TFunc<Exception, TFuture>): TFuture;

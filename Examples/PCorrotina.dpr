@@ -1,7 +1,7 @@
 program PCorrotina;
 
 uses
-  FastMM4,
+  FastMM5,
   Vcl.Forms,
   UCorrotina in 'UCorrotina.pas' {Form2},
   eclbr.coroutine in '..\Source\eclbr.coroutine.pas',

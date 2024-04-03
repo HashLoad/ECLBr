@@ -5,7 +5,7 @@ program PTestObjects;
 {$ENDIF}
 {$STRONGLINKTYPES ON}
 uses
-  FastMM4,
+  FastMM5,
   System.SysUtils,
   {$IFDEF TESTINSIGHT}
   TestInsight.DUnitX,
