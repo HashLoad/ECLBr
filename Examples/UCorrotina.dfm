@@ -16,9 +16,9 @@ object Form2: TForm2
     509)
   TextHeight = 15
   object LBL: TLabel
-    Left = 368
+    Left = 365
     Top = 150
-    Width = 121
+    Width = 133
     Height = 106
     Alignment = taCenter
     AutoSize = False
@@ -88,9 +88,9 @@ object Form2: TForm2
     ExplicitHeight = 457
   end
   object BtnCoRoutine: TButton
-    Left = 368
+    Left = 365
     Top = 34
-    Width = 121
+    Width = 133
     Height = 52
     Caption = 'Coroutine'
     Font.Charset = DEFAULT_CHARSET
@@ -103,9 +103,9 @@ object Form2: TForm2
     OnClick = BtnCoRoutineClick
   end
   object Button1: TButton
-    Left = 368
+    Left = 365
     Top = 458
-    Width = 121
+    Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Clear'
@@ -119,9 +119,9 @@ object Form2: TForm2
     OnClick = Button1Click
   end
   object BtnAsyncAwait: TButton
-    Left = 368
+    Left = 365
     Top = 92
-    Width = 121
+    Width = 133
     Height = 52
     Caption = 'Coroutine Async/Await'
     Font.Charset = DEFAULT_CHARSET
@@ -135,9 +135,9 @@ object Form2: TForm2
     OnClick = BtnAsyncAwaitClick
   end
   object Button2: TButton
-    Left = 368
+    Left = 365
     Top = 262
-    Width = 121
+    Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Paused'
@@ -151,9 +151,9 @@ object Form2: TForm2
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 368
+    Left = 365
     Top = 310
-    Width = 121
+    Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Send'
@@ -167,9 +167,9 @@ object Form2: TForm2
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 368
+    Left = 365
     Top = 358
-    Width = 121
+    Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Paused (Yield)'
@@ -183,9 +183,9 @@ object Form2: TForm2
     OnClick = Button4Click
   end
   object Button5: TButton
-    Left = 368
+    Left = 365
     Top = 406
-    Width = 121
+    Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
     Caption = 'Send (Value)'
