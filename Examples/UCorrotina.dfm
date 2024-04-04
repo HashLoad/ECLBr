@@ -2,8 +2,8 @@ object Form2: TForm2
   Left = 0
   Top = 0
   Caption = 'Form2'
-  ClientHeight = 509
-  ClientWidth = 869
+  ClientHeight = 499
+  ClientWidth = 863
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,14 +12,14 @@ object Form2: TForm2
   Font.Style = []
   OnCloseQuery = FormCloseQuery
   DesignSize = (
-    869
-    509)
+    863
+    499)
   TextHeight = 15
   object LBL: TLabel
     Left = 365
-    Top = 150
+    Top = 188
     Width = 133
-    Height = 106
+    Height = 99
     Alignment = taCenter
     AutoSize = False
     Font.Charset = DEFAULT_CHARSET
@@ -28,6 +28,7 @@ object Form2: TForm2
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
+    Layout = tlCenter
   end
   object Label1: TLabel
     Left = 8
@@ -59,7 +60,7 @@ object Form2: TForm2
     Left = 8
     Top = 34
     Width = 351
-    Height = 466
+    Height = 456
     Alignment = taCenter
     Anchors = [akLeft, akTop, akBottom]
     Font.Charset = DEFAULT_CHARSET
@@ -69,13 +70,13 @@ object Form2: TForm2
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitHeight = 457
+    ExplicitHeight = 448
   end
   object Memo2: TMemo
     Left = 504
     Top = 34
     Width = 351
-    Height = 466
+    Height = 456
     Alignment = taCenter
     Anchors = [akLeft, akTop, akBottom]
     Font.Charset = DEFAULT_CHARSET
@@ -85,7 +86,7 @@ object Form2: TForm2
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitHeight = 457
+    ExplicitHeight = 448
   end
   object BtnCoRoutine: TButton
     Left = 365
@@ -104,7 +105,7 @@ object Form2: TForm2
   end
   object Button1: TButton
     Left = 365
-    Top = 458
+    Top = 449
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -117,10 +118,11 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 3
     OnClick = Button1Click
+    ExplicitTop = 450
   end
   object BtnAsyncAwait: TButton
     Left = 365
-    Top = 92
+    Top = 293
     Width = 133
     Height = 52
     Caption = 'Coroutine Async/Await'
@@ -136,7 +138,7 @@ object Form2: TForm2
   end
   object Button2: TButton
     Left = 365
-    Top = 262
+    Top = 92
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -152,7 +154,7 @@ object Form2: TForm2
   end
   object Button3: TButton
     Left = 365
-    Top = 310
+    Top = 140
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -168,7 +170,7 @@ object Form2: TForm2
   end
   object Button4: TButton
     Left = 365
-    Top = 358
+    Top = 351
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -184,7 +186,7 @@ object Form2: TForm2
   end
   object Button5: TButton
     Left = 365
-    Top = 406
+    Top = 399
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]

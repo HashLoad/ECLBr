@@ -42,14 +42,14 @@ type
   IScheduler = interface
     ['{BC104A19-9657-4093-A494-8D3CFD4CAF09}']
     procedure Next;
-    procedure Send; overload;
-    procedure Send(const Value: TValue); overload;
-    procedure Suspend;
+    procedure Send(const AName: String); overload;
+    procedure Send(const AName: String; const Value: TValue); overload;
+    procedure Suspend(const AName: String);
     procedure Stop(const ATimeout: Cardinal = 1000);
-    function Add(const ARoutine: TFunc<TValue, TValue>; const Value: TValue;
+    function Add(const AName: String; const ARoutine: TFunc<TValue, TValue>; const Value: TValue;
       const Proc: TProc = nil): IScheduler; overload;
     function Value: TValue;
-    function Yield: TValue;
+    function Yield(const AName: String): TValue;
     function Count: Integer;
     function SendCount: Integer;
     function Run: IScheduler; overload;
@@ -60,20 +60,29 @@ type
 
   TSend = record
     IsSend: Boolean;
+    Name: String;
+    Value: TValue;
+  end;
+
+  TPause = record
+    IsPaused: Boolean;
+    Name: String;
     Value: TValue;
   end;
 
   TRoutine = record
   strict private
+    FName: String;
     FState: TRoutineState;
     FFunc: TFunc<TValue, TValue>;
     FProc: TProc;
     FValue: TValue;
     FSendCount: Integer;
   public
-    constructor Create(const AFunc: TFunc<TValue, TValue>;
+    constructor Create(const AName: String; const AFunc: TFunc<TValue, TValue>;
       const AValue: TValue; const ACountSend: Integer; const AProc: TProc = nil); overload;
     function Assign: TRoutine;
+    property Name: String read FName write FName;
     property Func: TFunc<TValue, TValue> read FFunc;
     property Proc: TProc read FProc;
     property Value: TValue read FValue write FValue;
@@ -90,32 +99,30 @@ type
         function Dequeue: T;
         function Peek: T;
       end;
+    const C_COROUTINE_NOT_FOUND = 'No coroutine found with the specified name.';
   strict private
+    FSleepTime: UInt16;
     FCurrentRoutine: TRoutine;
     FRoutines: TListHelper<TRoutine>;
     FTask: ITask;
     FError: TProc<Exception>;
     FStoped: Boolean;
     FSend: TSend;
-    FSleepTime: UInt16;
+    FPause: TPause;
   protected
     constructor Create(const ASleepTime: UInt16 = 500); overload;
-    constructor Create(const ARoutine: TFunc<TValue, TValue>); overload;
-    constructor Create(const ARoutine: TFunc<TValue, TValue>; const AValue: TValue); overload;
-    constructor Create(const ARoutine: TFunc<TValue, TValue>; const AValue: TValue;
-      const AProc: TProc); overload;
   public
     class function New(const ASleepTime: UInt16 = 500): IScheduler;
     destructor Destroy; override;
     procedure Next;
-    procedure Send; overload;
-    procedure Send(const AValue: TValue); overload;
-    procedure Suspend;
+    procedure Send(const AName: String); overload;
+    procedure Send(const AName: String; const AValue: TValue); overload;
+    procedure Suspend(const AName: String);
     procedure Stop(const ATimeout: Cardinal = 1000);
-    function Add(const ARoutine: TFunc<TValue, TValue>; const AValue: TValue;
+    function Add(const AName: String; const ARoutine: TFunc<TValue, TValue>; const AValue: TValue;
       const AProc: TProc = nil): IScheduler; overload;
     function Value: TValue;
-    function Yield: TValue;
+    function Yield(const AName: String): TValue;
     function Count: Integer;
     function SendCount: Integer;
     function Run: IScheduler; overload;
@@ -126,25 +133,15 @@ implementation
 
 { TScheduler }
 
-constructor TScheduler.Create(const ARoutine: TFunc<TValue, TValue>;
-  const AValue: TValue);
-begin
-  Create(ARoutine, AValue, nil);
-end;
-
-constructor TScheduler.Create(const ARoutine: TFunc<TValue, TValue>);
-begin
-  Create(ARoutine, TValue.Empty, nil);
-end;
-
 function TScheduler.Count: Integer;
 begin
   Result := FRoutines.Count;
 end;
 
-procedure TScheduler.Send;
+procedure TScheduler.Send(const AName: String);
 begin
   FSend.IsSend := True;
+  FSend.Name := AName;
   FSend.Value := Default(TValue);
 end;
 
@@ -156,19 +153,11 @@ begin
   Result := FRoutines.Peek.SendCount;
 end;
 
-constructor TScheduler.Create(const ARoutine: TFunc<TValue, TValue>;
-  const AValue: TValue; const AProc: TProc);
-begin
-  FStoped := False;
-  FRoutines := TListHelper<TRoutine>.Create;
-  if Assigned(ARoutine) then
-    FRoutines.Enqueue(TRoutine.Create(ARoutine, AValue, 1, AProc));
-end;
-
 constructor TScheduler.Create(const ASleepTime: UInt16);
 begin
-  Create(nil, TValue.Empty, nil);
+  FStoped := False;
   FSleepTime := ASleepTime;
+  FRoutines := TListHelper<TRoutine>.Create;
 end;
 
 destructor TScheduler.Destroy;
@@ -177,18 +166,21 @@ begin
   inherited;
 end;
 
-function TScheduler.Yield: TValue;
+function TScheduler.Yield(const AName: String): TValue;
 begin
   if FRoutines.Count = 0 then
-    Exit;
-  Result := FCurrentRoutine.Value;
-  FCurrentRoutine.State := TRoutineState.rsPaused;
+    raise Exception.Create(C_COROUTINE_NOT_FOUND);
+  Suspend(AName);
+  repeat until not FPause.IsPaused;
+  Result := FPause.Value;
+  FPause.Value := Default(TValue);
 end;
 
-procedure TScheduler.Send(const AValue: TValue);
+procedure TScheduler.Send(const AName: String; const AValue: TValue);
 begin
   FCurrentRoutine.Value := TValue.Empty;
   FSend.IsSend := True;
+  FSend.Name := AName;
   FSend.Value := AVAlue;
 end;
 
@@ -198,11 +190,10 @@ begin
   Sleep(ATimeout);
 end;
 
-procedure TScheduler.Suspend;
+procedure TScheduler.Suspend(const AName: String);
 begin
-  if FRoutines.Count = 0 then
-    Exit;
-  FCurrentRoutine.State := TRoutineState.rsPaused;
+  FPause.IsPaused := True;
+  FPause.Name := AName;
 end;
 
 function TScheduler.Value: TValue;
@@ -210,17 +201,17 @@ begin
   Result := FCurrentRoutine.Value;
 end;
 
-function TScheduler.Add(const ARoutine: TFunc<TValue, TValue>;
+function TScheduler.Add(const AName: String; const ARoutine: TFunc<TValue, TValue>;
   const AValue: TValue; const AProc: TProc = nil): IScheduler;
 begin
   Result := Self;
-  FRoutines.Enqueue(TRoutine.Create(ARoutine, AValue, 1, AProc));
+  FRoutines.Enqueue(TRoutine.Create(AName, ARoutine, AValue, 1, AProc));
   FCurrentRoutine := FRoutines.Peek;
 end;
 
 class function TScheduler.New(const ASleepTime: UInt16): IScheduler;
 begin
-  Result := TScheduler.Create;
+  Result := TScheduler.Create(ASleepTime);
 end;
 
 procedure TScheduler.Next;
@@ -231,6 +222,14 @@ begin
     Exit;
 
   FCurrentRoutine := FRoutines.Dequeue;
+  if (FPause.IsPaused) and (FCurrentRoutine.Name = FPause.Name) then
+  begin
+    FPause.Name := EmptyStr;
+    FPause.Value := FCurrentRoutine.Value;
+    FPause.IsPaused := False;
+    FCurrentRoutine.State := TRoutineState.rsPaused;
+  end;
+
   if FCurrentRoutine.State in [TRoutineState.rsActive] then
   begin
     if Assigned(FCurrentRoutine.Proc) then
@@ -254,14 +253,15 @@ begin
   if (FCurrentRoutine.State in [TRoutineState.rsPaused]) and
      (FCurrentRoutine.Func <> nil) then
   begin
-    if FSend.IsSend then
+    if (FSend.IsSend) and (FCurrentRoutine.Name = FSend.Name) then
     begin
       FCurrentRoutine.State := TRoutineState.rsActive;
       FCurrentRoutine.SendCount := FCurrentRoutine.SendCount + 1;
       if not FSend.Value.IsEmpty then
         FCurrentRoutine.Value := FSend.Value;
-      FSend.IsSend := False;
       FSend.Value := Default(TValue);
+      FSend.Name := EmptyStr;
+      FSend.IsSend := False;
     end;
     FRoutines.Enqueue(FCurrentRoutine);
   end;
@@ -307,9 +307,10 @@ begin
   Result := Self;
 end;
 
-constructor TRoutine.Create(const AFunc: TFunc<TValue, TValue>;
+constructor TRoutine.Create(const AName: String; const AFunc: TFunc<TValue, TValue>;
   const AValue: TValue; const ACountSend: Integer; const AProc: TProc = nil);
 begin
+  FName := AName;
   FFunc := AFunc;
   FProc := AProc;
   FValue := AValue;

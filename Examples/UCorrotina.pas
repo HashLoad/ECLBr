@@ -34,6 +34,8 @@ type
   private
     FScheduler: IScheduler;
     FValueYeild: TValue;
+    FCoroutine_0: String;
+    FCoroutine_1: String;
     function Contador(Value: TValue): TValue;
     function Contador_Regressivo(Value: TValue): TValue;
     function Contador_Async(Value: TValue): TValue;
@@ -59,39 +61,42 @@ procedure TForm2.Button2Click(Sender: TObject);
 begin
   if not Assigned(FScheduler) then
     Exit;
-  FScheduler.Suspend;
+  FScheduler.Suspend(FCoroutine_0);
 end;
 
 procedure TForm2.Button3Click(Sender: TObject);
 begin
   if not Assigned(FScheduler) then
     Exit;
-  FScheduler.Send;
+  FScheduler.Send(FCoroutine_0)
 end;
 
 procedure TForm2.Button4Click(Sender: TObject);
 begin
   if not Assigned(FScheduler) then
     Exit;
-  FValueYeild := FScheduler.Yield;
+  FValueYeild := FScheduler.Yield(FCoroutine_1);
 end;
 
 procedure TForm2.Button5Click(Sender: TObject);
 begin
   if not Assigned(FScheduler) then
     Exit;
-  FScheduler.Send(FValueYeild);
+  FScheduler.Send(FCoroutine_1, FValueYeild);
 end;
 
 procedure TForm2.BtnCoRoutineClick(Sender: TObject);
 begin
+  FCoroutine_0 := 'CONTADOR';
+  FCoroutine_1 := 'CONTADOR_REGRESSIVO';
+
   FScheduler := TScheduler.New(500);
-  FScheduler.Add(Contador, 0, procedure
+  FScheduler.Add(FCoroutine_0, Contador, 0, procedure
                               begin
                                 LBL.Caption := '<=';
                                 Memo1.Lines.Add(FScheduler.Value.ToString);
                               end)
-            .Add(Contador_Regressivo, 15, procedure
+            .Add(FCoroutine_1, Contador_Regressivo, 15, procedure
                               begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
@@ -122,13 +127,16 @@ end;
 
 procedure TForm2.BtnAsyncAwaitClick(Sender: TObject);
 begin
+  FCoroutine_0 := 'CONTADOR_ASYNC';
+  FCoroutine_1 := 'CONTADOR_REGRESSIVO_ASYNC';
+
   FScheduler := TScheduler.New(500);
-  FScheduler.Add(Contador_Async, 0, procedure
+  FScheduler.Add(FCoroutine_0, Contador_Async, 0, procedure
                               begin
                                 LBL.Caption := '<=';
                                 Memo1.Lines.Add(FScheduler.Value.ToString);
                               end)
-            .Add(Contador_Regressivo_Async, 15, procedure
+            .Add(FCoroutine_1, Contador_Regressivo_Async, 15, procedure
                               begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
