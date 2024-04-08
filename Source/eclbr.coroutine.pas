@@ -32,31 +32,24 @@ uses
   Rtti,
   Classes,
   SysUtils,
+  SyncObjs,
   Threading,
   Generics.Collections,
   eclbr.std;
 
 type
   TFuture = eclbr.std.TFuture;
+  IScheduler = interface;
+  TFuncCoroutine = reference to function(const ASendValue: TValue; const AValue: TValue): TValue;
 
-  IScheduler = interface
-    ['{BC104A19-9657-4093-A494-8D3CFD4CAF09}']
-    procedure Next;
-    procedure Send(const AName: String); overload;
-    procedure Send(const AName: String; const Value: TValue); overload;
-    procedure Suspend(const AName: String);
-    procedure Stop(const ATimeout: Cardinal = 1000);
-    function Add(const AName: String; const ARoutine: TFunc<TValue, TValue>; const Value: TValue;
-      const Proc: TProc = nil): IScheduler; overload;
-    function Value: TValue;
-    function Yield(const AName: String): TValue;
-    function Count: Integer;
-    function SendCount: Integer;
-    function Run: IScheduler; overload;
-    function Run(const AError: TProc<Exception>): IScheduler; overload;
+  {$SCOPEDENUMS ON}
+  TCoroutineState = (csActive, csPaused, csFinished);
+  {$SCOPEDENUMS OFF}
+
+  TException = record
+    IsException: Boolean;
+    Message: String;
   end;
-
-  TRoutineState = (rsActive, rsPaused, rsFinished);
 
   TSend = record
     IsSend: Boolean;
@@ -70,30 +63,71 @@ type
     Value: TValue;
   end;
 
-  TRoutine = record
+  TParamNotify = record
   strict private
     FName: String;
-    FState: TRoutineState;
-    FFunc: TFunc<TValue, TValue>;
+    FValue: TValue;
+    FSendValue: TValue;
+  public
+    constructor Create(const AName: String; const AValue: TValue;
+      const ASendValue: TValue);
+  end;
+
+  TCoroutine = class sealed strict
+  private
+    FName: String;
+    FState: TCoroutineState;
+    FFunc: TFuncCoroutine;
     FProc: TProc;
     FValue: TValue;
-    FSendCount: Integer;
+    FSendValue: TValue;
+    FSendCount: UInt32;
+    FObserverList: TList<TCoroutine>;
+    FParamNotify: TParamNotify;
+    FLock: TCriticalSection;
   public
-    constructor Create(const AName: String; const AFunc: TFunc<TValue, TValue>;
-      const AValue: TValue; const ACountSend: Integer; const AProc: TProc = nil); overload;
-    function Assign: TRoutine;
+    {$MESSAGE WARN 'This class should not be used directly.'}
+    constructor Create; overload;
+    constructor Create(const AName: String; const AFunc: TFuncCoroutine;
+      const AValue: TValue; const ACountSend: UInt32; const AProc: TProc = nil); overload;
+    destructor Destroy; override;
+    procedure Attach(const AObserver: TCoroutine);
+    procedure Detach(const AObserver: TCoroutine);
+    procedure ObserverNotify;
+    procedure Notify(const AParams: TParamNotify);
+    function Assign: TCoroutine;
     property Name: String read FName write FName;
-    property Func: TFunc<TValue, TValue> read FFunc;
+    property Func: TFuncCoroutine read FFunc;
     property Proc: TProc read FProc;
     property Value: TValue read FValue write FValue;
-    property State: TRoutineState read FState write FState;
-    property SendCount: Integer read FSendCount write FSendCount;
+    property State: TCoroutineState read FState write FState;
+    property SendValue: TValue read FSendValue write FSendValue;
+    property SendCount: UInt32 read FSendCount write FSendCount;
+  end;
+
+  IScheduler = interface
+    ['{BC104A19-9657-4093-A494-8D3CFD4CAF09}']
+    function _GetCoroutine(AValue: String): TCoroutine;
+    procedure Send(const AName: String); overload;
+    procedure Send(const AName: String; const AValue: TValue); overload;
+    procedure Suspend(const AName: String);
+    procedure Stop(const ATimeout: Cardinal = 1000);
+    procedure Next;
+    function Add(const AName: String; const ARoutine: TFuncCoroutine; const AValue: TValue;
+      const AProc: TProc = nil): IScheduler; overload;
+    function Value: TValue;
+    function Yield(const AName: String): TValue;
+    function Count: UInt32;
+    function SendValue: TValue;
+    function SendCount: UInt32;
+    function Run(const AError: TProc<String>): IScheduler; overload;
+    property Coroutine[Name: String]: TCoroutine read _GetCoroutine;
   end;
 
   TScheduler = class(TInterfacedObject, IScheduler)
   strict private
     type
-      TListHelper<T> = class sealed(TList<T>)
+      TGather<T> = class sealed(TList<T>)
       protected
         procedure Enqueue(const AValue: T);
         function Dequeue: T;
@@ -102,40 +136,45 @@ type
     const C_COROUTINE_NOT_FOUND = 'No coroutine found with the specified name.';
   strict private
     FSleepTime: UInt16;
-    FCurrentRoutine: TRoutine;
-    FRoutines: TListHelper<TRoutine>;
+    FCurrentRoutine: TCoroutine;
+    FCoroutines: TGather<TCoroutine>;
     FTask: ITask;
-    FError: TProc<Exception>;
+    FErrorCallback: TProc<String>;
     FStoped: Boolean;
     FSend: TSend;
     FPause: TPause;
+    FException: TException;
+    FLock: TCriticalSection;
+    function _GetCoroutine(AValue: String): TCoroutine;
   protected
-    constructor Create(const ASleepTime: UInt16 = 500); overload;
+    function Run: IScheduler; overload;
+    constructor Create(const ASleepTime: UInt16); overload;
   public
     class function New(const ASleepTime: UInt16 = 500): IScheduler;
     destructor Destroy; override;
-    procedure Next;
     procedure Send(const AName: String); overload;
     procedure Send(const AName: String; const AValue: TValue); overload;
     procedure Suspend(const AName: String);
     procedure Stop(const ATimeout: Cardinal = 1000);
-    function Add(const AName: String; const ARoutine: TFunc<TValue, TValue>; const AValue: TValue;
+    procedure Next;
+    function Add(const AName: String; const ARoutine: TFuncCoroutine; const AValue: TValue;
       const AProc: TProc = nil): IScheduler; overload;
     function Value: TValue;
     function Yield(const AName: String): TValue;
-    function Count: Integer;
-    function SendCount: Integer;
-    function Run: IScheduler; overload;
-    function Run(const AError: TProc<Exception>): IScheduler; overload;
+    function Count: UInt32;
+    function SendCount: UInt32;
+    function SendValue: TValue;
+    function Run(const AError: TProc<String>): IScheduler; overload;
+    property Coroutine[Name: String]: TCoroutine read _GetCoroutine;
   end;
 
 implementation
 
 { TScheduler }
 
-function TScheduler.Count: Integer;
+function TScheduler.Count: UInt32;
 begin
-  Result := FRoutines.Count;
+  Result := FCoroutines.Count;
 end;
 
 procedure TScheduler.Send(const AName: String);
@@ -145,40 +184,68 @@ begin
   FSend.Value := Default(TValue);
 end;
 
-function TScheduler.SendCount: Integer;
+function TScheduler.SendCount: UInt32;
 begin
   Result := 0;
-  if FRoutines.Count = 0 then
+  if FCoroutines.Count = 0 then
     exit;
-  Result := FRoutines.Peek.SendCount;
+  Result := FCoroutines.Peek.SendCount;
+end;
+
+function TScheduler.SendValue: TValue;
+begin
+  Result := FCurrentRoutine.SendValue;
 end;
 
 constructor TScheduler.Create(const ASleepTime: UInt16);
 begin
   FStoped := False;
   FSleepTime := ASleepTime;
-  FRoutines := TListHelper<TRoutine>.Create;
+  FException := Default(TException);
+  FCoroutines := TGather<TCoroutine>.Create;
+  FLock := TCriticalSection.Create;
 end;
 
 destructor TScheduler.Destroy;
+var
+  LItem: TCoroutine;
 begin
-  FRoutines.Free;
+  for LItem in FCoroutines do
+    LItem.Free;
+  FCoroutines.Free;
+  FLock.Free;
   inherited;
+end;
+
+function TScheduler._GetCoroutine(AValue: String): TCoroutine;
+var
+  LItem: TCoroutine;
+begin
+  Result := Default(TCoroutine);
+  for LItem in FCoroutines do
+  begin
+    if LItem.Name = AValue then
+    begin
+      Result := LItem;
+      Exit;
+    end;
+  end;
 end;
 
 function TScheduler.Yield(const AName: String): TValue;
 begin
-  if FRoutines.Count = 0 then
+  if FCoroutines.Count = 0 then
     raise Exception.Create(C_COROUTINE_NOT_FOUND);
+
   Suspend(AName);
-  repeat until not FPause.IsPaused;
+  while FPause.IsPaused do
   Result := FPause.Value;
   FPause.Value := Default(TValue);
 end;
 
 procedure TScheduler.Send(const AName: String; const AValue: TValue);
 begin
-  FCurrentRoutine.Value := TValue.Empty;
+  FCurrentRoutine.SendValue := TValue.Empty;
   FSend.IsSend := True;
   FSend.Name := AName;
   FSend.Value := AVAlue;
@@ -201,12 +268,12 @@ begin
   Result := FCurrentRoutine.Value;
 end;
 
-function TScheduler.Add(const AName: String; const ARoutine: TFunc<TValue, TValue>;
+function TScheduler.Add(const AName: String; const ARoutine: TFuncCoroutine;
   const AValue: TValue; const AProc: TProc = nil): IScheduler;
 begin
   Result := Self;
-  FRoutines.Enqueue(TRoutine.Create(AName, ARoutine, AValue, 1, AProc));
-  FCurrentRoutine := FRoutines.Peek;
+  FCoroutines.Enqueue(TCoroutine.Create(AName, ARoutine, AValue, 1, AProc));
+  FCurrentRoutine := FCoroutines.Peek;
 end;
 
 class function TScheduler.New(const ASleepTime: UInt16): IScheduler;
@@ -218,58 +285,73 @@ procedure TScheduler.Next;
 var
   LResultValue: TValue;
 begin
-  if FRoutines.Count = 0 then
+  if FCoroutines.Count = 0 then
     Exit;
+  try
+    FCurrentRoutine := FCoroutines.Dequeue;
+    if (FPause.IsPaused) and (FCurrentRoutine.Name = FPause.Name) then
+    begin
+      FPause.Name := EmptyStr;
+      FPause.Value := FCurrentRoutine.Value;
+      FPause.IsPaused := False;
+      FCurrentRoutine.State := TCoroutineState.csPaused;
+    end;
 
-  FCurrentRoutine := FRoutines.Dequeue;
-  if (FPause.IsPaused) and (FCurrentRoutine.Name = FPause.Name) then
-  begin
-    FPause.Name := EmptyStr;
-    FPause.Value := FCurrentRoutine.Value;
-    FPause.IsPaused := False;
-    FCurrentRoutine.State := TRoutineState.rsPaused;
-  end;
-
-  if FCurrentRoutine.State in [TRoutineState.rsActive] then
-  begin
-    if Assigned(FCurrentRoutine.Proc) then
+    if FCurrentRoutine.State in [TCoroutineState.csActive] then
     begin
-      TThread.Queue(TThread.CurrentThread, procedure
-                                           begin
-                                             FCurrentRoutine.Proc();
-                                           end);
-    end;
-    LResultValue := FCurrentRoutine.Func(FCurrentRoutine.Value);
-    Sleep(FSleepTime);
-    if not LResultValue.IsEmpty then
+      if Assigned(FCurrentRoutine.Proc) then
+      begin
+        TThread.Queue(TThread.CurrentThread, procedure
+                                             begin
+                                               FCurrentRoutine.Proc();
+                                             end);
+      end;
+      Sleep(FSleepTime);
+      LResultValue := FCurrentRoutine.Func(FCurrentRoutine.SendValue, FCurrentRoutine.Value);
+      if not LResultValue.IsEmpty then
+      begin
+        FCurrentRoutine.Value := LResultValue;
+        FCurrentRoutine.ObserverNotify;
+        FCoroutines.Enqueue(FCurrentRoutine);
+      end
+      else
+      if (LResultValue.IsEmpty) or (FCoroutines.Count = 0) then
+      begin
+        FCurrentRoutine.Free;
+        FCurrentRoutine := nil;
+        Exit;
+      end;
+    end
+    else
+    if (FCurrentRoutine.State in [TCoroutineState.csPaused]) and
+       (FCurrentRoutine.Func <> nil) then
     begin
-      FCurrentRoutine.Value := LResultValue;
-      FRoutines.Enqueue(FCurrentRoutine);
+      if (FSend.IsSend) and (FCurrentRoutine.Name = FSend.Name) then
+      begin
+        FCurrentRoutine.State := TCoroutineState.csActive;
+        FCurrentRoutine.SendCount := FCurrentRoutine.SendCount + 1;
+        if not FSend.Value.IsEmpty then
+          FCurrentRoutine.SendValue := FSend.Value;
+        FSend.IsSend := False;
+        FSend.Name := EmptyStr;
+        FSend.Value := Default(TValue);
+      end;
+      FCoroutines.Enqueue(FCurrentRoutine);
     end;
-    if (LResultValue.IsEmpty) or (FRoutines.Count = 0) then
-      Exit;
-  end
-  else
-  if (FCurrentRoutine.State in [TRoutineState.rsPaused]) and
-     (FCurrentRoutine.Func <> nil) then
-  begin
-    if (FSend.IsSend) and (FCurrentRoutine.Name = FSend.Name) then
+  except
+    on E: Exception do
     begin
-      FCurrentRoutine.State := TRoutineState.rsActive;
-      FCurrentRoutine.SendCount := FCurrentRoutine.SendCount + 1;
-      if not FSend.Value.IsEmpty then
-        FCurrentRoutine.Value := FSend.Value;
-      FSend.Value := Default(TValue);
-      FSend.Name := EmptyStr;
-      FSend.IsSend := False;
+      FCurrentRoutine.Free;
+      FCurrentRoutine := nil;
+      FException.IsException := True;
+      FException.Message := E.Message;
     end;
-    FRoutines.Enqueue(FCurrentRoutine);
   end;
 end;
 
-function TScheduler.Run(const AError: TProc<Exception>): IScheduler;
+function TScheduler.Run(const AError: TProc<String>): IScheduler;
 begin
-  FError := AError;
+  FErrorCallback := AError;
   Result := Self.Run;
 end;
 
@@ -277,23 +359,29 @@ function TScheduler.Run: IScheduler;
 begin
   FTask := TTask.Run(procedure
                      var
-                       LMessage: string;
+                       LMessage: String;
                      begin
-                       try
-                         while (not FStoped) and (FRoutines.Count > 0) do
+                       while (not FStoped) and (FCoroutines.Count > 0) do
+                       begin
+                         FLock.Acquire;
+                         try
                            Next;
-                       except
-                         on E: Exception do
-                         begin
-                           LMessage := E.Message;
-                           if Assigned(FError) then
+                           if FException.IsException then
                            begin
-                             TThread.Queue(TThread.CurrentThread,
-                               procedure
-                               begin
-                                 FError(Exception.Create(LMessage));
-                               end);
+                             LMessage := FException.Message;
+                             if Assigned(FErrorCallback) then
+                             begin
+                               TThread.Queue(TThread.CurrentThread,
+                                 procedure
+                                 begin
+                                   FErrorCallback(LMessage);
+                                 end);
+                             end;
+                             FException.IsException := False;
+                             FException.Message := '';
                            end;
+                         finally
+                           FLock.Release;
                          end;
                        end;
                      end);
@@ -302,25 +390,79 @@ end;
 
 { TRoutine }
 
-function TRoutine.Assign: TRoutine;
+function TCoroutine.Assign: TCoroutine;
 begin
   Result := Self;
 end;
 
-constructor TRoutine.Create(const AName: String; const AFunc: TFunc<TValue, TValue>;
-  const AValue: TValue; const ACountSend: Integer; const AProc: TProc = nil);
+procedure TCoroutine.Attach(const AObserver: TCoroutine);
+begin
+  FLock.Acquire;
+  try
+    FObserverList.Add(AObserver);
+  finally
+    FLock.Release;
+  end;
+end;
+
+constructor TCoroutine.Create;
+begin
+  raise Exception.Create('This class should not be used directly.');
+end;
+
+constructor TCoroutine.Create(const AName: String; const AFunc: TFuncCoroutine;
+  const AValue: TValue; const ACountSend: UInt32; const AProc: TProc = nil);
 begin
   FName := AName;
   FFunc := AFunc;
   FProc := AProc;
   FValue := AValue;
+  FSendValue := Default(TValue);
   FSendCount := ACountSend;
-  FState := TRoutineState.rsActive;
+  FState := TCoroutineState.csActive;
+  FObserverList := TList<TCoroutine>.Create;
+  FParamNotify := Default(TParamNotify);
+  FLock := TCriticalSection.Create;
 end;
 
-{ TListHelper<T> }
+destructor TCoroutine.Destroy;
+begin
+  FObserverList.Free;
+  FLock.Free;
+  inherited;
+end;
 
-function TScheduler.TListHelper<T>.Dequeue: T;
+procedure TCoroutine.Detach(const AObserver: TCoroutine);
+begin
+  FLock.Acquire;
+  try
+    FObserverList.Remove(AObserver);
+  finally
+    FLock.Release;
+  end;
+end;
+
+procedure TCoroutine.Notify(const AParams: TParamNotify);
+begin
+  FParamNotify := AParams;
+end;
+
+procedure TCoroutine.ObserverNotify;
+var
+  LItem: TCoroutine;
+begin
+  FLock.Acquire;
+  try
+    for LItem in FObserverList do
+      LItem.Notify(TParamNotify.Create(FName, FValue, FSendValue));
+  finally
+    FLock.Release;
+  end;
+end;
+
+{ TScheduler.TGather<T> }
+
+function TScheduler.TGather<T>.Dequeue: T;
 begin
   if Self.Count > 0 then
   begin
@@ -331,17 +473,27 @@ begin
     Result := Default(T);
 end;
 
-procedure TScheduler.TListHelper<T>.Enqueue(const AValue: T);
+procedure TScheduler.TGather<T>.Enqueue(const AValue: T);
 begin
   Self.Add(AValue);
 end;
 
-function TScheduler.TListHelper<T>.Peek: T;
+function TScheduler.TGather<T>.Peek: T;
 begin
   if Self.Count > 0 then
     Result := Self[0]
   else
     Result := Default(T);
+end;
+
+{ TParamNotify }
+
+constructor TParamNotify.Create(const AName: String; const AValue,
+  ASendValue: TValue);
+begin
+  FName := AName;
+  FValue := AValue;
+  FSendValue := ASendValue;
 end;
 
 end.

@@ -36,10 +36,10 @@ type
     FValueYeild: TValue;
     FCoroutine_0: String;
     FCoroutine_1: String;
-    function Contador(Value: TValue): TValue;
-    function Contador_Regressivo(Value: TValue): TValue;
-    function Contador_Async(Value: TValue): TValue;
-    function Contador_Regressivo_Async(Value: TValue): TValue;
+    function Contador(const SendValue, Value: TValue): TValue;
+    function Contador_Regressivo(const SendValue, Value: TValue): TValue;
+    function Contador_Async(const SendValue, Value: TValue): TValue;
+    function Contador_Regressivo_Async(const SendValue, Value: TValue): TValue;
   end;
 
 var
@@ -101,23 +101,23 @@ begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
                               end)
-            .Run(procedure(E: Exception)
+            .Run(procedure(AError: String)
                  begin
-                   raise E;
+                   Memo1.Lines.Add(AError);
                  end);
 end;
 
-function TForm2.Contador(Value: TValue): TValue;
+function TForm2.Contador(const SendValue, Value: TValue): TValue;
 begin
   if Value.AsInteger < 10 then
     Result := Value.AsInteger + 1
   else
     Result := TValue.Empty;
-// Simulação de error
-//  raise Exception.Create('Error Message');
+  // Simulação de error
+  //Abort;
 end;
 
-function TForm2.Contador_Regressivo(Value: TValue): TValue;
+function TForm2.Contador_Regressivo(const SendValue, Value: TValue): TValue;
 begin
   if (Value.AsInteger > 1) and (Value.AsInteger <= 15) then
     Result := Value.AsInteger - 1
@@ -141,13 +141,13 @@ begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
                               end)
-            .Run(procedure(E: Exception)
+            .Run(procedure(AError: String)
                  begin
-                   raise E;
+                   Memo2.Lines.Add(AError);
                  end);
 end;
 
-function TForm2.Contador_Async(Value: TValue): TValue;
+function TForm2.Contador_Async(const SendValue, Value: TValue): TValue;
 var
   LFuture: TFuture;
 begin
@@ -166,7 +166,7 @@ begin
 //  raise Exception.Create('Error Message');
 end;
 
-function TForm2.Contador_Regressivo_Async(Value: TValue): TValue;
+function TForm2.Contador_Regressivo_Async(const SendValue, Value: TValue): TValue;
 var
   LFuture: TFuture;
 begin
