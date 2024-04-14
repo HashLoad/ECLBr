@@ -44,31 +44,31 @@ type
 
   TDirEx = record
   strict private
-    class var FDirectory: string;
+    class var FDirectory: String;
   public
-    class function New(const ADirectory: string): TDirEx; static; inline;
+    class function New(const ADirectory: String): TDirEx; static; inline;
 
-    class function GetDirectories(const APath: string): TVector<string>; overload; inline; static;
-    class function GetDirectories(const APath: string; const APredicate: TFilterPredicate): TVector<string>; overload; inline; static;
-    class function GetDirectories(const APath, ASearchPattern: string): TVector<string>; overload; inline; static;
-    class function GetDirectories(const APath, ASearchPattern: string; const APredicate: TFilterPredicate): TVector<string>; overload; inline; static;
-    class function GetDirectories(const APath, ASearchPattern: string; const ASearchOption: TSearchOption): TVector<string>; overload; static;
-    class function GetDirectories(const APath, ASearchPattern: string; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<string>; overload; static;
-    class function GetDirectories(const APath: string; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<string>; overload; static;
+    class function GetDirectories(const APath: String): TVector<String>; overload; inline; static;
+    class function GetDirectories(const APath: String; const APredicate: TFilterPredicate): TVector<String>; overload; inline; static;
+    class function GetDirectories(const APath, ASearchPattern: String): TVector<String>; overload; inline; static;
+    class function GetDirectories(const APath, ASearchPattern: String; const APredicate: TFilterPredicate): TVector<String>; overload; inline; static;
+    class function GetDirectories(const APath, ASearchPattern: String; const ASearchOption: TSearchOption): TVector<String>; overload; static;
+    class function GetDirectories(const APath, ASearchPattern: String; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<String>; overload; static;
+    class function GetDirectories(const APath: String; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<String>; overload; static;
 
-    class function GetFileSystemEntries(const APath: string): TVector<string>; overload; inline; static;
-    class function GetFileSystemEntries(const APath: string; const APredicate: TFilterPredicate): TVector<string>; overload; inline; static;
-    class function GetFileSystemEntries(const APath, ASearchPattern: string): TVector<string>; overload; static;
-    class function GetFileSystemEntries(const APath, ASearchPattern: string; const APredicate: TFilterPredicate): TVector<string>; overload; static;
-    class function GetFileSystemEntries(const APath: string; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<string>; overload; static;
+    class function GetFileSystemEntries(const APath: String): TVector<String>; overload; inline; static;
+    class function GetFileSystemEntries(const APath: String; const APredicate: TFilterPredicate): TVector<String>; overload; inline; static;
+    class function GetFileSystemEntries(const APath, ASearchPattern: String): TVector<String>; overload; static;
+    class function GetFileSystemEntries(const APath, ASearchPattern: String; const APredicate: TFilterPredicate): TVector<String>; overload; static;
+    class function GetFileSystemEntries(const APath: String; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<String>; overload; static;
 
-    class function GetFiles(const APath: string): TVector<string>; overload; inline; static;
-    class function GetFiles(const APath: string; const APredicate: TFilterPredicate): TVector<string>; overload; inline; static;
-    class function GetFiles(const APath, ASearchPattern: string): TVector<string>; overload; inline; static;
-    class function GetFiles(const APath, ASearchPattern: string; const APredicate: TFilterPredicate): TVector<string>; overload; inline; static;
-    class function GetFiles(const APath, ASearchPattern: string; const ASearchOption: TSearchOption): TVector<string>; overload; static;
-    class function GetFiles(const APath, ASearchPattern: string; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<string>; overload; static;
-    class function GetFiles(const APath: string; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<string>; overload; static;
+    class function GetFiles(const APath: String): TVector<String>; overload; inline; static;
+    class function GetFiles(const APath: String; const APredicate: TFilterPredicate): TVector<String>; overload; inline; static;
+    class function GetFiles(const APath, ASearchPattern: String): TVector<String>; overload; inline; static;
+    class function GetFiles(const APath, ASearchPattern: String; const APredicate: TFilterPredicate): TVector<String>; overload; inline; static;
+    class function GetFiles(const APath, ASearchPattern: String; const ASearchOption: TSearchOption): TVector<String>; overload; static;
+    class function GetFiles(const APath, ASearchPattern: String; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<String>; overload; static;
+    class function GetFiles(const APath: String; const ASearchOption: TSearchOption; const APredicate: TFilterPredicate): TVector<String>; overload; static;
   end;
 
 implementation
@@ -76,123 +76,123 @@ implementation
 { TDirectoryEx }
 
 class function TDirEx.GetDirectories(const APath,
-  ASearchPattern: string): TVector<string>;
+  ASearchPattern: String): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath, ASearchPattern);
 end;
 
-class function TDirEx.GetDirectories(const APath: string;
-  const APredicate: TFilterPredicate): TVector<string>;
+class function TDirEx.GetDirectories(const APath: String;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath, APredicate);
 end;
 
-class function TDirEx.GetDirectories(const APath: string): TVector<string>;
+class function TDirEx.GetDirectories(const APath: String): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath);
 end;
 
-class function TDirEx.GetDirectories(const APath, ASearchPattern: string;
-  const APredicate: TFilterPredicate): TVector<string>;
+class function TDirEx.GetDirectories(const APath, ASearchPattern: String;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath, ASearchPattern, APredicate);
 end;
 
-class function TDirEx.GetDirectories(const APath: string;
+class function TDirEx.GetDirectories(const APath: String;
   const ASearchOption: TSearchOption;
-  const APredicate: TFilterPredicate): TVector<string>;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath, ASearchOption, APredicate);
 end;
 
 class function TDirEx.GetFileSystemEntries(
-  const APath: string): TVector<string>;
+  const APath: String): TVector<String>;
 begin
   Result := TDirectory.GetFileSystemEntries(APath);
 end;
 
-class function TDirEx.GetFileSystemEntries(const APath: string;
-  const APredicate: TFilterPredicate): TVector<string>;
+class function TDirEx.GetFileSystemEntries(const APath: String;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFileSystemEntries(APath, APredicate);
 end;
 
 class function TDirEx.GetFileSystemEntries(const APath,
-  ASearchPattern: string): TVector<string>;
+  ASearchPattern: String): TVector<String>;
 begin
   Result := TDirectory.GetFileSystemEntries(APath, ASearchPattern);
 end;
 
 class function TDirEx.GetFileSystemEntries(const APath,
-  ASearchPattern: string; const APredicate: TFilterPredicate): TVector<string>;
+  ASearchPattern: String; const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFileSystemEntries(APath, ASearchPattern, APredicate);
 end;
 
 class function TDirEx.GetFiles(const APath,
-  ASearchPattern: string): TVector<string>;
+  ASearchPattern: String): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath, ASearchPattern);
 end;
 
-class function TDirEx.GetFiles(const APath: string;
-  const APredicate: TFilterPredicate): TVector<string>;
+class function TDirEx.GetFiles(const APath: String;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath, APredicate);
 end;
 
-class function TDirEx.GetFiles(const APath: string): TVector<string>;
+class function TDirEx.GetFiles(const APath: String): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath);
 end;
 
-class function TDirEx.GetFiles(const APath, ASearchPattern: string;
-  const APredicate: TFilterPredicate): TVector<string>;
+class function TDirEx.GetFiles(const APath, ASearchPattern: String;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath, ASearchPattern, APredicate);
 end;
 
-class function TDirEx.GetFiles(const APath: string;
+class function TDirEx.GetFiles(const APath: String;
   const ASearchOption: TSearchOption;
-  const APredicate: TFilterPredicate): TVector<string>;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath, ASearchOption, APredicate);
 end;
 
-class function TDirEx.GetFiles(const APath, ASearchPattern: string;
+class function TDirEx.GetFiles(const APath, ASearchPattern: String;
   const ASearchOption: TSearchOption;
-  const APredicate: TFilterPredicate): TVector<string>;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath, ASearchPattern, ASearchOption, APredicate);
 end;
 
-class function TDirEx.GetFiles(const APath, ASearchPattern: string;
-  const ASearchOption: TSearchOption): TVector<string>;
+class function TDirEx.GetFiles(const APath, ASearchPattern: String;
+  const ASearchOption: TSearchOption): TVector<String>;
 begin
   Result := TDirectory.GetFiles(APath, ASearchPattern, ASearchOption);
 end;
 
-class function TDirEx.GetFileSystemEntries(const APath: string;
+class function TDirEx.GetFileSystemEntries(const APath: String;
   const ASearchOption: TSearchOption;
-  const APredicate: TFilterPredicate): TVector<string>;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetFileSystemEntries(APath, ASearchOption, APredicate);
 end;
 
-class function TDirEx.GetDirectories(const APath, ASearchPattern: string;
+class function TDirEx.GetDirectories(const APath, ASearchPattern: String;
   const ASearchOption: TSearchOption;
-  const APredicate: TFilterPredicate): TVector<string>;
+  const APredicate: TFilterPredicate): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath, ASearchPattern, ASearchOption, APredicate);
 end;
 
-class function TDirEx.GetDirectories(const APath, ASearchPattern: string;
-  const ASearchOption: TSearchOption): TVector<string>;
+class function TDirEx.GetDirectories(const APath, ASearchPattern: String;
+  const ASearchOption: TSearchOption): TVector<String>;
 begin
   Result := TDirectory.GetDirectories(APath, ASearchPattern, ASearchOption);
 end;
 
-class function TDirEx.New(const ADirectory: string): TDirEx;
+class function TDirEx.New(const ADirectory: String): TDirEx;
 begin
   FDirectory := ADirectory;
 end;

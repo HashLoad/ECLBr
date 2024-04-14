@@ -18,7 +18,7 @@ type
   TAnimal = class end;
   TDog = class(TAnimal) end;
   TProduct = class
-    Name: string;
+    Name: String;
     Price: Double;
   end;
   TDiscount = class
@@ -166,8 +166,8 @@ end;
 
 procedure TestTMatch.TestCaseIfAndGuard;
 var
-  LResult: TResultPair<boolean, string>;
-  LResultString: string;
+  LResult: TResultPair<Boolean, String>;
+  LResultString: String;
   LValue: Integer;
 begin
   LValue := 1;
@@ -187,14 +187,14 @@ end;
 
 procedure TestTMatch.TestCaseArray;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
 begin
-  LIsMatch := false;
+  LIsMatch := False;
   LMatchResult := TMatch<Integer>.Value(2)
-                                 .CaseIn([1, 2, 3], TArrow.Fn<boolean>(LIsMatch, true))
-                                 .CaseIn([1, 4, 8], TArrow.Fn<boolean>(LIsMatch, false))
-                                 .CaseIn([1, 9, 6], TArrow.Fn<boolean>(LIsMatch, false))
+                                 .CaseIn([1, 2, 3], TArrow.Fn<Boolean>(LIsMatch, True))
+                                 .CaseIn([1, 4, 8], TArrow.Fn<Boolean>(LIsMatch, False))
+                                 .CaseIn([1, 9, 6], TArrow.Fn<Boolean>(LIsMatch, False))
                                  .Execute;
   try
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
@@ -205,18 +205,18 @@ end;
 
 procedure TestTMatch.TestCaseEqArrayChar;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
   LValue: TArray<Char>;
 begin
-  LIsMatch := false;
+  LIsMatch := False;
   LValue := ['E', 'V', 'N'];
 
   LMatchResult := TMatch<TArray<Char>>.Value(LValue)
-                                  .CaseEq(['V', 'E', 'N'], TArrow.Fn<boolean>(LIsMatch, false))
-                                  .CaseEq(['E', 'V', 'N'], TArrow.Fn<boolean>(LIsMatch, true))
-                                  .CaseEq(['N', 'E', 'V'], TArrow.Fn<boolean>(LIsMatch, false))
-                                  .Default(TArrow.Fn<boolean>(LIsMatch, false))
+                                  .CaseEq(['V', 'E', 'N'], TArrow.Fn<Boolean>(LIsMatch, False))
+                                  .CaseEq(['E', 'V', 'N'], TArrow.Fn<Boolean>(LIsMatch, True))
+                                  .CaseEq(['N', 'E', 'V'], TArrow.Fn<Boolean>(LIsMatch, False))
+                                  .Default(TArrow.Fn<Boolean>(LIsMatch, False))
                                   .Execute;
   try
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
@@ -227,21 +227,21 @@ end;
 
 procedure TestTMatch.TestCaseEqArrayInteger;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
-  LValue: TArray<integer>;
+  LValue: TArray<Integer>;
 begin
-  LIsMatch := false;
+  LIsMatch := False;
   LValue := [1, 4, 8];
 
-  LMatchResult := TMatch<TArray<integer>>.Value(LValue)
+  LMatchResult := TMatch<TArray<Integer>>.Value(LValue)
                                   .CaseIf(1 in [2, 8, 1])
                                   .CaseIf(Length(LValue) > 2)
-                                  .CaseEq([1, 2, 3], procedure begin LIsMatch := false; end)
-                                  .CaseEq([1, 4, 8], procedure begin LIsMatch := true; end)
-                                  .CaseEq([1, 9, 6], procedure begin LIsMatch := false; end)
+                                  .CaseEq([1, 2, 3], procedure begin LIsMatch := False; end)
+                                  .CaseEq([1, 4, 8], procedure begin LIsMatch := True; end)
+                                  .CaseEq([1, 9, 6], procedure begin LIsMatch := False; end)
                                   .CaseRegex('email@gmail.com', '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$')
-                                  .Default(procedure begin LIsMatch := false; end)
+                                  .Default(procedure begin LIsMatch := False; end)
                                   .Execute;
   try
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
@@ -253,17 +253,17 @@ end;
 
 procedure TestTMatch.TestCaseEqArrayString;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
   LValue: TArray<String>;
 begin
-  LIsMatch := false;
+  LIsMatch := False;
   LValue := ['Eu', 'Você', 'Nós'];
 
   LMatchResult := TMatch<TArray<String>>.Value(LValue)
-                                  .CaseEq(['Você', 'Eu', 'Nós'], procedure begin LIsMatch := false; end)
-                                  .CaseEq(['Eu', 'Você', 'Nós'], procedure begin LIsMatch := true; end)
-                                  .CaseEq(['Nós', 'Eu', 'Você'], procedure begin LIsMatch := false; end)
+                                  .CaseEq(['Você', 'Eu', 'Nós'], procedure begin LIsMatch := False; end)
+                                  .CaseEq(['Eu', 'Você', 'Nós'], procedure begin LIsMatch := True; end)
+                                  .CaseEq(['Nós', 'Eu', 'Você'], procedure begin LIsMatch := False; end)
                                   .Execute;
   try
     Assert.IsTrue(LIsMatch, 'Expected match to be successful');
@@ -275,22 +275,22 @@ end;
 procedure TestTMatch.TestCaseGtWithInteger;
 var
   LValue: Integer;
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
 begin
   LValue := 10;
-  LIsMatch := false;
+  LIsMatch := False;
 
   try
     LResult := TMatch<Integer>.Value(LValue)
       .CaseGt(5, procedure
         begin
-          LIsMatch := true;
+          LIsMatch := True;
           Assert.Pass('Value is greater than 5.');
         end)
       .CaseGt(15, procedure
         begin
-          LIsMatch := false;
+          LIsMatch := False;
           Assert.Fail('Value is not greater than 15.');
         end)
       .Execute;
@@ -304,15 +304,15 @@ end;
 
 procedure TestTMatch.TestCaseChar;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   isMatch: Boolean;
 begin
-  isMatch := false;
+  isMatch := False;
   try
     LMatchResult := TMatch<Char>.Value('A')
-                                .CaseIn(['A', 'B', 'C'], procedure begin isMatch := true; end)
-                                .CaseIn(['B', 'C'], procedure begin isMatch := false; end)
-                                .CaseIn(['C'], procedure begin isMatch := false; end)
+                                .CaseIn(['A', 'B', 'C'], procedure begin isMatch := True; end)
+                                .CaseIn(['B', 'C'], procedure begin isMatch := False; end)
+                                .CaseIn(['C'], procedure begin isMatch := False; end)
                                 .Execute;
 
     Assert.IsTrue(isMatch, 'Expected match to be successful');
@@ -323,15 +323,15 @@ end;
 
 procedure TestTMatch.TestCaseDefault;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   isMatch: Boolean;
 begin
-  isMatch := false;
+  isMatch := False;
   try
     LMatchResult := TMatch<Integer>.Value(42)
-                                   .CaseEq(1, procedure begin isMatch := false; end)
-                                   .CaseEq(2, procedure begin isMatch := false; end)
-                                   .Default(  procedure begin isMatch := true; end)
+                                   .CaseEq(1, procedure begin isMatch := False; end)
+                                   .CaseEq(2, procedure begin isMatch := False; end)
+                                   .Default(  procedure begin isMatch := True; end)
                                    .Execute;
 
     Assert.IsTrue(isMatch, 'Expected match to be successful');
@@ -342,7 +342,7 @@ end;
 
 procedure TestTMatch.TestMatchWithMatchingCase;
 var
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
 begin
   LResult := TMatch<Integer>.Value(FValue1)
                             .CaseEq(1, Proc1)
@@ -357,7 +357,7 @@ end;
 
 procedure TestTMatch.TestMatchWithNoMatchingCase;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
 begin
   LMatchResult := TMatch<Integer>.Value(FValue2)
                                  .CaseEq(2, Proc2)
@@ -371,25 +371,25 @@ end;
 
 procedure TestTMatch.TestMatchWithTTuple;
 var
-  LDados: TTuple<string>;
-  LChave: string;
-  LValor: string;
-  LResult: TResultPair<boolean, string>;
+  LDados: TTuple<String>;
+  LChave: String;
+  LValor: String;
+  LResult: TResultPair<Boolean, String>;
 begin
-  LDados := TTuple<string>.New(['Nome', 'Idade', 'Cidade'], ['Alice', '25', 'Nova York']);
+  LDados := TTuple<String>.New(['Nome', 'Idade', 'Cidade'], ['Alice', '25', 'Nova York']);
 
   // Teste com a chave 'Idade'
   LChave := 'Idade';
-  LResult := TMatch<string>.Value(LChave)
-    .CaseEq('Nome', procedure(Key: string)
+  LResult := TMatch<String>.Value(LChave)
+    .CaseEq('Nome', procedure(Key: String)
                     begin
-                      LValor := LDados.Get<string>(Key);
+                      LValor := LDados.Get<String>(Key);
                     end)
-    .CaseEq('Idade', TArrow.Fn<string>(LValor,
-                                       LDados.Get<string>(TMatch.Value<string>))) // <<<<<==========
-    .CaseEq('Cidade', procedure(Key: string)
+    .CaseEq('Idade', TArrow.Fn<String>(LValor,
+                                       LDados.Get<String>(TMatch.Value<String>))) // <<<<<==========
+    .CaseEq('Cidade', procedure(Key: String)
                       begin
-                        LValor := LDados.Get<string>(Key);
+                        LValor := LDados.Get<String>(Key);
                       end)
     .Default(procedure begin LValor := 'Chave não encontrada'; end)
     .Execute;
@@ -404,7 +404,7 @@ end;
 
 procedure TestTMatch.TestNestedCases;
 var
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
   LPattern: TMatch<TObject>;
   LTypeA: TMatchTypeA;
 begin
@@ -434,7 +434,7 @@ procedure TestTMatch.TestPatternMatchingWithDiscounts;
 var
   LProduct: TProduct;
   LDiscount: TDiscount;
-  LResult:  TResultPair<boolean, string>;
+  LResult:  TResultPair<Boolean, String>;
 begin
   LProduct := TProduct.Create;
   LProduct.Name := 'Sample Product';
@@ -445,27 +445,24 @@ begin
 
   try
     LResult := TMatch<TProduct>.Value(LProduct)
-      .CaseIs<TPercentageDiscount>(
-        procedure(Discount: TPercentageDiscount)
-        var
-          DiscountedPrice: Double;
-        begin
-          DiscountedPrice := LProduct.Price - (LProduct.Price * Discount.Percentage / 100);
-          Assert.AreEqual(90.0, DiscountedPrice, 0.01, 'Percentage discount calculation incorrect.');
-        end)
-      .CaseIs<TFixedAmountDiscount>(
-        procedure(Discount: TFixedAmountDiscount)
-        var
-          DiscountedPrice: Double;
-        begin
-          DiscountedPrice := LProduct.Price - Discount.Amount;
-          Assert.AreEqual(80.0, DiscountedPrice, 0.01, 'Fixed amount discount calculation incorrect.');
-        end)
-      .Default(
-        procedure
-        begin
-          Assert.Fail('No matching case found.');
-        end)
+      .CaseIs<TPercentageDiscount>(procedure(Discount: TPercentageDiscount)
+                                   var
+                                     DiscountedPrice: Double;
+                                   begin
+                                     DiscountedPrice := LProduct.Price - (LProduct.Price * Discount.Percentage / 100);
+                                     Assert.AreEqual(90.0, DiscountedPrice, 0.01, 'Percentage discount calculation incorrect.');
+                                   end)
+      .CaseIs<TFixedAmountDiscount>(procedure(Discount: TFixedAmountDiscount)
+                                    var
+                                      DiscountedPrice: Double;
+                                    begin
+                                      DiscountedPrice := LProduct.Price - Discount.Amount;
+                                      Assert.AreEqual(80.0, DiscountedPrice, 0.01, 'Fixed amount discount calculation incorrect.');
+                                    end)
+      .Default(procedure
+               begin
+                 Assert.Fail('No matching case found.');
+               end)
       .Execute;
 
     Assert.IsTrue(LResult.isSuccess, 'Pattern matching failed.');
@@ -480,7 +477,7 @@ procedure TestTMatch.TestPatternMatchingWithProduct;
 var
   LProduct: TProduct;
   LDiscount: TDiscount;
-  LResult:  TResultPair<boolean, string>;
+  LResult:  TResultPair<Boolean, String>;
 begin
   LProduct := TProduct.Create;
   LProduct.Name := 'Sample Product';
@@ -490,18 +487,17 @@ begin
     (LDiscount as TPercentageDiscount).Percentage := 10;
 
     LResult := TMatch<TProduct>.Value(LProduct)
-      .CaseIs<TPercentageDiscount>(
-        procedure(LDiscount: TPercentageDiscount)
-        var
-          LDiscountedPrice: Double;
-        begin
-          LDiscountedPrice := LProduct.Price - (LProduct.Price * LDiscount.Percentage / 100);
-          Assert.AreEqual(90.0, LDiscountedPrice, 0.01, 'Percentage discount calculation incorrect.');
-        end)
+      .CaseIs<TPercentageDiscount>(procedure(LDiscount: TPercentageDiscount)
+                                   var
+                                     LDiscountedPrice: Double;
+                                   begin
+                                     LDiscountedPrice := LProduct.Price - (LProduct.Price * LDiscount.Percentage / 100);
+                                     Assert.AreEqual(90.0, LDiscountedPrice, 0.01, 'Percentage discount calculation incorrect.');
+                                   end)
         .Default(procedure
-        begin
-          Assert.Fail('No matching case found.');
-        end)
+                 begin
+                   Assert.Fail('No matching case found.');
+                 end)
         .Execute;
 
     Assert.IsTrue(LResult.isSuccess, 'Pattern matching failed.');
@@ -514,9 +510,9 @@ end;
 
 procedure TestTMatch.TestCaseMultiple;
 var
-  LResult: TResultPair<boolean, string>;
-  LResultString: string;
-  LResultStringNot: string;
+  LResult: TResultPair<Boolean, String>;
+  LResultString: String;
+  LResultStringNot: String;
   LValues: Tuple;
 begin
   LValues := ['Matched 1 or 2', 'Matched 3 not'];
@@ -534,15 +530,15 @@ end;
 
 procedure TestTMatch.TestCaseIfNotGuard;
 var
-  LResultString: string;
+  LResultString: String;
   LValue: Integer;
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
 begin
   LValue := 1;
   try
     LResult := TMatch<Integer>.Value(LValue)
                               .CaseIf((LValue = 1) and not (LValue <> 1))
-                              .CaseEq(1, TArrow.Fn<string>(LResultString, 'Matched 1 with NotGuard'))
+                              .CaseEq(1, TArrow.Fn<String>(LResultString, 'Matched 1 with NotGuard'))
                               .Execute;
     Assert.AreEqual('Matched 1 with NotGuard', LResultString);
   finally
@@ -552,8 +548,8 @@ end;
 
 procedure TestTMatch.TestCaseIfOrGuard;
 var
-  LResult: TResultPair<boolean, string>;
-  LResultString: string;
+  LResult: TResultPair<Boolean, String>;
+  LResultString: String;
   LValue: Integer;
 begin
   LValue := 1;
@@ -570,8 +566,8 @@ end;
 
 procedure TestTMatch.TestRange;
 var
-  LResult: TResultPair<boolean, string>;
-  LResultString: string;
+  LResult: TResultPair<Boolean, String>;
+  LResultString: String;
 begin
   LResult := TMatch<Integer>.Value(5)
                    .CaseRange(1, 10, procedure begin LResultString := 'Matched range 1-10'; end)
@@ -585,15 +581,15 @@ end;
 
 procedure TestTMatch.TestCaseRegex;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
 begin
-  LIsMatch := false;
+  LIsMatch := False;
   try
     LMatchResult := TMatch<Integer>.Value(2)
-                                   .CaseIn([1, 2, 3], procedure begin LIsMatch := true; end)
-                                   .CaseIn([1, 4, 8], procedure begin LIsMatch := false; end)
-                                   .CaseIn([1, 9, 6], procedure begin LIsMatch := false; end)
+                                   .CaseIn([1, 2, 3], procedure begin LIsMatch := True; end)
+                                   .CaseIn([1, 4, 8], procedure begin LIsMatch := False; end)
+                                   .CaseIn([1, 9, 6], procedure begin LIsMatch := False; end)
                                    .CaseRegex('email@gmail.com', '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$')
                                    .Execute;
 
@@ -605,14 +601,14 @@ end;
 
 procedure TestTMatch.TestCaseRangeSet;
 //var
-//  LMatchResult: TResultPair<boolean, string>;
+//  LMatchResult: TResultPair<Boolean, String>;
 //  isMatch: Boolean;
 begin
-//  isMatch := false;
+//  isMatch := False;
 //  try
 //    LMatchResult := TMatch<Char>.Value('A')
-//                                .CaseIn(['A'..'Z'], procedure begin isMatch := true; end)
-//                                .CaseIn([1..100], procedure begin isMatch := false; end)
+//                                .CaseIn(['A'..'Z'], procedure begin isMatch := True; end)
+//                                .CaseIn([1..100], procedure begin isMatch := False; end)
 //                                .Execute;
 //
 //    Assert.IsTrue(isMatch, 'Expected match to be successful');
@@ -623,11 +619,11 @@ end;
 
 procedure TestTMatch.TestSingleCaseOf;
 var
-  LResult: TResultPair<boolean, string>;
-  LResultString: string;
+  LResult: TResultPair<Boolean, String>;
+  LResultString: String;
 begin
   LResult := TMatch<Integer>.Value(1)
-                            .CaseEq(1, TArrow.Fn<string>(LResultString, 'Matched 1'))
+                            .CaseEq(1, TArrow.Fn<String>(LResultString, 'Matched 1'))
                             .Execute;
   try
     Assert.AreEqual('Matched 1', LResultString);
@@ -638,8 +634,8 @@ end;
 
 procedure TestTMatch.TestSingleCaseOfWithArgument;
 var
-  LResult: TResultPair<boolean, string>;
-  LResultString: string;
+  LResult: TResultPair<Boolean, String>;
+  LResultString: String;
 begin
   LResult := TMatch<Integer>.Value(1)
                             .CaseEq(1, procedure(Arg: Integer) begin LResultString := Format('Matched %d', [Arg]); end)
@@ -653,15 +649,15 @@ end;
 
 procedure TestTMatch.TestCaseTryExcept;
 var
-  LMatchResult: TResultPair<boolean, string>;
+  LMatchResult: TResultPair<Boolean, String>;
   isMatch: Boolean;
 begin
-  isMatch := false;
+  isMatch := False;
   try
     LMatchResult := TMatch<Integer>.Value(42)
-                                   .CaseEq(1, procedure begin isMatch := false; end)
+                                   .CaseEq(1, procedure begin isMatch := False; end)
                                    .CaseEq(42, procedure begin raise Exception.Create('TryExcept'); end)
-                                   .TryExcept(procedure begin isMatch := true; end)
+                                   .TryExcept(procedure begin isMatch := True; end)
                                    .Execute;
 
     Assert.AreEqual('TryExcept', LMatchResult.ValueFailure, 'Expected match to be successful');
@@ -674,33 +670,29 @@ end;
 
 procedure TestTMatch.TestEnumPatternMatching;
 var
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
   EnumValue: TEnumType;
-  ResultString: string;
+  ResultString: String;
 begin
   EnumValue := TEnumType.Two;
 
   LResult := TMatch<TEnumType>.Value(EnumValue)
-    .CaseEq(TEnumType.One,
-      procedure
-      begin
-        ResultString := 'EnumValue is One';
-      end)
-    .CaseEq(TEnumType.Two,
-      procedure
-      begin
-        ResultString := 'EnumValue is Two';
-      end)
-    .CaseEq(TEnumType.Three,
-      procedure
-      begin
-        ResultString := 'EnumValue is Three';
-      end)
-    .Default(
-      procedure
-      begin
-        ResultString := 'EnumValue is not recognized';
-      end)
+    .CaseEq(TEnumType.One, procedure
+                           begin
+                             ResultString := 'EnumValue is One';
+                           end)
+    .CaseEq(TEnumType.Two, procedure
+                           begin
+                             ResultString := 'EnumValue is Two';
+                           end)
+    .CaseEq(TEnumType.Three, procedure
+                             begin
+                               ResultString := 'EnumValue is Three';
+                             end)
+    .Default(procedure
+             begin
+               ResultString := 'EnumValue is not recognized';
+             end)
     .Execute;
 
   try
@@ -712,7 +704,7 @@ end;
 
 procedure TestTMatch.TestEnumPatternMatchingWithReturn;
 var
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
   LEnumValue: TEnumType;
 begin
   LEnumValue := TEnumType.Two;
@@ -734,12 +726,12 @@ begin
                begin
                  Result := 'EnumValue is not recognized';
                end)
-      .Execute<string>
-      .Ok(procedure(Valeu: string)
+      .Execute<String>
+      .Ok(procedure(Valeu: String)
           begin
             // Success (LResult.ValueSuccess)
           end)
-      .Fail(procedure(Value: string)
+      .Fail(procedure(Value: String)
             begin
               // Failure (LResult.ValueFailure)
             end);
@@ -752,33 +744,29 @@ end;
 
 procedure TestTMatch.TestCaseIsMatching;
 var
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
   LValueList: TArray<Integer>;
-  ResultString: string;
+  ResultString: String;
 begin
   LValueList := [42, 36];
 
-  LResult := TMatch<integer>.Value(LValueList[0])
-                .CaseIs<Integer>(
-                  procedure(Value: Integer)
-                  begin
-                    ResultString := 'Value is an Integer: ' + Value.ToString;
-                  end)
-                .CaseIs<string>(
-                  procedure(Value: string)
-                  begin
-                    ResultString := 'Value is a String: ' + Value;
-                  end)
-                .CaseIs<TDateTime>(
-                  procedure(Value: TDateTime)
-                  begin
-                    ResultString := 'Value is a DateTime: ' + DateTimeToStr(Value);
-                  end)
-                .Default(
-                  procedure
-                  begin
-                    ResultString := 'Value is of an unknown type';
-                  end)
+  LResult := TMatch<Integer>.Value(LValueList[0])
+                .CaseIs<Integer>(procedure(Value: Integer)
+                                 begin
+                                   ResultString := 'Value is an Integer: ' + Value.ToString;
+                                 end)
+                .CaseIs<String>(procedure(Value: String)
+                                begin
+                                  ResultString := 'Value is a String: ' + Value;
+                                end)
+                .CaseIs<TDateTime>(procedure(Value: TDateTime)
+                                   begin
+                                     ResultString := 'Value is a DateTime: ' + DateTimeToStr(Value);
+                                   end)
+                .Default(procedure
+                         begin
+                           ResultString := 'Value is of an unknown type';
+                         end)
                 .Execute;
 
   try
@@ -790,33 +778,33 @@ end;
 
 procedure TestTMatch.TestCaseIsObjectMatching;
 var
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
   LValueList: TArray<TAnimal>;
-  ResultString: string;
+  ResultString: String;
 begin
   LValueList := [TDog.Create];
   try
     LResult := TMatch<TAnimal>.Value(LValueList[0])
       .CaseIs<Integer>(procedure(Value: Integer)
-        begin
-          ResultString := 'Value is an Integer: ' + Value.ToString;
-        end)
-      .CaseIs<string>(procedure(Value: string)
-        begin
-          ResultString := 'Value is a String: ' + Value;
-        end)
+                       begin
+                         ResultString := 'Value is an Integer: ' + Value.ToString;
+                       end)
+      .CaseIs<String>(procedure(Value: String)
+                      begin
+                        ResultString := 'Value is a String: ' + Value;
+                      end)
       .CaseIs<TDateTime>(procedure(Value: TDateTime)
-        begin
-          ResultString := 'Value is a DateTime: ' + DateTimeToStr(Value);
-        end)
+                         begin
+                           ResultString := 'Value is a DateTime: ' + DateTimeToStr(Value);
+                         end)
       .CaseIs<TAnimal>(procedure(Value: TAnimal)
-        begin
-          ResultString := 'Value is a Object: ' + Value.ClassName;
-        end)
+                       begin
+                         ResultString := 'Value is a Object: ' + Value.ClassName;
+                       end)
       .Default(procedure
-        begin
-          ResultString := 'Value is of an unknown type';
-        end)
+               begin
+                 ResultString := 'Value is of an unknown type';
+               end)
       .Execute;
 
     Assert.IsTrue(LResult.isSuccess);
@@ -830,25 +818,23 @@ end;
 procedure TestTMatch.TestCaseLtWithInteger;
 var
   LValue: Integer;
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
   LIsMatch: Boolean;
 begin
   LValue := 10;
-  LIsMatch := false;
+  LIsMatch := False;
   try
     LResult := TMatch<Integer>.Value(LValue)
-      .CaseLt(15,
-        procedure
-        begin
-          LIsMatch := true;
-          Assert.Fail('Value is not greater than 15.');
-        end)
-      .CaseLt(5,
-        procedure
-        begin
-          LIsMatch := false;
-          Assert.Pass('Value is greater than 5.');
-        end)
+      .CaseLt(15, procedure
+                  begin
+                    LIsMatch := True;
+                    Assert.Fail('Value is not greater than 15.');
+                  end)
+      .CaseLt(5, procedure
+                 begin
+                   LIsMatch := False;
+                   Assert.Pass('Value is greater than 5.');
+                 end)
       .Execute;
 
     Assert.IsTrue(LIsMatch, 'Pattern matching failed.');
@@ -860,9 +846,9 @@ end;
 
 procedure TestTMatch.TestPatternCombinator;
 var
-  LResult: TResultPair<boolean, string>;
-  LValueString: string;
-  LResultString: string;
+  LResult: TResultPair<Boolean, String>;
+  LValueString: String;
+  LResultString: String;
   LStrPattern: TMatch<String>;
 begin
   LValueString := 'Hello';
@@ -876,11 +862,10 @@ begin
 
   LResult := TMatch<String>.Value(LValueString)
                 .Combine(LStrPattern)
-                .Default(
-                    procedure
-                    begin
-                      LResultString := 'Value is of an unknown type';
-                    end)
+                .Default(procedure
+                         begin
+                           LResultString := 'Value is of an unknown type';
+                         end)
                 .Execute;
   try
     Assert.AreEqual('Value is a String', LResultString);
@@ -891,10 +876,10 @@ end;
 
 procedure TestTMatch.TestMultipleCombines;
 var
-  LValueString: string;
-  LResultString: string;
+  LValueString: String;
+  LResultString: String;
   LStrPattern1, LStrPattern2: TMatch<String>;
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
 begin
   LValueString := 'Hello';
 
@@ -931,10 +916,10 @@ end;
 
 procedure TestTMatch.TestCombineWithDefault;
 var
-  LValueString: string;
-  LResultString: string;
+  LValueString: String;
+  LResultString: String;
   LStrPattern1, LStrPattern2: TMatch<String>;
-  LCombinedPattern: TResultPair<boolean, string>;
+  LCombinedPattern: TResultPair<Boolean, String>;
 begin
   LValueString := 'Hello';
 
@@ -972,7 +957,7 @@ end;
 procedure TestTMatch.TestDefaultExecutionFailure;
 var
   LValue: Integer;
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
 begin
   LValue := 100;
 
@@ -997,7 +982,7 @@ end;
 
 procedure TestTMatch.TestMatchWithMultipleCases;
 var
-  LResult: TResultPair<boolean, string>;
+  LResult: TResultPair<Boolean, String>;
 begin
   LResult := TMatch<Integer>.Value(FValue1)
                             .CaseEq(1, ProcWithParam)
@@ -1013,28 +998,28 @@ end;
 
 procedure TestTMatch.TestMatchHttpStatus;
 var
-  LMatchResult: TResultPair<string, string>;
+  LMatchResult: TResultPair<String, String>;
   LStatus: Integer;
 begin
   LStatus := 400;
 
 //  Tradicional
-//  LMatchResult := TMatch<integer>.Value(LStatus)
+//  LMatchResult := TMatch<Integer>.Value(LStatus)
 //                     .CaseEq(200, function: TValue begin Result := 'OK'; end)
 //                     .CaseEq(400, function: TValue begin Result := 'Bad request'; end)
 //                     .CaseEq(404, function: TValue begin Result := 'Not found'; end)
 //                     .CaseEq(418, function: TValue begin Result := 'I´m a teapot'; end)
 //                     .Default(    function: TValue begin Result := 'Something´s wrong with the Internet'; end)
-//                     .Execute<string>;
+//                     .Execute<String>;
 
   // Com TArrow.Fn
-  LMatchResult := TMatch<integer>.Value(LStatus)
+  LMatchResult := TMatch<Integer>.Value(LStatus)
                        .CaseEq(200, TArrow.Fn('Ok'))
                        .CaseEq(400, TArrow.Fn('Bad request'))
                        .CaseEq(404, TArrow.Fn('Not found'))
                        .CaseEq(418, TArrow.Fn('I´m a teapot'))
                        .Default(    TArrow.Fn('Something´s wrong with the Internet'))
-                       .Execute<string>;
+                       .Execute<String>;
 
   try
     Assert.IsTrue(LMatchResult.isSuccess, 'Expected match to be successful');
@@ -1047,15 +1032,15 @@ end;
 procedure TestTMatch.TestMatchTupla;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_', 'Alice'], TArrow.Fn('Personagem'))
     .CaseEq(['_', 25],      TArrow.Fn('Jovem'))
-    .CaseEq(['_', false],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['_', False],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(               function:               TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally
@@ -1066,7 +1051,7 @@ end;
 procedure TestTMatch.TestMatchTupla_1;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
@@ -1074,7 +1059,7 @@ begin
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
     .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                 function:               TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally
@@ -1085,15 +1070,15 @@ end;
 procedure TestTMatch.TestMatchTupla_2;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
-  LTuple := ['Idade', 25, true];
+  LTuple := ['Idade', 25, True];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_*', true],  TArrow.Fn('Jovem'))
-    .CaseEq(['_*', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['_*', False], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_*', True],  TArrow.Fn('Jovem'))
+    .CaseEq(['_*', False], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally
@@ -1104,15 +1089,15 @@ end;
 procedure TestTMatch.TestMatchTupla_3;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
-  LTuple := ['Idade', 25, true];
+  LTuple := ['Idade', 25, True];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', '_', true],  TArrow.Fn('Jovem'))
-    .CaseEq(['_', '_', false], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['_', '_', False], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
+    .CaseEq(['_', '_', True],  TArrow.Fn('Jovem'))
+    .CaseEq(['_', '_', False], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                  function:               TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally
@@ -1123,7 +1108,7 @@ end;
 procedure TestTMatch.TestMatchTupla_4;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
   LTuple := [1, 2, 3];
   LResult := TMatch<Tuple>.Value(LTuple)
@@ -1131,7 +1116,7 @@ begin
     .CaseEq(['_', 2, '_'], TArrow.Fn('Jovem'))
     .CaseEq([2, '_', '_'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally

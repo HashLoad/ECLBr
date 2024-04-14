@@ -14,12 +14,12 @@ uses
 type
   TPerson = class
   private
-    FName: string;
+    FName: String;
     FAge: Integer;
     FDate: TDateTime;
   public
-    constructor Create(const AName: string; const AAge: Integer; const ADate: TDateTime);
-    function GetName: string;
+    constructor Create(const AName: String; const AAge: Integer; const ADate: TDateTime);
+    function GetName: String;
     function GetAge: Integer;
     function GetDate: TDateTime;
   end;
@@ -81,22 +81,15 @@ begin
 end;
 
 procedure TestStreamReader.TestDistinct;
-var
-  LDistinctStream: TStreamReaderEx;
 begin
-  LDistinctStream := FStreamReader.Distinct;
-  try
-    // Realize as asserções para verificar se o resultado é o esperado
-    Assert.AreEqual(
-      'This is a sample text file.' + sLineBreak +
-      'It contains multiple lines.' + sLineBreak +
-      'Each line has some text.' + sLineBreak,
-      LDistinctStream.AsString,
-      'Distinct should return distinct lines'
-    );
-  finally
-    LDistinctStream := nil;
-  end;
+  // Realize as asserções para verificar se o resultado é o esperado
+  Assert.AreEqual(
+    'This is a sample text file.' + sLineBreak +
+    'It contains multiple lines.' + sLineBreak +
+    'Each line has some text.' + sLineBreak,
+    FStreamReader.Distinct.AsString,
+    'Distinct should return distinct lines'
+  );
 end;
 
 procedure TestStreamReader.TestFilterByGender;
@@ -118,7 +111,7 @@ begin
 
   // Crie um leitor de fluxo a partir dos dados
   LReader := TStreamReaderEx.New(LDataStream)
-                                .Filter(function(Line: string): Boolean
+                                .Filter(function(Line: String): Boolean
                                         begin
                                           Result := Pos('feminino', Line) > 0;
                                         end
@@ -145,7 +138,7 @@ begin
   LLines := TStringList.Create;
   try
     FStreamReader.ForEach(
-      procedure(Line: string)
+      procedure(Line: String)
       begin
         LLines.Add(Line);
       end
@@ -164,7 +157,7 @@ procedure TestStreamReader.TestGroupBy;
 var
   LSampleFile: TStringStream;
   LStreamReader: TStreamReaderEx;
-  LGroups: TMap<string, TVector<string>>;
+  LGroups: TMap<String, TVector<String>>;
 begin
   LSampleFile := TStringStream.Create(
     'Apple' + sLineBreak +
@@ -177,7 +170,7 @@ begin
   LStreamReader := TStreamReaderEx.New(LSampleFile);
   try
     LGroups := LStreamReader.GroupBy(
-      function(Line: string): string
+      function(Line: String): String
       begin
         if Line <> '' then
           Result := Line[1]
@@ -207,7 +200,7 @@ begin
   // linha 3 de teste
 
   LReader := TStreamReaderEx.New('streams.txt')
-                            .Map(function(Line: string): string
+                            .Map(function(Line: String): String
                                  begin
                                    Result := UpperCase(Line);
                                  end);
@@ -232,11 +225,11 @@ begin
                                       'Name 4;44;09-11-2023' + sLineBreak);
   LStreamReader := TStreamReaderEx.New(LSampleFile);
   try
-    LPersons := LStreamReader.Map<TVector<string>>(function(Line: string): TVector<string>
+    LPersons := LStreamReader.Map<TVector<String>>(function(Line: String): TVector<String>
                                                    begin
-                                                     Result := TVector<string>.Create(Line.Split([';']))
+                                                     Result := TVector<String>.Create(Line.Split([';']))
                                                    end)
-                             .Map<TPerson>(function(Data: TVector<string>): TPerson
+                             .Map<TPerson>(function(Data: TVector<String>): TPerson
                                                    begin
                                                      Result := TPerson.Create(Data[0],
                                                                               StrToIntDef(Data[1], 0),
@@ -276,7 +269,7 @@ begin
   );
 
   LStreamReader := TStreamReaderEx.New(LSampleFile);
-  LPartitionResult := LStreamReader.Partition(function(Line: string): Boolean
+  LPartitionResult := LStreamReader.Partition(function(Line: String): Boolean
                                               begin
                                                 Result := Length(Line) mod 2 = 0;
                                               end);
@@ -306,7 +299,7 @@ var
 begin
   // Teste para calcular o comprimento total das linhas no arquivo de amostra
   TotalLength := FStreamReader.Reduce(
-    function(Accumulator: Integer; Line: string): Integer
+    function(Accumulator: Integer; Line: String): Integer
     begin
       Result := Accumulator + Length(Line);
     end,
@@ -408,7 +401,7 @@ end;
 
 { TPerson }
 
-constructor TPerson.Create(const AName: string; const AAge: Integer;
+constructor TPerson.Create(const AName: String; const AAge: Integer;
   const ADate: TDateTime);
 begin
   FName := AName;
@@ -426,7 +419,7 @@ begin
   Result := FDate;
 end;
 
-function TPerson.GetName: string;
+function TPerson.GetName: String;
 begin
   Result := FName;
 end;

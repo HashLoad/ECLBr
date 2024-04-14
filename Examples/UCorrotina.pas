@@ -68,7 +68,7 @@ procedure TForm2.Button3Click(Sender: TObject);
 begin
   if not Assigned(FScheduler) then
     Exit;
-  FScheduler.Send(FCoroutine_0)
+  FScheduler.Send(FCoroutine_0, 0)
 end;
 
 procedure TForm2.Button4Click(Sender: TObject);

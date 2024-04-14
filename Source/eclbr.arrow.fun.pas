@@ -142,7 +142,7 @@ begin
                         tkFloat:
                           TArray<Extended>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<Extended>>;
                         tkUString, tkLString, tkWString, tkString, tkChar, tkWChar:
-                          TArray<string>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<string>>;
+                          TArray<String>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<String>>;
                         tkClass:
                           TArray<TObject>(LVarRefs[LFor]) := AValues[LFor].AsType<TArray<TObject>>;
                         tkEnumeration:
@@ -163,6 +163,12 @@ begin
 end;
 
 end.
+
+
+
+
+
+
 
 
 

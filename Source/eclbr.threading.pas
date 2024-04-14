@@ -169,7 +169,7 @@ function TAsync._AwaitProc(const AContinue: TProc;
   const ATimeout: Cardinal): TFuture;
 var
   LSelf: PAsync;
-  LMessage: string;
+  LMessage: String;
 begin
   LSelf := @Self;
   try
@@ -201,7 +201,7 @@ begin
     if LMessage <> '' then
       raise EAsyncAwait.Create(LMessage);
 
-    Result.SetOk(true);
+    Result.SetOk(True);
   except
     on E: Exception do
       Result.SetErr(E.Message);
@@ -218,7 +218,7 @@ begin
   try
     FTask := TTask.Run(procedure
                        var
-                         LMessage: string;
+                         LMessage: String;
                        begin
                          try
                            LProc();
@@ -237,7 +237,7 @@ begin
                            end;
                          end;
                        end);
-    Result.SetOk(true);
+    Result.SetOk(True);
   except
     on E: Exception do
       Result.SetErr(E.Message);
@@ -249,7 +249,7 @@ function TAsync._AwaitFunc(const AContinue: TProc;
 var
   LValue: TValue;
   LSelf: PAsync;
-  LMessage: string;
+  LMessage: String;
 begin
   LSelf := @Self;
   try
@@ -292,7 +292,7 @@ function TAsync._AwaitFunc(const ATimeout: Cardinal): TFuture;
 var
   LValue: TValue;
   LSelf: PAsync;
-  LMessage: string;
+  LMessage: String;
 begin
   LSelf := @Self;
   try
@@ -319,7 +319,7 @@ end;
 function TAsync._AwaitProc(const ATimeout: Cardinal): TFuture;
 var
   LSelf: PAsync;
-  LMessage: string;
+  LMessage: String;
 begin
   LSelf := @Self;
   try
@@ -336,7 +336,7 @@ begin
     if (LMessage <> '') then
       raise EAsyncAwait.Create(LMessage);
 
-    Result.SetOk(true);
+    Result.SetOk(True);
   except
     on E: Exception do
       Result.SetErr(E.Message);

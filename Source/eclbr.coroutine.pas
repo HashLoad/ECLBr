@@ -108,8 +108,7 @@ type
   IScheduler = interface
     ['{BC104A19-9657-4093-A494-8D3CFD4CAF09}']
     function _GetCoroutine(AValue: String): TCoroutine;
-    procedure Send(const AName: String); overload;
-    procedure Send(const AName: String; const AValue: TValue); overload;
+    procedure Send(const AName: String; const AValue: TValue);
     procedure Suspend(const AName: String);
     procedure Stop(const ATimeout: Cardinal = 1000);
     procedure Next;
@@ -152,8 +151,7 @@ type
   public
     class function New(const ASleepTime: UInt16 = 500): IScheduler;
     destructor Destroy; override;
-    procedure Send(const AName: String); overload;
-    procedure Send(const AName: String; const AValue: TValue); overload;
+    procedure Send(const AName: String; const AValue: TValue);
     procedure Suspend(const AName: String);
     procedure Stop(const ATimeout: Cardinal = 1000);
     procedure Next;
@@ -175,13 +173,6 @@ implementation
 function TScheduler.Count: UInt32;
 begin
   Result := FCoroutines.Count;
-end;
-
-procedure TScheduler.Send(const AName: String);
-begin
-  FSend.IsSend := True;
-  FSend.Name := AName;
-  FSend.Value := Default(TValue);
 end;
 
 function TScheduler.SendCount: UInt32;

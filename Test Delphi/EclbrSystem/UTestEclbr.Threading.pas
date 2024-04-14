@@ -62,7 +62,7 @@ begin
             .Await;
 
   Assert.IsTrue(LFuture.IsOk);
-  Assert.IsTrue(LFuture.Ok<boolean>);
+  Assert.IsTrue(LFuture.Ok<Boolean>);
 end;
 
 procedure TTesTStd.TestFetchAsyncAwait;
@@ -72,7 +72,7 @@ begin
   LFuture := Async(FetchData).Await;
 
   Assert.IsTrue(LFuture.IsOk);
-  Assert.AreEqual(LFuture.Ok<string>, 'sucesso!');
+  Assert.AreEqual(LFuture.Ok<String>, 'sucesso!');
 end;
 
 procedure TTesTStd.TestNoAwaitProc;
@@ -86,7 +86,7 @@ begin
                    end)
             .NoAwait;
 
-  Assert.IsTrue(LFuture.Ok<boolean>);
+  Assert.IsTrue(LFuture.Ok<Boolean>);
 end;
 
 function TTesTStd.FetchData: TValue;
@@ -107,7 +107,7 @@ begin
             .Await;
 
   Assert.IsTrue(LFuture.IsOk);
-  Assert.AreEqual(LFuture.Ok<string>, 'Delphi Await');
+  Assert.AreEqual(LFuture.Ok<String>, 'Delphi Await');
 end;
 
 procedure TTesTStd.TestAwaitFuture;
@@ -115,19 +115,19 @@ var
   LFuture: TFuture;
   LContinue: Boolean;
 begin
-  LContinue := false;
+  LContinue := False;
   LFuture := Async(function: TValue
                    begin
                      Result := 'Await and Continue';
                    end)
             .Await(procedure
                    begin
-                     LContinue := true;
+                     LContinue := True;
                    end);
 
   Assert.IsTrue(LContinue);
   Assert.IsTrue(LFuture.IsOk);
-  Assert.AreEqual(LFuture.Ok<string>, 'Await and Continue');
+  Assert.AreEqual(LFuture.Ok<String>, 'Await and Continue');
 end;
 
 procedure TTesTStd.TestRunProc;
@@ -141,13 +141,13 @@ begin
                    end)
             .Run;
 
-  Assert.IsTrue(LFuture.Ok<boolean>);
+  Assert.IsTrue(LFuture.Ok<Boolean>);
 end;
 
 procedure TTesTStd.TestRunFutureProc;
 var
   LFuture: TFuture;
-  LErr: string;
+  LErr: String;
 begin
   // Neste caso no ECLBr o "Run" não usa Function somente Procedure, se quiser
   // usar Function use o "Await", pois ele espera o resultado para devolver, o

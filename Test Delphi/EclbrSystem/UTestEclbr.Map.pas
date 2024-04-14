@@ -69,7 +69,7 @@ end;
 
 procedure TMapTest.TestAddOrUpdate;
 var
-  LArrayPair: TMap<string, Integer>;
+  LArrayPair: TMap<String, Integer>;
 begin
   LArrayPair.AddOrUpdate('Key1', 10);
   LArrayPair.AddOrUpdate('Key2', 20);
@@ -88,12 +88,13 @@ procedure TMapTest.TestEnumerator;
 var
   LPair: TMapPair<Integer, String>;
   LKey: Integer;
-  LLast: string;
+  LLast: String;
 begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
   FMap.Add(3, 'Three');
 
+  LKey := 0;
   for LPair in FMap do
   begin
     LKey := LPair.Key;
@@ -106,7 +107,7 @@ end;
 
 procedure TMapTest.TestGetValue;
 var
-  LArrayPair: TMap<string, Integer>;
+  LArrayPair: TMap<String, Integer>;
 begin
   LArrayPair.AddOrUpdate('Key1', 10);
   LArrayPair.AddOrUpdate('Key2', 20);
@@ -121,7 +122,7 @@ end;
 
 procedure TMapTest.TestRemove;
 var
-  LArrayPair: TMap<string, Integer>;
+  LArrayPair: TMap<String, Integer>;
 begin
   LArrayPair.AddOrUpdate('Key1', 10);
   LArrayPair.AddOrUpdate('Key2', 20);
@@ -140,7 +141,7 @@ end;
 
 procedure TMapTest.TestLength;
 var
-  LArrayPair: TMap<string, Integer>;
+  LArrayPair: TMap<String, Integer>;
 begin
   Assert.AreEqual(0, LArrayPair.Count);
 
@@ -182,14 +183,14 @@ end;
 
 procedure TMapTest.TestMapFilter;
 var
-  LilteredMap: TMap<integer, string>;
+  LilteredMap: TMap<Integer, String>;
 begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');
   FMap.Add(3, 'Three');
 
   LilteredMap := FMap.Filter(
-    function(Key: Integer; Value: string): Boolean
+    function(Key: Integer; Value: String): Boolean
     begin
       Result := Key mod 2 = 0;
     end);
@@ -227,7 +228,7 @@ end;
 
 procedure TMapTest.TestMapToJson;
 var
-  JsonString: string;
+  JsonString: String;
 begin
   FMap.Add(1, 'One');
   FMap.Add(2, 'Two');

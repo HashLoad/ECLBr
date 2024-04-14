@@ -47,7 +47,7 @@ type
   end;
   ETypeIncompatibility = class(Exception)
   public
-    constructor Create(const AMessage: string = '');
+    constructor Create(const AMessage: String = '');
   end;
 
   TResultPairValue<T> = record
@@ -712,8 +712,9 @@ end;
 function TResultPair<S, F>.When<R>(const ASuccessFunc: TFunc<S, R>;
   const AFailureFunc: TFunc<F, R>): R;
 begin
+  Result := Default(R);
   if (not Assigned(ASuccessFunc)) and (not Assigned(AFailureFunc)) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtSuccess: Result := ASuccessFunc(FSuccess.GetValue);
     TResultType.rtFailure: Result := AFailureFunc(FFailure.GetValue);
@@ -722,8 +723,9 @@ end;
 
 function TResultPair<S, F>.Reduce<R>(const AFunc: TFunc<S, F, R>): R;
 begin
+  Result := Default(R);
   if not Assigned(AFunc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtSuccess: Result := AFunc(FSuccess.GetValue, Default(F));
     TResultType.rtFailure: Result := AFunc(Default(S), FFailure.GetValue);
@@ -883,6 +885,8 @@ begin
   case FResultType of
     TResultType.rtSuccess: Result := FSuccess.GetValue;
     TResultType.rtFailure: Result := ASuccessFunc(FSuccess.GetValue);
+  else
+    Result := Default(S);
   end;
 end;
 
@@ -891,6 +895,8 @@ begin
   case FResultType of
     TResultType.rtSuccess: Result := FSuccess.GetValue;
     TResultType.rtFailure: Result := ADefault;
+  else
+    Result := Default(S);
   end;
 end;
 
@@ -899,6 +905,8 @@ begin
   case FResultType of
     TResultType.rtSuccess: Result := FSuccess.GetValue;
     TResultType.rtFailure: Result := Default(S);
+  else
+    Result := Default(S);
   end;
 end;
 
@@ -937,6 +945,8 @@ begin
   case FResultType of
     TResultType.rtSuccess: Result := Default(F);
     TResultType.rtFailure: Result := FFailure.GetValue;
+  else
+    Result := Default(F);
   end;
 end;
 
@@ -945,6 +955,8 @@ begin
   case FResultType of
     TResultType.rtSuccess: Result := ADefault;
     TResultType.rtFailure: Result := FFailure.GetValue;
+  else
+    Result := Default(F);
   end;
 end;
 
@@ -953,6 +965,8 @@ begin
   case FResultType of
     TResultType.rtSuccess: Result := AFailureFunc(FFailure.GetValue);
     TResultType.rtFailure: Result := FFailure.GetValue;
+  else
+    Result := Default(F);
   end;
 end;
 
@@ -1048,7 +1062,7 @@ end;
 
 { ETypeIncompatibility }
 
-constructor ETypeIncompatibility.Create(const AMessage: string);
+constructor ETypeIncompatibility.Create(const AMessage: String);
 begin
   inherited CreateFmt('Type incompatibility: %s', [AMessage]);
 end;

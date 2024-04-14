@@ -34,7 +34,7 @@ type
 
 implementation
 
-{ TestTIfThen }
+{ TestTuple }
 
 procedure TestTuple.Setup;
 begin
@@ -61,10 +61,10 @@ end;
 
 procedure TestTuple.TestStrIntTupla;
 var
-  LTuplaStrInt: TTuple<string>;
+  LTuplaStrInt: TTuple<String>;
   LValueInt: Integer;
 begin
-  LTuplaStrInt := TTuple<string>.New(['A', 'B', 'C'], [1, 2, '3']);
+  LTuplaStrInt := TTuple<String>.New(['A', 'B', 'C'], [1, 2, '3']);
 
   Assert.IsTrue(LTuplaStrInt.Get<Integer>('B') > 0);
 
@@ -85,15 +85,15 @@ end;
 procedure TestTuple.TestMatchTupla;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_', 'Alice'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
     .CaseEq(['_', 25],      function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['_', false],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['_', False],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(               function:               TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
     Assert.AreEqual(LTuple[0].AsString, 'Idade');
@@ -106,7 +106,7 @@ end;
 procedure TestTuple.TestMatchTuplaAsterisco;
 var
   LTuple: Tuple;
-  LResult: TResultPair<string, string>;
+  LResult: TResultPair<String, String>;
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
@@ -114,7 +114,7 @@ begin
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
     .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                function:                TValue begin Result := 'Default'; end)
-    .Execute<string>;
+    .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
   finally
@@ -124,9 +124,9 @@ end;
 
 procedure TestTuple.TestStrIntTuplaNew;
 var
-  LTuplaStrInt: TTuple<string>;
+  LTuplaStrInt: TTuple<String>;
 begin
-  LTuplaStrInt := TTuple<string>.New(['A', 'B', 'C'], ['1', 2.3, 3]);
+  LTuplaStrInt := TTuple<String>.New(['A', 'B', 'C'], ['1', 2.3, 3]);
 
   Assert.IsTrue(LTuplaStrInt['B'].AsExtended > 0);
   Assert.AreEqual(3, LTuplaStrInt['C'].AsInteger);
@@ -136,4 +136,8 @@ initialization
   TDUnitX.RegisterTestFixture(TestTuple);
 
 end.
+
+
+
+
 

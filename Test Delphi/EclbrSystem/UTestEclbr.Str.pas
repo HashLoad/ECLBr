@@ -61,7 +61,7 @@ end;
 
 procedure TTesTStd.TestAll;
 var
-  LStr: string;
+  LStr: String;
   LResultAll: Boolean;
 begin
   // Caso de teste 1: verificar se todos os caracteres são letras minúsculas
@@ -99,10 +99,10 @@ end;
 
 procedure TTesTStd.TestAny;
 var
-  LStr: string;
+  LStr: String;
   LResultAny: Boolean;
 begin
-  // Caso de teste 1: verificar se há pelo menos um caractere na string
+  // Caso de teste 1: verificar se há pelo menos um caractere na String
   LStr := 'Hello World';
   LResultAny := LStr.Any(function(C: Char): Boolean
                        begin
@@ -110,7 +110,7 @@ begin
                        end);
   Assert.IsTrue(LResultAny);
 
-  // Caso de teste 2: verificar se há pelo menos um caractere na string que seja um dígito
+  // Caso de teste 2: verificar se há pelo menos um caractere na String que seja um dígito
   LStr := 'Hello World';
   LResultAny := LStr.Any(function(C: Char): Boolean
                        begin
@@ -121,8 +121,8 @@ end;
 
 procedure TTesTStd.TestCollect;
 var
-  LStr: string;
-  LCollected: TVector<string>;
+  LStr: String;
+  LCollected: TVector<String>;
 begin
   // Caso de teste 1: coletar todos os caracteres em uma lista
   LStr := 'Hello World';
@@ -144,10 +144,10 @@ end;
 
 procedure TTesTStd.TestExists;
 var
-  LStr: string;
+  LStr: String;
   LResultExists: Boolean;
 begin
-  // Caso de teste 1: verificar se a letra 'o' existe na string
+  // Caso de teste 1: verificar se a letra 'o' existe na String
   LStr := 'Hello World';
   LResultExists := LStr.Exists(function(C: Char): Boolean
                                begin
@@ -158,8 +158,8 @@ end;
 
 procedure TTesTStd.TestFilter;
 var
-  LStr: string;
-  LFilteredStr: string;
+  LStr: String;
+  LFilteredStr: String;
 begin
   // Caso de teste 1: filtrar apenas vogais
   LStr := 'Hello World';
@@ -185,10 +185,10 @@ end;
 
 procedure TTesTStd.TestFirst;
 var
-  LStr: string;
+  LStr: String;
   LFirstChar: Char;
 begin
-  // Caso de teste 1: obter o primeiro caractere da string
+  // Caso de teste 1: obter o primeiro caractere da String
   LStr := 'Hello World';
   LFirstChar := LStr.First;
 
@@ -197,10 +197,10 @@ end;
 
 procedure TTesTStd.TestLast;
 var
-  LStr: string;
+  LStr: String;
   LLastChar: Char;
 begin
-  // Caso de teste 1: obter o último caractere da string
+  // Caso de teste 1: obter o último caractere da String
   LStr := 'Hello World';
   LLastChar := LStr.Last;
 
@@ -236,9 +236,9 @@ end;
 
 procedure TTesTStd.TestPartition;
 var
-  LStr, LLeft, LRight: string;
+  LStr, LLeft, LRight: String;
 begin
-  // Caso de teste 1: particionar a string com base em caracteres numéricos
+  // Caso de teste 1: particionar a String com base em caracteres numéricos
   LStr := 'Hello123World';
   LStr.Partition(
     function(C: Char): Boolean
@@ -254,13 +254,13 @@ end;
 
 procedure TTesTStd.TestReduce;
 var
-  LStr: string;
-  LReducedResult: string;
+  LStr: String;
+  LReducedResult: String;
 begin
-  // Caso de teste 1: concatenar todos os caracteres da string
+  // Caso de teste 1: concatenar todos os caracteres da String
   LStr := 'Hello';
   LReducedResult := LStr.Reduce<String>('',
-    function(Accumulator: string; CharToAdd: Char): string
+    function(Accumulator: String; CharToAdd: Char): String
     begin
       Result := Accumulator + CharToAdd;
     end
@@ -271,8 +271,8 @@ end;
 
 procedure TTesTStd.TestSort;
 var
-  LStr: string;
-  LSortedStr: string;
+  LStr: String;
+  LSortedStr: String;
 begin
   // Caso de teste 1: ordenar os caracteres em ordem alfabética
   LStr := 'Hello World';
@@ -283,10 +283,10 @@ end;
 
 procedure TTesTStd.TestSum;
 var
-  LStr: string;
+  LStr: String;
   LSumResult: Integer;
 begin
-  // Caso de teste 1: somar todos os números na string
+  // Caso de teste 1: somar todos os números na String
   LStr := '12345';
   LSumResult := LStr.Sum;
 

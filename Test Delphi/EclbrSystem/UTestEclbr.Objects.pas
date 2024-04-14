@@ -11,7 +11,7 @@ type
   public
     destructor Destroy; override;
     class function New: TMyClass;
-    function GetMessage: string;
+    function GetMessage: String;
   end;
 
   [TestFixture]
@@ -101,7 +101,7 @@ begin
   inherited;
 end;
 
-function TMyClass.GetMessage: string;
+function TMyClass.GetMessage: String;
 begin
   Result := 'Hello word';
 end;

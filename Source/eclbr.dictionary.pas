@@ -148,7 +148,7 @@ type
     ///   Filters the values of the dictionary based on a specified predicate.
     /// </summary>
     /// <param name="APredicate">The predicate used to filter the values.</param>
-    function Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
+    function Filter(const APredicate: TFunc<K, V, Boolean>): TMap<K, V>;
 
     /// <summary>
     ///   Reduces the values of the dictionary to a single value using an accumulator function.
@@ -165,10 +165,10 @@ type
     function GroupBy<TKey>(const AKeySelector: TFunc<V, TKey>): TMap<TKey, TVector<V>>;
 
     /// <summary>
-    ///   Joins the values of the dictionary into a single string, separated by the specified separator.
+    ///   Joins the values of the dictionary into a single String, separated by the specified separator.
     /// </summary>
     /// <param name="ASeparator">The separator used to join the values.</param>
-    function Join(const ASeparator: string): string;
+    function Join(const ASeparator: String): String;
 
     /// <summary>
     ///   Partitions the dictionary into two dictionaries based on a given predicate.
@@ -266,18 +266,18 @@ type
 
     /// <summary>
     ///   Returns a new dictionary containing key-value pairs from the beginning of the dictionary
-    ///   while the specified predicate is true.
+    ///   while the specified predicate is True.
     /// </summary>
     /// <param name="APredicate">The predicate used to take key-value pairs.</param>
     /// <returns>A new dictionary containing key-value pairs that match the predicate.</returns>
     function TakeWhile(const APredicate: TPredicate<K>): TMap<K, V>;
 
     /// <summary>
-    ///   Skips key-value pairs from the beginning of the dictionary while the specified predicate is true
+    ///   Skips key-value pairs from the beginning of the dictionary while the specified predicate is True
     ///   and returns the remaining key-value pairs.
     /// </summary>
     /// <param name="APredicate">The predicate used to skip key-value pairs.</param>
-    /// <returns>A new dictionary containing key-value pairs after skipping while the predicate is true.</returns>
+    /// <returns>A new dictionary containing key-value pairs after skipping while the predicate is True.</returns>
     function SkipWhile(const APredicate: TPredicate<K>): TMap<K, V>;
 
     /// <summary>
@@ -286,9 +286,9 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate used for partitioning.</param>
     /// <returns>
-    ///   A new dictionary with two entries: one entry for keys that satisfy the predicate (true) and another for keys that do not (false).
+    ///   A new dictionary with two entries: one entry for keys that satisfy the predicate (True) and another for keys that do not (False).
     /// </returns>
-    function PartitionBy(const APredicate: TPredicate<V>): TMap<boolean, TVector<V>>;
+    function PartitionBy(const APredicate: TPredicate<V>): TMap<Boolean, TVector<V>>;
 
     /// <summary>
     ///   Returns the maximum value in the dictionary.
@@ -303,10 +303,10 @@ type
     function MinValue: V;
 
     /// <summary>
-    ///   Returns a string representation of the dictionary.
+    ///   Returns a String representation of the dictionary.
     /// </summary>
-    /// <returns>A string representation of the key-value pairs in the dictionary.</returns>
-    function ToString: string; override;
+    /// <returns>A String representation of the key-value pairs in the dictionary.</returns>
+    function ToString: String; override;
   end;
 
 implementation
@@ -452,9 +452,8 @@ begin
   end;
 end;
 
-function TDictEx<K, V>.Join(const ASeparator: string): string;
+function TDictEx<K, V>.Join(const ASeparator: String): String;
 var
-  LPair: TPair<K, V>;
   LSortKeys: TArray<K>;
   LFor: Integer;
 begin
@@ -474,6 +473,7 @@ var
   LMaxValue: V;
   LIsFirst: Boolean;
 begin
+  LMaxValue := Default(V);
   LIsFirst := True;
   for LPair in Self do
   begin
@@ -497,6 +497,7 @@ begin
   if Count = 0 then
     raise Exception.Create('The dictionary is empty.');
 
+  LMinValue := Default(V);
   LIsFirst := True;
   for LPair in Self do
   begin
@@ -557,6 +558,7 @@ var
   LMaxKey: K;
   LIsFirst: Boolean;
 begin
+  LMaxKey := Default(K);
   LIsFirst := True;
   for LPair in Self do
   begin
@@ -580,6 +582,7 @@ begin
   if Count = 0 then
     raise Exception.Create('The dictionary is empty.');
 
+  LMinKey := Default(K);
   LIsFirst := True;
   for LPair in Self do
   begin
@@ -613,7 +616,7 @@ begin
 end;
 
 function TDictEx<K, V>.PartitionBy(
-  const APredicate: TPredicate<V>): TMap<boolean, TVector<V>>;
+  const APredicate: TPredicate<V>): TMap<Boolean, TVector<V>>;
 var
   LSortedKeys: TArray<K>;
   LKey: K;
@@ -653,7 +656,6 @@ end;
 function TDictEx<K, V>.Rotate(const ACount: Integer): TArray<TPair<K, V>>;
 var
   LSortedKeysArray: TArray<K>;
-  LList: TList<TPair<K, V>>;
   LIndex, LNewIndex: Integer;
 begin
   LSortedKeysArray := SortedKeys;
@@ -764,7 +766,7 @@ begin
   end;
 end;
 
-function TDictEx<K, V>.ToString: string;
+function TDictEx<K, V>.ToString: String;
 var
   LPair: TPair<K, V>;
   LResultBuilder: TStringBuilder;
@@ -790,15 +792,15 @@ end;
 
 procedure TDictEx<K, V>.Unique;
 var
-  LUniqueValues: TDictionary<V, boolean>;
+  LUniqueValues: TDictionary<V, Boolean>;
   LPair: TPair<K, V>;
 begin
-  LUniqueValues := TDictionary<V, boolean>.Create;
+  LUniqueValues := TDictionary<V, Boolean>.Create;
   try
     for LPair in Self do
     begin
       if not LUniqueValues.ContainsKey(LPair.Value) then
-        LUniqueValues.AddOrSetValue(LPair.Value, true)
+        LUniqueValues.AddOrSetValue(LPair.Value, True)
       else
         Self.Remove(LPair.Key);
     end;

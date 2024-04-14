@@ -39,8 +39,8 @@ uses
   Generics.Collections;
 
 type
-  TArrayString = array of string;
-  TListString = TList<string>;
+  TArrayString = array of String;
+  TListString = TList<String>;
   Tuple = array of TValue;
 
   PPacket = ^TPacket;
@@ -71,16 +71,16 @@ type
   TFuture = record
   private
     FValue: TValue;
-    FErr: string;
+    FErr: String;
     FIsOK: Boolean;
     FIsErr: Boolean;
   public
     function IsOk: Boolean;
     function IsErr: Boolean;
     function Ok<T>: T;
-    function Err: string;
+    function Err: String;
     procedure SetOk(const AValue: TValue);
-    procedure SetErr(const AErr: string);
+    procedure SetErr(const AErr: String);
   end;
 
   TStd = class
@@ -97,21 +97,22 @@ type
     class function IfThen<T>(AValue: Boolean; const ATrue: T; const AFalse: T): T; inline;
     class function AsList<T>(const AArray: TArray<T>): TList<T>; inline;
     class function JoinStrings(const AStrings: TArrayString;
-      const ASeparator: string): string; overload; inline;
+      const ASeparator: String): String; overload; inline;
     class function JoinStrings(const AStrings: TListString;
-      const ASeparator: string): string; overload; inline;
-    class function RemoveTrailingChars(const AStr: string; const AChars: TSysCharSet): string; inline;
-    class function Iso8601ToDateTime(const AValue: string;
+      const ASeparator: String): String; overload; inline;
+    class function RemoveTrailingChars(const AStr: String; const AChars: TSysCharSet): String; inline;
+    class function Iso8601ToDateTime(const AValue: String;
       const AUseISO8601DateFormat: Boolean): TDateTime; inline;
     class function DateTimeToIso8601(const AValue: TDateTime;
-      const AUseISO8601DateFormat: Boolean): string; inline;
-    class function DecodeBase64(const AInput: string): TBytes; inline;
-    class function EncodeBase64(const AInput: Pointer; const ASize: Integer): string; inline;
-    class function EncodeString(const AInput: string): string; inline;
-    class function DecodeString(const AInput: string): string; inline;
+      const AUseISO8601DateFormat: Boolean): String; inline;
+    class function DecodeBase64(const AInput: String): TBytes; inline;
+    class function EncodeBase64(const AInput: Pointer; const ASize: Integer): String; inline;
+    class function EncodeString(const AInput: String): String; inline;
+    class function DecodeString(const AInput: String): String; inline;
     class function Min(const A, B: Integer): Integer; overload; inline;
     class function Min(const A, B: Double): Double; overload; inline;
     class function Min(const A, B: Currency): Currency; overload; inline;
+    class function Min(const A, B: Int64): Int64; overload; inline;
     class function Max(const A, B: Integer): Integer; overload; inline;
     class function Max(const A, B: Double): Double; overload; inline;
     class function Max(const A, B: Currency): Currency; overload; inline;
@@ -121,7 +122,7 @@ type
     class function Total(const Data: array of Single): Single; overload;
     class function Total(const Data: array of Double): Double; overload;
     class function Total(const Data: array of Extended): Extended; overload;
-    class function Split(const S: string): TArray<string>; inline;
+    class function Split(const S: String): TArray<String>; inline;
     class function Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer; inline;
     class function Hash(const AValue: MarshaledAString): Cardinal;
     class procedure EncodeStream(const AInput, AOutput: TStream);
@@ -130,30 +131,30 @@ type
   end;
 
 {$IFDEF DEBUG}
-procedure DebugPrint(const AMessage: string);
+procedure DebugPrint(const AMessage: String);
 {$ENDIF}
 
 implementation
 
 {$IFDEF DEBUG}
-procedure DebugPrint(const AMessage: string);
+procedure DebugPrint(const AMessage: String);
 begin
   TThread.Queue(nil,
           procedure
           begin
-            OutputDebugstring(PWideChar('[ECLBr] - ' + FormatDateTime('mm/dd/yyyy, hh:mm:ss am/pm', Now) + ' LOG ' + AMessage));
+            OutputDebugString(PWideChar('[ECLBr] - ' + FormatDateTime('mm/dd/yyyy, hh:mm:ss am/pm', Now) + ' LOG ' + AMessage));
           end);
 end;
 {$ENDIF}
 
 const
-  BUFFERSIZE = 510;
-  LINEBREAKINTERVAL = 75;
+  C_BUFFERSIZE = 510;
+  C_LINEBREAKINTERVAL = 75;
 
-  ENCODETABLE: array[0..63] of AnsiChar =
+  C_ENCODETABLE: array[0..63] of AnsiChar =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-  DECODETABLE: array[#0..#127] of Integer = (
+  C_DECODETABLE: array[#0..#127] of Integer = (
     Byte('='), 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
            64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
            64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 62, 64, 64, 64, 63,
@@ -212,10 +213,10 @@ begin
 end;
 
 class function TStd.DateTimeToIso8601(const AValue: TDateTime;
-  const AUseISO8601DateFormat: Boolean): string;
+  const AUseISO8601DateFormat: Boolean): String;
 var
-  LDatePart: string;
-  LTimePart: string;
+  LDatePart: String;
+  LTimePart: String;
 begin
   Result := '';
   if AValue = 0 then
@@ -243,7 +244,7 @@ begin
     Result := AFalse;
 end;
 
-class function TStd.Iso8601ToDateTime(const AValue: string;
+class function TStd.Iso8601ToDateTime(const AValue: String;
   const AUseISO8601DateFormat: Boolean): TDateTime;
 var
   LYYYY: Integer;
@@ -274,7 +275,7 @@ begin
 end;
 
 class function TStd.JoinStrings(const AStrings: TListString;
-  const ASeparator: string): string;
+  const ASeparator: String): String;
 var
   LFor: Integer;
 begin
@@ -314,13 +315,18 @@ begin
   Result := Math.Max(A, B);
 end;
 
+class function TStd.Min(const A, B: Int64): Int64;
+begin
+  Result := Math.Min(A, B);
+end;
+
 class function TStd.Min(const A, B: Currency): Currency;
 begin
   Result := Math.Min(A, B);
 end;
 
-class function TStd.RemoveTrailingChars(const AStr: string;
-  const AChars: TSysCharSet): string;
+class function TStd.RemoveTrailingChars(const AStr: String;
+  const AChars: TSysCharSet): String;
 var
   LLastCharIndex: Integer;
 begin
@@ -330,7 +336,7 @@ begin
   Result := Copy(AStr, 1, LLastCharIndex);
 end;
 
-class function TStd.Split(const S: string): TArray<string>;
+class function TStd.Split(const S: String): TArray<String>;
 var
   LFor: Integer;
 begin
@@ -370,7 +376,7 @@ begin
 end;
 
 class function TStd.JoinStrings(const AStrings: TArrayString;
-  const ASeparator: string): string;
+  const ASeparator: String): String;
 var
   LFor: Integer;
 begin
@@ -383,7 +389,7 @@ begin
   end;
 end;
 
-class function TStd.DecodeBase64(const AInput: string): TBytes;
+class function TStd.DecodeBase64(const AInput: String): TBytes;
 var
   LInStr: TMemoryStream;
   LOutStr: TBytesStream;
@@ -413,36 +419,36 @@ end;
 class procedure TStd._EncodePacket(const APacket: TPacket; NumChars: Integer;
  AOutBuf: PAnsiChar);
 begin
-  AOutBuf[0] := ENCODETABLE[APacket.a[0] shr 2];
-  AOutBuf[1] := ENCODETABLE[((APacket.a[0] shl 4) or (APacket.a[1] shr 4)) and $0000003f];
+  AOutBuf[0] := C_ENCODETABLE[APacket.a[0] shr 2];
+  AOutBuf[1] := C_ENCODETABLE[((APacket.a[0] shl 4) or (APacket.a[1] shr 4)) and $0000003f];
   if NumChars < 2 then
     AOutBuf[2] := '='
-  else AOutBuf[2] := ENCODETABLE[((APacket.a[1] shl 2) or (APacket.a[2] shr 6)) and $0000003f];
+  else AOutBuf[2] := C_ENCODETABLE[((APacket.a[1] shl 2) or (APacket.a[2] shr 6)) and $0000003f];
   if NumChars < 3 then
     AOutBuf[3] := '='
-  else AOutBuf[3] := ENCODETABLE[APacket.a[2] and $0000003f];
+  else AOutBuf[3] := C_ENCODETABLE[APacket.a[2] and $0000003f];
 end;
 
 class function TStd._DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket;
 begin
-  Result.a[0] := (DECODETABLE[AInBuf[0]] shl 2) or
-    (DECODETABLE[AInBuf[1]] shr 4);
+  Result.a[0] := (C_DECODETABLE[AInBuf[0]] shl 2) or
+    (C_DECODETABLE[AInBuf[1]] shr 4);
   NChars := 1;
   if AInBuf[2] <> '=' then
   begin
     Inc(NChars);
-    Result.a[1] := Byte((DECODETABLE[AInBuf[1]] shl 4) or (DECODETABLE[AInBuf[2]] shr 2));
+    Result.a[1] := Byte((C_DECODETABLE[AInBuf[1]] shl 4) or (C_DECODETABLE[AInBuf[2]] shr 2));
   end;
   if AInBuf[3] <> '=' then
   begin
     Inc(NChars);
-    Result.a[2] := Byte((DECODETABLE[AInBuf[2]] shl 6) or DECODETABLE[AInBuf[3]]);
+    Result.a[2] := Byte((C_DECODETABLE[AInBuf[2]] shl 6) or C_DECODETABLE[AInBuf[3]]);
   end;
 end;
 
 class procedure TStd.EncodeStream(const AInput, AOutput: TStream);
 var
-  LInBuffer: array[0..BUFFERSIZE] of Byte;
+  LInBuffer: array[0..C_BUFFERSIZE] of Byte;
   LOutBuffer: array[0..1023] of AnsiChar;
   LBufferPtr: PAnsiChar;
   LI: Integer;
@@ -470,7 +476,7 @@ begin
       _EncodePacket(LPacket, LJ, LBufferPtr);
       Inc(LI, 3);
       Inc(LBufferPtr, 4);
-      if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - LINEBREAKINTERVAL then
+      if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - C_LINEBREAKINTERVAL then
       begin
         WriteLineBreak;
         AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
@@ -570,7 +576,7 @@ begin
   until BytesRead = 0;
 end;
 
-class function TStd.EncodeString(const AInput: string): string;
+class function TStd.EncodeString(const AInput: String): String;
 var
   LInStr: TStringStream;
   LOutStr: TStringStream;
@@ -589,7 +595,7 @@ begin
   end;
 end;
 
-class function TStd.DecodeString(const AInput: string): string;
+class function TStd.DecodeString(const AInput: String): String;
 var
   LInStr: TStringStream;
   LOutStr: TStringStream;
@@ -608,7 +614,7 @@ begin
   end;
 end;
 
-class function TStd.EncodeBase64(const AInput: Pointer; const ASize: Integer): string;
+class function TStd.EncodeBase64(const AInput: Pointer; const ASize: Integer): String;
 var
   LInStream: TMemoryStream;
   LOutStream: TMemoryStream;
@@ -758,7 +764,6 @@ end;
 class function TArrayHelper.Map<T, TResult>(const AValues: array of T;
   AFunc: TFunc<T, TResult>): TArray<TResult>;
 var
-  LItem: T;
   LIndex: Integer;
 begin
   SetLength(Result, Length(AValues));
@@ -784,7 +789,7 @@ end;
 
 { TFuture }
 
-function TFuture.Err: string;
+function TFuture.Err: String;
 begin
   Result := FErr;
 end;
@@ -804,22 +809,62 @@ begin
   Result := FValue.AsType<T>;
 end;
 
-procedure TFuture.SetErr(const AErr: string);
+procedure TFuture.SetErr(const AErr: String);
 begin
   FErr := AErr;
-  FIsErr := true;
-  FIsOK := false;
+  FIsErr := True;
+  FIsOK := False;
 end;
 
 procedure TFuture.SetOk(const AValue: TValue);
 begin
   FValue := AValue;
-  FIsOK := true;
-  FIsErr := false;
+  FIsOK := True;
+  FIsErr := False;
 end;
 
 initialization
   TStd.FormatSettings := TFormatSettings.Create('en_US');
 
 end.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

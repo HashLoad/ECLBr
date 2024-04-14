@@ -11,11 +11,11 @@ uses
 type
   TProduct = class
   private
-    FName: string;
+    FName: String;
     FPrice: Double;
     FDescount: Double;
   public
-    constructor Create(AName: string; APrice: Double; ADescount: Double);
+    constructor Create(AName: String; APrice: Double; ADescount: Double);
     function Price: Double;
     function Descount: Double;
   end;
@@ -184,11 +184,11 @@ end;
 
 procedure TListTest.TestListReducer;
 var
-  LList: TListEx<integer>;
+  LList: TListEx<Integer>;
   LResult: Integer;
   LValorEsperado: Integer;
 begin
-  LList := TListEx<integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  LList := TListEx<Integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   try
     LResult := LList.Reduce(function(Arg1, Arg2: Integer): Integer
                             begin
@@ -203,28 +203,28 @@ end;
 
 procedure TListTest.TestListReducerAvg;
 var
-  LList: TListEx<integer>;
+  LList: TListEx<Integer>;
   LValorEsperado: Double;
   LResult: Tuple;
 begin
-  LList := TListEx<integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  LList := TListEx<Integer>.Create([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   try
     LResult := LList.Reduce(function(Arg1: Integer; Arg2: Tuple): Tuple
                             var
                               LSum, LCount: Integer;
                               LAvg: Double;
                             begin
-                              LSum   := Arg2[0].AsType<integer> + Arg1;
-                              LCount := Arg2[1].AsType<integer> + 1;
+                              LSum   := Arg2[0].AsType<Integer> + Arg1;
+                              LCount := Arg2[1].AsType<Integer> + 1;
                               LAvg   := LSum / LCount;
 
                               Result := [LSum, LCount, LAvg];
                             end,
                             [0, 0, 0]);
     // Sum
-    Assert.AreEqual(55, LResult[0].AsType<integer>);
+    Assert.AreEqual(55, LResult[0].AsType<Integer>);
     // Count
-    Assert.AreEqual(10, LResult[1].AsType<integer>);
+    Assert.AreEqual(10, LResult[1].AsType<Integer>);
     // Avg
     LValorEsperado := 5.5;
     Assert.AreEqual(LValorEsperado, LResult[2].AsType<Double>);
@@ -235,7 +235,7 @@ end;
 
 { TProduct }
 
-constructor TProduct.Create(AName: string; APrice, ADescount: Double);
+constructor TProduct.Create(AName: String; APrice, ADescount: Double);
 begin
   FName := AName;
   FPrice := APrice;

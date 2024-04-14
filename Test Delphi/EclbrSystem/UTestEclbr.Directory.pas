@@ -26,6 +26,8 @@ type
 
 implementation
 
+uses IOUtils;
+
 { TArrayDataTest }
 
 procedure TDirExTest.Setup;
@@ -40,20 +42,16 @@ end;
 
 procedure TDirExTest.TestFilter;
 var
-  LDir: TDirEx;
-  LFiles: TVector<string>;
-  LFilteredFiles: TVector<string>;
-  LFile: string;
+  LFiles: TVector<String>;
+  LFilteredFiles: TVector<String>;
+  LFile: String;
 begin
-  // Cria uma instância de TDirEx
-  LDir := TDirEx.New('caminho_do_diretorio');
-
   // Obtém a lista de arquivos no diretório
-  LFiles := LDir.GetFiles('');
+  LFiles := TDirEx.New('caminho_do_diretorio').GetFiles('');
 
   // Usa o método Filter para encontrar todos os arquivos com extensão .txt
   LFilteredFiles := LFiles.Filter(
-    function(Value: string): Boolean
+    function(Value: String): Boolean
     begin
       Result := TPath.GetExtension(Value).ToLower = '.txt';
     end);
@@ -66,18 +64,14 @@ end;
 
 procedure TDirExTest.TestMap;
 var
-  LDir: TDirEx;
-  LFiles: TVector<string>;
-  LPrefixedFiles: TVector<string>;
+  LFiles: TVector<String>;
+  LPrefixedFiles: TVector<String>;
 begin
-  // Cria uma instância de TDirEx
-  LDir := TDirEx.New('caminho_do_diretorio');
-
   // Obtém a lista de arquivos no diretório
-  LFiles := LDir.GetFiles('');
+  LFiles := TDirEx.New('caminho_do_diretorio').GetFiles('');
 
   // Usa o método Map para adicionar um prefixo aos nomes de arquivo
-  LPrefixedFiles := LFiles.Map<string>(function(Value: string): string
+  LPrefixedFiles := LFiles.Map<String>(function(Value: String): String
                                        begin
                                          Result := 'Prefixo_' + Value;
                                        end);
@@ -93,4 +87,5 @@ initialization
   TDUnitX.RegisterTestFixture(TDirExTest);
 
 end.
+
 

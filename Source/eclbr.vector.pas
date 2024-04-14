@@ -225,7 +225,7 @@ type
     ///   Sets the length of the list to the specified value.
     /// </summary>
     /// <param name="ALength">
-    ///   The new length of the list, represented as an integer.
+    ///   The new length of the list, represented as an Integer.
     /// </param>
     /// <remarks>
     ///   The SetLength method changes the length of the current list to the value specified
@@ -240,7 +240,7 @@ type
     ///   Sets the capacity of the list to the specified value.
     /// </summary>
     /// <param name="ACapacity">
-    ///   The new capacity of the list, represented as an integer.
+    ///   The new capacity of the list, represented as an Integer.
     /// </param>
     /// <remarks>
     ///   The SetCapacity method changes the capacity of the current list to the value specified
@@ -267,21 +267,21 @@ type
     procedure AddRange(const ACollection: TArrayType); inline;
 
     /// <summary>
-    ///   Concatenates the elements of the list into a single string with separators.
+    ///   Concatenates the elements of the list into a single String with separators.
     /// </summary>
     /// <param name="AValue">
-    ///   The string to be inserted between the elements of the list in the resulting string.
+    ///   The String to be inserted between the elements of the list in the resulting String.
     /// </param>
     /// <param name="ASeparator">
-    ///   The string to be inserted between adjacent elements in the resulting string.
+    ///   The String to be inserted between adjacent elements in the resulting String.
     /// </param>
     /// <remarks>
-    ///   The JoinStrings method combines the elements of the list into a single string,
+    ///   The JoinStrings method combines the elements of the list into a single String,
     ///   using the value specified in <paramref name="AValue"/> to separate the elements
     ///   and the value specified in <paramref name="ASeparator"/> to separate adjacent
-    ///   elements. The resulting string is returned, but the original list is not modified.
+    ///   elements. The resulting String is returned, but the original list is not modified.
     /// </remarks>
-    procedure JoinStrings(const AValue: string; const ASeparator: string); inline;
+    procedure JoinStrings(const AValue: String; const ASeparator: String); inline;
 
     /// <summary>
     ///   Removes all elements from the list.
@@ -443,7 +443,7 @@ type
     ///   with an index parameter.
     /// </summary>
     /// <param name="APredicate">
-    ///   A predicate function of type TFunc<T, integer, boolean> that determines
+    ///   A predicate function of type TFunc<T, Integer, Boolean> that determines
     ///   whether an element should be included in the filtered result.
     /// </param>
     /// <returns>
@@ -454,7 +454,7 @@ type
     ///   APredicate to each element in the current list, along with its index, and
     ///   includes only the elements that satisfy the predicate in the filtered result.
     /// </remarks>
-    function Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>; overload; inline;
+    function Filter(const APredicate: TFunc<T, Integer, Boolean>): TVector<T>; overload; inline;
 
     /// <summary>
     ///   Applies a mapping function to each element in the list and returns a new list
@@ -638,23 +638,23 @@ type
     function ToArray: TArray<T>; inline;
 
     /// <summary>
-    ///   Converts the elements in the list to a string representation.
+    ///   Converts the elements in the list to a String representation.
     /// </summary>
     /// <returns>
-    ///   A string representation of the elements in the list.
+    ///   A String representation of the elements in the list.
     /// </returns>
     /// <remarks>
-    ///   The ToString function converts the elements in the current list into a string
+    ///   The ToString function converts the elements in the current list into a String
     ///   representation. This allows you to obtain a human-readable or log-friendly
     ///   representation of the list's contents.
     /// </remarks>
-    function ToString: string; inline;
+    function ToString: String; inline;
 
     /// <summary>
     ///   Retrieves the number of elements in the list.
     /// </summary>
     /// <returns>
-    ///   The number of elements in the list as an integer.
+    ///   The number of elements in the list as an Integer.
     /// </returns>
     /// <remarks>
     ///   The Length function returns the count of elements in the current list, providing
@@ -666,7 +666,7 @@ type
     ///   Retrieves the number of elements in the list.
     /// </summary>
     /// <returns>
-    ///   The number of elements in the list as an integer.
+    ///   The number of elements in the list as an Integer.
     /// </returns>
     /// <remarks>
     ///   The Count function returns the count of elements in the current list, providing
@@ -678,7 +678,7 @@ type
     ///   Retrieves the current capacity of the list.
     /// </summary>
     /// <returns>
-    ///   The current capacity of the list as an integer.
+    ///   The current capacity of the list as an Integer.
     /// </returns>
     /// <remarks>
     ///   The Capacity function returns the current capacity of the list, which represents
@@ -769,11 +769,11 @@ begin
   Result := TArrayManager._GetCount(FItems) = 0;
 end;
 
-procedure TVector<T>.JoinStrings(const AValue: string; const ASeparator: string);
+procedure TVector<T>.JoinStrings(const AValue: String; const ASeparator: String);
 var
-  LArray: TArray<string>;
+  LArray: TArray<String>;
   LValue: T;
-  LItem: string;
+  LItem: String;
 begin
   FItems := nil;
   LArray := SplitString(AValue, ASeparator);
@@ -866,7 +866,7 @@ begin
   end;
 end;
 
-function TVector<T>.Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>;
+function TVector<T>.Filter(const APredicate: TFunc<T, Integer, Boolean>): TVector<T>;
 var
   LItem: T;
   LIndex: Integer;
@@ -1083,14 +1083,14 @@ begin
   end;
 end;
 
-function TVector<T>.ToString: string;
+function TVector<T>.ToString: String;
 var
   LItem: T;
   LFormat: TValue;
   FirstNonEmpty: Boolean;
 begin
   Result := '';
-  FirstNonEmpty := true;
+  FirstNonEmpty := True;
   for LItem in FItems do
   begin
     if not _IsEquals<T>(LItem, Default(T)) then
@@ -1123,11 +1123,11 @@ function TVector<T>.Contains(const AItems: TArrayType): Boolean;
 var
   LFor: Integer;
 begin
-  Result := false;
+  Result := False;
   for LFor := 0 to System.Length(AItems) - 1 do
     if IndexOf(AItems[LFor]) = -1 then
       exit;
-  Result := true;
+  Result := True;
 end;
 
 function TVector<T>.Count: Integer;
@@ -1160,7 +1160,7 @@ var
   LComparer: IEqualityComparer<T>;
   LFor: Integer;
 begin
-  Result := false;
+  Result := False;
   if System.Length(Left.FItems) <> System.Length(Right.FItems) then
     exit;
 
@@ -1223,10 +1223,8 @@ end;
 class procedure TVector<T>.TArrayManager.Add(var AArray: TArrayType; const AItem: T);
 var
   LIndex: Integer;
-  LLength: Integer;
 begin
   LIndex := -1;
-  LLength := -1;
   if System.Length(AArray) > 0 then
   begin
     for LIndex := 0 to FCapacity do
@@ -1238,8 +1236,7 @@ begin
   if LIndex = -1 then
   begin
     LIndex := _GetCount(AArray);
-    LLength := (LIndex + LIndex shr 3) + 32;
-    _SetCapacity(AArray, LLength);
+    _SetCapacity(AArray, (LIndex + LIndex shr 3) + 32)
   end;
   AArray[LIndex] := AItem;
 end;
@@ -1283,13 +1280,13 @@ var
   LFound: Boolean;
 begin
   LIndex := -1;
-  LFound := false;
+  LFound := False;
   for LFor := 0 to FCapacity - 1 do
   begin
     if _IsEquals<T>(AArray[LFor], AItem) then
     begin
       LIndex := LFor;
-      LFound := true;
+      LFound := True;
       break;
     end;
   end;
@@ -1305,9 +1302,9 @@ begin
   for LFor := 0 to System.Length(AArray) - 1 do
   begin
     if _IsEquals<T>(AArray[LFor], AItem) then
-      exit(true);
+      exit(True);
   end;
-  Result := false;
+  Result := False;
 end;
 
 class function TVector<T>.TArrayManager.IndexOf(const AArray: TArrayType;

@@ -2,15 +2,17 @@ program PTestResultPair;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
-{$ENDIF}{$STRONGLINKTYPES ON}
+{$ENDIF}
+{$STRONGLINKTYPES ON}
 uses
   FastMM4,
   System.SysUtils,
   {$IFDEF TESTINSIGHT}
   TestInsight.DUnitX,
-  {$ENDIF }
+  {$ELSE}
   DUnitX.Loggers.Console,
   DUnitX.Loggers.Xml.NUnit,
+  {$ENDIF }
   DUnitX.TestFramework,
   UTestEclbr.ResultPair in 'UTestEclbr.ResultPair.pas',
   eclbr.result.pair in '..\..\Source\eclbr.result.pair.pas';
@@ -66,3 +68,4 @@ begin
   end;
 {$ENDIF}
 end.
+

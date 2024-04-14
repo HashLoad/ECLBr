@@ -246,7 +246,7 @@ type
     /// </summary>
     /// <param name="APredicate">The predicate function used for filtering.</param>
     /// <returns>The map containing filtered key-value pairs.</returns>
-    function Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>; inline;
+    function Filter(const APredicate: TFunc<K, V, Boolean>): TMap<K, V>; inline;
 
     /// <summary>
     ///   Maps the values of the dictionary to a new dictionary of results.
@@ -329,16 +329,16 @@ type
     function Last: TMapPair<K, V>; inline;
 
     /// <summary>
-    ///   Converts the map to a JSON string.
+    ///   Converts the map to a JSON String.
     /// </summary>
     /// <returns>A JSON representation of the map.</returns>
-    function ToJson: string; inline;
+    function ToJson: String; inline;
 
     /// <summary>
-    ///   Converts the map to a string.
+    ///   Converts the map to a String.
     /// </summary>
-    /// <returns>A string representation of the map.</returns>
-    function ToString: string; inline;
+    /// <returns>A String representation of the map.</returns>
+    function ToString: String; inline;
 
     /// <summary>
     ///   Returns the current capacity of the map.
@@ -521,9 +521,8 @@ end;
 function TMap<K, V>.Add(const APair: TMapPair<K, V>): Integer;
 var
   LIndex: Integer;
-  LLength: Integer;
 begin
-  LIndex := -1;
+  Result := -1;
   for LIndex := Low(FMapItems) to High(FMapItems) do
   begin
     if _IsEquals(FMapItems[LIndex], Default(TItemPair)) then
@@ -532,10 +531,10 @@ begin
       FMapItems[LIndex].Value := APair.Value;
       FMapItems[LIndex].HashCode := _Hash(APair.Key);
       Result := LIndex;
-      exit;
+      Exit;
     end;
   end;
-  _DoAdd(APair.Key, APair.Value, LIndex);
+  _DoAdd(APair.Key, APair.Value, Result);
 
   Result := FCapacity;
 end;
@@ -615,7 +614,6 @@ end;
 function TMap<K, V>.Remove(const AKey: K): Boolean;
 var
   LIndex: Integer;
-  LCount: Integer;
 begin
   LIndex := _GetBucketIndex(AKey);
   Result := LIndex >= 0;
@@ -707,7 +705,7 @@ begin
   Result := Self;
 end;
 
-function TMap<K, V>.Filter(const APredicate: TFunc<K, V, boolean>): TMap<K, V>;
+function TMap<K, V>.Filter(const APredicate: TFunc<K, V, Boolean>): TMap<K, V>;
 var
   LItem: TItemPair;
 begin
@@ -736,7 +734,7 @@ begin
     AAction(LPair.Key, LPair.Value);
 end;
 
-function TMap<K, V>.ToString: string;
+function TMap<K, V>.ToString: String;
 var
   LPair: TItemPair;
   LBuilder: TStringBuilder;
@@ -791,7 +789,7 @@ begin
   end;
 end;
 
-function TMap<K, V>.ToJson: string;
+function TMap<K, V>.ToJson: String;
 var
   LPair: TItemPair;
   LJsonPairs: TStringBuilder;

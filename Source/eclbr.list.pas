@@ -59,7 +59,7 @@ type
     ///   Executes a specified action for each element in the list, providing the index along with the element.
     /// </summary>
     /// <param name="Action">The action to be executed for each element, with the index as the first parameter and the element as the second parameter.</param>
-    procedure ForEachIndexed(const Action: TProc<integer, T>);
+    procedure ForEachIndexed(const Action: TProc<Integer, T>);
 
     /// <summary>
     ///   Randomly shuffles the elements within the list.
@@ -128,7 +128,7 @@ type
     /// <returns>
     ///   A new vector containing the elements that satisfy the predicate.
     /// </returns>
-    function Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>; overload;
+    function Filter(const APredicate: TFunc<T, Integer, Boolean>): TVector<T>; overload;
 
     /// <summary>
     ///   Combines the elements in the list using a specified accumulator function and returns the accumulated result.
@@ -169,11 +169,11 @@ type
     function GroupBy<K>(const AKeySelector: TFunc<T, K>): TMap<K, TVector<T>>;
 
     /// <summary>
-    ///   Combines the elements in the list into a single string with each element separated by a specified separator.
+    ///   Combines the elements in the list into a single String with each element separated by a specified separator.
     /// </summary>
-    /// <param name="ASeparator">The separator used to separate elements in the resulting string.</param>
-    /// <returns>A string containing the combined elements.</returns>
-    function Join(const ASeparator: string): string;
+    /// <param name="ASeparator">The separator used to separate elements in the resulting String.</param>
+    /// <returns>A String containing the combined elements.</returns>
+    function Join(const ASeparator: String): String;
 
     /// <summary>
     ///   Divides the elements in the list into two separate lists based on a specified predicate function and returns a pair of lists representing the partitioned elements.
@@ -305,13 +305,13 @@ type
     /// </summary>
     /// <typeparam name="TKey">The type of keys used for grouping.</typeparam>
     /// <returns>A dictionary where keys are distinct elements from the list, and values are the counts of each element.</returns>
-    function GroupByAndCount<K>: TMap<K, integer>;
+    function GroupByAndCount<K>: TMap<K, Integer>;
 
     /// <summary>
     ///   Partitions the elements in the list into two groups based on a given predicate and returns a dictionary where keys represent the partition status.
     /// </summary>
     /// <returns>A dictionary where keys indicate whether an element satisfies the predicate, and values are lists of elements for each partition.</returns>
-    function PartitionBy(const APredicate: TPredicate<T>): TMap<boolean, TVector<T>>;
+    function PartitionBy(const APredicate: TPredicate<T>): TMap<Boolean, TVector<T>>;
 
     /// <summary>
     ///   Returns a new list containing only the elements from the source list that are different from their immediate predecessors.
@@ -333,16 +333,16 @@ type
     function IsEmpty: Boolean;
 
     /// <summary>
-    ///   Retorna uma representação de string deste objeto.
+    ///   Retorna uma representação de String deste objeto.
     /// </summary>
     /// <remarks>
     ///   Esta função é chamada automaticamente quando você usa funções que exigem
-    ///   uma representação de string deste objeto, como WriteLn ou String.Format.
+    ///   uma representação de String deste objeto, como WriteLn ou String.Format.
     /// </remarks>
     /// <returns>
-    ///   Uma string que representa este objeto.
+    ///   Uma String que representa este objeto.
     /// </returns>
-    function ToString: string; override;
+    function ToString: String; override;
   end;
 
 implementation
@@ -403,7 +403,7 @@ begin
       Result.Add(LItem);
 end;
 
-function TListEx<T>.Filter(const APredicate: TFunc<T, integer, boolean>): TVector<T>;
+function TListEx<T>.Filter(const APredicate: TFunc<T, Integer, Boolean>): TVector<T>;
 var
   LItem: T;
   LIndex: Integer;
@@ -466,7 +466,7 @@ begin
     Action(LItem);
 end;
 
-procedure TListEx<T>.ForEachIndexed(const Action: TProc<integer, T>);
+procedure TListEx<T>.ForEachIndexed(const Action: TProc<Integer, T>);
 var
   LIndex: Integer;
   LItem: T;
@@ -498,13 +498,13 @@ begin
   end;
 end;
 
-function TListEx<T>.GroupByAndCount<K>: TMap<K, integer>;
+function TListEx<T>.GroupByAndCount<K>: TMap<K, Integer>;
 var
-  LGroupDict: TMap<K, integer>;
+  LGroupDict: TMap<K, Integer>;
   LItem: T;
   LKey: K;
 begin
-  LGroupDict := TMap<K, integer>.Create([]);
+  LGroupDict := TMap<K, Integer>.Create([]);
   try
     for LItem in Self do
     begin
@@ -549,7 +549,7 @@ begin
   Result := Self.Count = 0;
 end;
 
-function TListEx<T>.Join(const ASeparator: string): string;
+function TListEx<T>.Join(const ASeparator: String): String;
 var
   LItem: T;
 begin
@@ -631,12 +631,12 @@ begin
   Result.Right := LRightList;
 end;
 
-function TListEx<T>.PartitionBy(const APredicate: TPredicate<T>): TMap<boolean, TVector<T>>;
+function TListEx<T>.PartitionBy(const APredicate: TPredicate<T>): TMap<Boolean, TVector<T>>;
 var
-  LPartitions: TMap<boolean, TVector<T>>;
+  LPartitions: TMap<Boolean, TVector<T>>;
   LItem: T;
 begin
-  LPartitions := TMap<boolean, TVector<T>>.Create([]);
+  LPartitions := TMap<Boolean, TVector<T>>.Create([]);
   try
     for LItem in Self do
     begin
@@ -800,7 +800,7 @@ var
   LIndex: Integer;
 begin
   Result := TVector<T>.Create([]);
-  for LIndex := 0 to TStd.Min(Count - 1, Count - 1) do
+  for LIndex := 0 to TStd.Min(ACount - 1, Self.Count - 1) do
   begin
     if LIndex >= Self.Count then
       break;
@@ -821,7 +821,7 @@ begin
   end;
 end;
 
-function TListEx<T>.ToString: string;
+function TListEx<T>.ToString: String;
 var
   LItem: T;
   LValue: TValue;
@@ -868,6 +868,14 @@ begin
 end;
 
 end.
+
+
+
+
+
+
+
+
 
 
 

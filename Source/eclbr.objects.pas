@@ -38,10 +38,13 @@ uses
   Generics.Collections;
 
 type
+  TArrayValue = array of TValue;
+
   IObject = interface
     ['{E3B4DFC3-25AD-46F5-947C-1509E802C047}']
-    function Factory(const AClass: TClass; const AMetadata: TArray<TValue> = [];
-      const AMethodName: string = 'Create'): TObject;
+    function Factory(const AClass: TClass): TObject; overload;
+    function Factory(const AClass: TClass; const AArgs: TArrayValue;
+      const AMethodName: String): TObject; overload;
   end;
 
   TObjectEx = class sealed(TInterfacedObject, IObject)
@@ -51,14 +54,16 @@ type
     constructor Create;
     destructor Destroy; override;
     class function New: IObject;
-    function Factory(const AClass: TClass;
-      const AArgs: TArray<TValue> = []; const AMethodName: string = 'Create'): TObject;
+    function Factory(const AClass: TClass): TObject; overload;
+    function Factory(const AClass: TClass; const AArgs: TArrayValue;
+      const AMethodName: String): TObject; overload;
   end;
 
   {$MESSAGE WARN 'This interface has been deprecated. Use AutoRef<T> instead.'}
   IAutoRef<T: class, constructor> = interface
     ['{F1196B06-4C61-4512-B06D-1691199A073C}']
-    function Get: T;
+    function Get: T; deprecated 'Use AsRef instead';
+    function AsRef: T;
     procedure Release;
   end;
 
@@ -68,25 +73,26 @@ type
     FObject: T;
   protected
     constructor Create(const ACallbackNew: TFunc<T>); overload;
-    constructor Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
-      const AArgs: TArray<TValue>); overload;
+    constructor Create(const ACallbackNew: TFunc<TArrayValue, T>;
+      const AArgs: TArrayValue); overload;
     constructor Create; overload;
     constructor Create(const AObject: T); overload;
   public
     destructor Destroy; override;
-    class function New(const ACallbackNew: TFunc<TArray<TValue>, T>;
-      const AArgs: TArray<TValue>): IAutoRef<T>; overload; deprecated 'Use AutoRef<T> instead';
+    class function New(const ACallbackNew: TFunc<TArrayValue, T>;
+      const AArgs: TArrayValue): IAutoRef<T>; overload; deprecated 'Use AutoRef<T> instead';
     class function New(const ACallbackNew: TFunc<T>): IAutoRef<T>; overload;
     class function New: IAutoRef<T>; overload;
     class function New(const AObject: T): IAutoRef<T>; overload;
     class function LazyLoad: IAutoRef<T>;
-    function Get: T;
+    function Get: T; deprecated 'Use AsRef instead';
+    function AsRef: T;
     procedure Release;
   end;
 
   ISmartPtr<T: class, constructor> = interface
     ['{17C30A2D-74C9-48B2-917D-6C5DC99D2B78}']
-    function IsNull: boolean;
+    function IsNull: Boolean;
   end;
 
   AutoRef<T: class, constructor> = record
@@ -102,7 +108,7 @@ type
       public
         constructor Create(const AObjectRef: TObject);
         destructor Destroy; override;
-        function IsNull: boolean;
+        function IsNull: Boolean;
       end;
   public
     constructor Create(const AObjectRef: T);
@@ -119,8 +125,8 @@ implementation
 
 { TAutoRef<T> }
 
-constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<TArray<TValue>, T>;
-  const AArgs: TArray<TValue>);
+constructor TAutoRef<T>.Create(const ACallbackNew: TFunc<TArrayValue, T>;
+  const AArgs: TArrayValue);
 begin
   FObject := ACallbackNew(AArgs);
 end;
@@ -133,6 +139,15 @@ end;
 constructor TAutoRef<T>.Create;
 begin
   FObject := T.Create;
+end;
+
+function TAutoRef<T>.AsRef: T;
+begin
+  // LazyLoad
+  if FObject = nil then
+    FObject := T.Create;
+
+  Result := FObject;
 end;
 
 constructor TAutoRef<T>.Create(const AObject: T);
@@ -151,8 +166,8 @@ begin
   Result := TAutoRef<T>.Create(ACallbackNew);
 end;
 
-class function TAutoRef<T>.New(const ACallbackNew: TFunc<TArray<TValue>, T>;
-  const AArgs: TArray<TValue>): IAutoRef<T>;
+class function TAutoRef<T>.New(const ACallbackNew: TFunc<TArrayValue, T>;
+  const AArgs: TArrayValue): IAutoRef<T>;
 begin
   Result := TAutoRef<T>.Create(ACallbackNew, AArgs);
 end;
@@ -202,8 +217,13 @@ begin
   FContext.Free;
 end;
 
+function TObjectEx.Factory(const AClass: TClass): TObject;
+begin
+  Result := Factory(AClass, [], 'Create');
+end;
+
 function TObjectEx.Factory(const AClass: TClass;
-  const AArgs: TArray<TValue>; const AMethodName: string): TObject;
+  const AArgs: TArrayValue; const AMethodName: String): TObject;
 var
   LConstructor: TRttiMethod;
   LInstance: TValue;
@@ -240,7 +260,7 @@ begin
   inherited;
 end;
 
-function AutoRef<T>.TSmartPtr.IsNull: boolean;
+function AutoRef<T>.TSmartPtr.IsNull: Boolean;
 begin
   Result := FObject = nil;
 end;
@@ -286,3 +306,6 @@ begin
 end;
 
 end.
+
+
+

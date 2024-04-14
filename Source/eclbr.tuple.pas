@@ -96,7 +96,7 @@ type
     ///   This function returns the current count of elements stored in the collection.
     /// </remarks>
     /// <returns>
-    ///   An integer value representing the number of elements in the collection.
+    ///   An Integer value representing the number of elements in the collection.
     /// </returns>
     function Count: Integer; inline;
     function SetTuple(const AKeys: TArray<K>; const AValues: TArray<TValue>): TTuple<K>; inline;
@@ -173,7 +173,7 @@ var
   LComp2: IEqualityComparer<TValue>;
   LFor: Integer;
 begin
-  Result := false;
+  Result := False;
   if Length(Left.FTuplesPair) <> Length(Right.FTuplesPair) then
     exit;
   LComp1 := TEqualityComparer<K>.Default;
@@ -274,14 +274,14 @@ var
   LComp: IEqualityComparer<TValue>;
   LFor: Integer;
 begin
-  Result := false;
+  Result := False;
   LComp := TEqualityComparer<TValue>.Default;
   for LFor := 0 to High(Left.FTuples) do
   begin
     if not LComp.Equals(Left.FTuples[LFor], Right.FTuples[LFor]) then
       exit;
   end;
-  Result := true;
+  Result := True;
 end;
 
 function TTuple.Get<T>(const AIndex: Integer): T;

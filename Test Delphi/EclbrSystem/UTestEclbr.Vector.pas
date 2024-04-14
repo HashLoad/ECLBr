@@ -255,11 +255,11 @@ end;
 
 procedure TVectorTest.TestFactorialCalculation;
 var
-  LVector: TVector<integer>;
+  LVector: TVector<Integer>;
   LFactorial: Integer;
 begin
   // Arrange
-  LVector := TVector<integer>.Create([1, 2, 3, 4, 5, 6, 7]);
+  LVector := TVector<Integer>.Create([1, 2, 3, 4, 5, 6, 7]);
 
   // Act
   LFactorial := LVector.Reduce(function(Acc: Integer; Item: Integer): Integer
@@ -272,8 +272,8 @@ end;
 
 procedure TVectorTest.TestFilter;
 var
-  LVector: TVector<integer>;
-  LArrayFiltered: TVector<integer>;
+  LVector: TVector<Integer>;
+  LArrayFiltered: TVector<Integer>;
 begin
   LVector.Add(10);
   LVector.Add(20);
@@ -307,28 +307,28 @@ end;
 
 procedure TVectorTest.TestFormatCPF;
 var
-  LNumbers: TVector<string>;
+  LNumbers: TVector<String>;
   LResult: Tuple;
 begin
-  LNumbers := TVector<string>.Create(TStd.Split('12345678900'));
-  LResult := LNumbers.Filter(function(Value: string): Boolean
+  LNumbers := TVector<String>.Create(TStd.Split('12345678900'));
+  LResult := LNumbers.Filter(function(Value: String): Boolean
                              begin
                                Result := Pos(Value, '0123456789') > 0;
                              end)
-                     .Filter(function(Value: string; Index: Integer): Boolean
+                     .Filter(function(Value: String; Index: Integer): Boolean
                              begin
                                Result := Index <= 10;
                              end)
-                     .Reduce(function(Arg1: string; Arg2: Tuple): Tuple
+                     .Reduce(function(Arg1: String; Arg2: Tuple): Tuple
                              var
-                               LPonto, LTraco, LCpf: string;
+                               LPonto, LTraco, LCpf: String;
                              begin
-                               LPonto := TStd.IfThen<string>((Arg2[1].AsType<integer> = 3) or
-                                                               (Arg2[1].AsType<integer> = 6), '.', '');
-                               LTraco := TStd.IfThen<string>((Arg2[1].AsType<integer> = 9), '-', '');
+                               LPonto := TStd.IfThen<String>((Arg2[1].AsType<Integer> = 3) or
+                                                               (Arg2[1].AsType<Integer> = 6), '.', '');
+                               LTraco := TStd.IfThen<String>((Arg2[1].AsType<Integer> = 9), '-', '');
                                LCpf := Arg2[0].AsType<String> + LPonto + LTraco + Arg1;
 
-                               Result := [LCpf, Arg2[1].AsType<integer> + 1];
+                               Result := [LCpf, Arg2[1].AsType<Integer> + 1];
                              end,
                              ['', 0]);
 
@@ -368,7 +368,7 @@ begin
   LList := LVector.AsList;
   try
     Assert.IsNotNull(LList);
-    Assert.AreEqual(LVector.Length, LList.Count);
+    Assert.AreEqual(LVector.Length, Integer(LList.Count));
     Assert.AreEqual(LVector[0], LList[0]);
     Assert.AreEqual(LVector[1], LList[1]);
     Assert.AreEqual(LVector[2], LList[2]);
@@ -380,7 +380,7 @@ end;
 procedure TVectorTest.TestToString;
 var
   LVector: TVector<Integer>;
-  LStr: string;
+  LStr: String;
 begin
   LVector.Add(10);
   LVector.Add(20);
@@ -394,8 +394,8 @@ end;
 procedure TVectorTest.TestEnumerator;
 var
   LVector: TVector<String>;
-  Item: string;
-  Last: string;
+  Item: String;
+  Last: String;
 begin
   LVector.Add('One');
   LVector.Add('Two');

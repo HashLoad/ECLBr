@@ -182,7 +182,7 @@ begin
   LArray2[1] := 5;
   LArray2[2] := 6;
   // Act
-  LMergedArray := TStd.ArrayMerge<integer>(LArray1, LArray2);
+  LMergedArray := TStd.ArrayMerge<Integer>(LArray1, LArray2);
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LMergedArray));
   for LFor := Low(LExpectedArray) to High(LExpectedArray) do
@@ -237,7 +237,7 @@ begin
   try
     // Assert
     LLength := Length(LInputArray);
-    Assert.AreEqual(LLength, LList.Count);
+    Assert.AreEqual(LLength, Integer(LList.Count));
     for var i := 0 to High(LInputArray) do
       Assert.AreEqual(LInputArray[i], LList[i]);
   finally
@@ -248,7 +248,7 @@ end;
 procedure TTesTStd.TestDateTimeToIso8601;
 var
   LInputDateTime: TDateTime;
-  LResultString: string;
+  LResultString: String;
 begin
   // Arrange
   LInputDateTime := EncodeDateTime(2023, 9, 26, 14, 30, 0, 0);
@@ -256,16 +256,16 @@ begin
   LResultString := TStd.DateTimeToIso8601(LInputDateTime, True);
 
   // Assert
-  // Verifique se o ResultString corresponde à string ISO 8601 esperada
+  // Verifique se o ResultString corresponde à String ISO 8601 esperada
   Assert.AreEqual('2023-09-26T14:30:00', LResultString);
 end;
 
 procedure TTesTStd.TestDecodeBase64;
 var
-  LInputBase64: string;
+  LInputBase64: String;
   LResultBytes: TBytes;
-  LDecodedString: string;
-  LExpectedString: string;
+  LDecodedString: String;
+  LExpectedString: String;
   LLength: Integer;
   LResult: Integer;
 begin
@@ -286,25 +286,25 @@ end;
 
 procedure TTesTStd.TestDecodeString;
 var
-  LInputString: string;
-  LResultString: string;
+  LInputString: String;
+  LResultString: String;
 begin
   // Arrange
-  LInputString := 'SGVsbG8sIFdvcmxkIQ=='; // Coloque a string Base64 que deseja decodificar aqui
+  LInputString := 'SGVsbG8sIFdvcmxkIQ=='; // Coloque a String Base64 que deseja decodificar aqui
 
   // Act
   LResultString := TStd.DecodeString(LInputString);
 
   // Assert
-  // Verifique se o ResultString corresponde à string decodificada esperada
-  // Ajuste a string esperada conforme necessário
+  // Verifique se o ResultString corresponde à String decodificada esperada
+  // Ajuste a String esperada conforme necessário
   Assert.AreEqual('Hello, World!', LResultString);
 end;
 
 procedure TTesTStd.TestEncodeBase64;
 var
   LInputData: TBytes;
-  LResultString: string;
+  LResultString: String;
 begin
   // Arrange
   SetLength(LInputData, 13);
@@ -327,24 +327,24 @@ begin
   LResultString := TStd.EncodeBase64(@LInputData[0], Length(LInputData));
 
   // Assert
-  // Verifique se o ResultString corresponde à string Base64 esperada
+  // Verifique se o ResultString corresponde à String Base64 esperada
   Assert.AreEqual('SGVsbG8sIFdvcmxkIQ==', LResultString);
 end;
 
 procedure TTesTStd.TestEncodeString;
 var
-  LInputString: string;
-  LResultString: string;
+  LInputString: String;
+  LResultString: String;
 begin
   // Arrange
-  LInputString := 'Hello, World!'; // Coloque a string que você deseja codificar aqui
+  LInputString := 'Hello, World!'; // Coloque a String que você deseja codificar aqui
 
   // Act
   LResultString := TStd.EncodeString(LInputString);
 
   // Assert
-  // Verifique se o ResultString corresponde à string codificada esperada
-  // Ajuste a string esperada conforme necessário
+  // Verifique se o ResultString corresponde à String codificada esperada
+  // Ajuste a String esperada conforme necessário
   Assert.AreEqual('SGVsbG8sIFdvcmxkIQ==', LResultString);
 end;
 
@@ -368,12 +368,12 @@ end;
 
 procedure TTesTStd.TestIso8601ToDateTime;
 var
-  LIso8601DateString: string;
+  LIso8601DateString: String;
   LResultDateTime: TDateTime;
 begin
   // Arrange
   LIso8601DateString := '2023-09-26T14:30:00Z';
-  // UseISO8601DateFormat é um valor booleano que determina o formato da data.
+  // UseISO8601DateFormat é um valor Booleano que determina o formato da data.
   // A implementação real deve ser configurada de acordo com a sua lógica.
 
   // Act
@@ -393,7 +393,7 @@ end;
 procedure TTesTStd.TestJoinStrings_StringArray;
 var
   LStrings: TArrayString;
-  LSeparator, LResultString: string;
+  LSeparator, LResultString: String;
 begin
   // Arrange
   LStrings := TArrayString.Create('Hello', 'World', 'DUnitX', 'Testing');
@@ -406,7 +406,7 @@ end;
 
 procedure TTesTStd.TestJoinStrings_StringList;
 var
-  LSeparator, LResultString: string;
+  LSeparator, LResultString: String;
   LIAutoRef: IAutoRef<TListString>;
 begin
   // Arrange
@@ -471,7 +471,7 @@ end;
 
 procedure TTesTStd.TestRemoveTrailingChars;
 var
-  LInputString, LResultString: string;
+  LInputString, LResultString: String;
   LTrailingChars: TSysCharSet;
 begin
   // Arrange
@@ -485,8 +485,8 @@ end;
 
 procedure TTesTStd.TestSplit;
 var
-  LS: string;
-  LResultArray: TArray<string>;
+  LS: String;
+  LResultArray: TArray<String>;
   LLength: Integer;
 begin
   // Arrange
