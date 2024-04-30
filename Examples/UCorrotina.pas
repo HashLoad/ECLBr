@@ -90,12 +90,12 @@ begin
   FCoroutine_0 := 'CONTADOR';
   FCoroutine_1 := 'CONTADOR_REGRESSIVO';
 
-  FScheduler := TScheduler.New(500);
+  FScheduler := TScheduler.New;
   FScheduler.Add(FCoroutine_0, Contador, 0, procedure
                               begin
                                 LBL.Caption := '<=';
                                 Memo1.Lines.Add(FScheduler.Value.ToString);
-                              end)
+                              end, 2000)
             .Add(FCoroutine_1, Contador_Regressivo, 15, procedure
                               begin
                                 LBL.Caption := '=>';
@@ -113,8 +113,8 @@ begin
     Result := Value.AsInteger + 1
   else
     Result := TValue.Empty;
-  // Simulação de error
-  //Abort;
+//   Simulação de error
+//  Abort;
 end;
 
 function TForm2.Contador_Regressivo(const SendValue, Value: TValue): TValue;
@@ -130,7 +130,7 @@ begin
   FCoroutine_0 := 'CONTADOR_ASYNC';
   FCoroutine_1 := 'CONTADOR_REGRESSIVO_ASYNC';
 
-  FScheduler := TScheduler.New(500);
+  FScheduler := TScheduler.New;
   FScheduler.Add(FCoroutine_0, Contador_Async, 0, procedure
                               begin
                                 LBL.Caption := '<=';
@@ -140,7 +140,7 @@ begin
                               begin
                                 LBL.Caption := '=>';
                                 Memo2.Lines.Add(FScheduler.Value.ToString);
-                              end)
+                              end, 2000)
             .Run(procedure(AError: String)
                  begin
                    Memo2.Lines.Add(AError);
@@ -163,7 +163,7 @@ begin
   else
     Result := LFuture.Err;
 // Simulação de error
-//  raise Exception.Create('Error Message');
+  raise Exception.Create('Error Message');
 end;
 
 function TForm2.Contador_Regressivo_Async(const SendValue, Value: TValue): TValue;

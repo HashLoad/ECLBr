@@ -70,7 +70,7 @@ object Form2: TForm2
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitHeight = 447
+    ExplicitHeight = 448
   end
   object Memo2: TMemo
     Left = 504
@@ -86,7 +86,7 @@ object Form2: TForm2
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitHeight = 447
+    ExplicitHeight = 448
   end
   object BtnCoRoutine: TButton
     Left = 365
@@ -105,7 +105,7 @@ object Form2: TForm2
   end
   object Button1: TButton
     Left = 365
-    Top = 449
+    Top = 450
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -118,8 +118,8 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 3
     OnClick = Button1Click
-    ExplicitTop = 441
-    ExplicitWidth = 127
+    ExplicitTop = 442
+    ExplicitWidth = 131
   end
   object BtnAsyncAwait: TButton
     Left = 365
@@ -153,11 +153,11 @@ object Form2: TForm2
     TabOrder = 5
     OnClick = Button2Click
     ExplicitTop = 90
-    ExplicitWidth = 127
+    ExplicitWidth = 131
   end
   object Button3: TButton
     Left = 365
-    Top = 140
+    Top = 141
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -170,8 +170,8 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 6
     OnClick = Button3Click
-    ExplicitTop = 137
-    ExplicitWidth = 127
+    ExplicitTop = 138
+    ExplicitWidth = 131
   end
   object Button4: TButton
     Left = 365
@@ -188,12 +188,12 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 7
     OnClick = Button4Click
-    ExplicitTop = 344
-    ExplicitWidth = 127
+    ExplicitTop = 345
+    ExplicitWidth = 131
   end
   object Button5: TButton
     Left = 365
-    Top = 399
+    Top = 400
     Width = 133
     Height = 42
     Anchors = [akLeft, akRight]
@@ -206,7 +206,7 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 8
     OnClick = Button5Click
-    ExplicitTop = 391
-    ExplicitWidth = 127
+    ExplicitTop = 393
+    ExplicitWidth = 131
   end
 end

@@ -99,6 +99,7 @@ type
   strict private
     FValue: T;
     FSmartPtr: ISmartPtr<T>;
+    FObjectEx: IObject;
     function _GetAsRef: T;
   strict private
     type
@@ -271,6 +272,7 @@ constructor AutoRef<T>.Create(const AObjectRef: T);
 begin
   FValue := AObjectRef;
   FSmartPtr := TSmartPtr.Create(AObjectRef);
+  FObjectEx := TObjectEx.New;
 end;
 
 procedure AutoRef<T>.Free;
@@ -281,8 +283,7 @@ end;
 function AutoRef<T>._GetAsRef: T;
 begin
   if FSmartPtr = nil then
-    Self := AutoRef<T>.Create(T.Create);
-
+    Self := AutoRef<T>.Create(FObjectEx.Factory(T));
   Result := Self.FValue;
 end;
 

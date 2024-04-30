@@ -411,14 +411,14 @@ var
 begin
   // Arrange
   LIAutoRef := TAutoRef<TListString>.New;
-  LIAutoRef.Get.Add('Hello');
-  LIAutoRef.Get.Add('World');
-  LIAutoRef.Get.Add('DUnitX');
-  LIAutoRef.Get.Add('Testing');
+  LIAutoRef.AsRef.Add('Hello');
+  LIAutoRef.AsRef.Add('World');
+  LIAutoRef.AsRef.Add('DUnitX');
+  LIAutoRef.AsRef.Add('Testing');
 
   LSeparator := ', ';
   // Act
-  LResultString := TStd.JoinStrings(LIAutoRef.Get, LSeparator);
+  LResultString := TStd.JoinStrings(LIAutoRef.AsRef, LSeparator);
   // Assert
   Assert.AreEqual('Hello, World, DUnitX, Testing', LResultString);
 end;

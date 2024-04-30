@@ -85,11 +85,14 @@ type
 
   TStd = class
   strict private
-    class function _DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket; static;
-    class procedure _EncodePacket(const APacket: TPacket; NumChars: Integer;
-      AOutBuf: PAnsiChar); static;
+    FFormatSettings: TFormatSettings;
+    function _DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket;
+    procedure _EncodePacket(const APacket: TPacket; NumChars: Integer;
+      AOutBuf: PAnsiChar);
+  protected
+    class var FInstance: TStd;
   public
-    class var FormatSettings: TFormatSettings;
+    class function Get: TStd;
     class function ArrayMerge<T>(const AArray1: TArray<T>;
       const AArray2: TArray<T>): TArray<T>; inline;
     class function ArrayCopy(const ASource: TArrayString; const AIndex: Integer;
@@ -125,9 +128,13 @@ type
     class function Split(const S: String): TArray<String>; inline;
     class function Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer; inline;
     class function Hash(const AValue: MarshaledAString): Cardinal;
+    class function MD5Simple(const AData: TDate; const ANr1, ANr2: Integer;
+      const Akey: String): String;
     class procedure EncodeStream(const AInput, AOutput: TStream);
     class procedure DecodeStream(const AInput, AOutput: TStream);
     class procedure Fill<T>(const AFirst: Pointer; ASize: Cardinal; const Value: T); inline;
+    function GenerateSequentialNumber: UInt64;
+    property FormatSettings: TFormatSettings read FFormatSettings write FFormatSettings;
   end;
 
 {$IFDEF DEBUG}
@@ -225,10 +232,10 @@ begin
   if AUseISO8601DateFormat then
     LDatePart := FormatDateTime('yyyy-mm-dd', AValue)
   else
-    LDatePart := DateToStr(AValue, FormatSettings);
+    LDatePart := DateToStr(AValue, TStd.Get.FormatSettings);
 
   if Frac(AValue) = 0 then
-    Result := ifThen<String>(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, FormatSettings))
+    Result := ifThen<String>(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, TStd.Get.FormatSettings))
   else
   begin
     LTimePart := FormatDateTime('hh:nn:ss', AValue);
@@ -318,6 +325,13 @@ end;
 class function TStd.Min(const A, B: Int64): Int64;
 begin
   Result := Math.Min(A, B);
+end;
+
+class function TStd.Get: TStd;
+begin
+  if not Assigned(FInstance) then
+    FInstance := TStd.Create;
+  Result := FInstance;
 end;
 
 class function TStd.Min(const A, B: Currency): Currency;
@@ -416,7 +430,7 @@ begin
   end;
 end;
 
-class procedure TStd._EncodePacket(const APacket: TPacket; NumChars: Integer;
+procedure TStd._EncodePacket(const APacket: TPacket; NumChars: Integer;
  AOutBuf: PAnsiChar);
 begin
   AOutBuf[0] := C_ENCODETABLE[APacket.a[0] shr 2];
@@ -429,7 +443,7 @@ begin
   else AOutBuf[3] := C_ENCODETABLE[APacket.a[2] and $0000003f];
 end;
 
-class function TStd._DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket;
+function TStd._DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket;
 begin
   Result.a[0] := (C_DECODETABLE[AInBuf[0]] shl 2) or
     (C_DECODETABLE[AInBuf[1]] shr 4);
@@ -473,7 +487,7 @@ begin
       LJ := Min(3, BytesRead - LI);
       FillChar(LPacket, SizeOf(LPacket), 0);
       Move(LInBuffer[LI], LPacket, LJ);
-      _EncodePacket(LPacket, LJ, LBufferPtr);
+      TStd.Get._EncodePacket(LPacket, LJ, LBufferPtr);
       Inc(LI, 3);
       Inc(LBufferPtr, 4);
       if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - C_LINEBREAKINTERVAL then
@@ -560,7 +574,7 @@ begin
     LI := 0;
     while LI < BytesRead do
     begin
-      LPacket := _DecodePacket(LInBufPtr, LJ);
+      LPacket := TStd.Get._DecodePacket(LInBufPtr, LJ);
       LK := 0;
       while LJ > 0 do
       begin
@@ -673,6 +687,35 @@ end;
 class function TStd.Hash(const AValue: MarshaledAString): Cardinal;
 begin
   Result := SysUtils.HashName(AValue);
+end;
+
+class function TStd.MD5Simple(const AData: TDate; const ANr1: Integer;
+  const ANr2: Integer; const Akey: String): String;
+var
+  LData: String;
+  LCode: String;
+  LHash: String;
+  LFor: Integer;
+begin
+  LData := FormatDateTime('YYYYMMDD', AData);
+  LCode := LData + IntToStr(ANr1) + IntToStr(ANr2) + Akey;
+  LHash := '';
+  for LFor := 1 to Length(LCode) do
+    LHash := LHash + IntToHex(Ord(LCode[LFor]), 2);
+  Result := LHash;
+end;
+
+function TStd.GenerateSequentialNumber: UInt64;
+var
+  LSequencia: UInt64;
+begin
+  TMonitor.Enter(FInstance);
+  try
+    LSequencia := Trunc((Now - EncodeDate(2022, 1, 1)) * 86400);
+    Result := StrToInt(Format('%010d', [LSequencia]));
+  finally
+    TMonitor.Exit(FInstance);
+  end;
 end;
 
 { TPointerStream }
@@ -824,47 +867,12 @@ begin
 end;
 
 initialization
-  TStd.FormatSettings := TFormatSettings.Create('en_US');
+  TStd.Get;
+  TStd.Get.FormatSettings := TFormatSettings.Create('en_US');
+
+finalization
+  if Assigned(TStd.FInstance) then
+    TStd.FInstance.Free;
 
 end.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -33,6 +33,7 @@ uses
   Classes,
   SysUtils,
   SyncObjs,
+  DateUtils,
   Threading,
   Generics.Collections,
   eclbr.std;
@@ -85,11 +86,18 @@ type
     FObserverList: TList<TCoroutine>;
     FParamNotify: TParamNotify;
     FLock: TCriticalSection;
+    FInterval: UInt32;
+    FLastExecutionTime: TDateTime;
+  protected
+    procedure _MarkExecution;
+    function _IsReadyToExecute: Boolean;
+    function _GetExecutionInterval: UInt32;
   public
     {$MESSAGE WARN 'This class should not be used directly.'}
     constructor Create; overload;
     constructor Create(const AName: String; const AFunc: TFuncCoroutine;
-      const AValue: TValue; const ACountSend: UInt32; const AProc: TProc = nil); overload;
+      const AValue: TValue; const ACountSend: UInt32; const AProc: TProc;
+      const AInterval: UInt32); overload;
     destructor Destroy; override;
     procedure Attach(const AObserver: TCoroutine);
     procedure Detach(const AObserver: TCoroutine);
@@ -113,7 +121,7 @@ type
     procedure Stop(const ATimeout: Cardinal = 1000);
     procedure Next;
     function Add(const AName: String; const ARoutine: TFuncCoroutine; const AValue: TValue;
-      const AProc: TProc = nil): IScheduler; overload;
+      const AProc: TProc = nil; const AInterval: UInt32 = 0): IScheduler; overload;
     function Value: TValue;
     function Yield(const AName: String): TValue;
     function Count: UInt32;
@@ -153,10 +161,10 @@ type
     destructor Destroy; override;
     procedure Send(const AName: String; const AValue: TValue);
     procedure Suspend(const AName: String);
-    procedure Stop(const ATimeout: Cardinal = 1000);
+    procedure Stop(const ATimeout: Cardinal = 500);
     procedure Next;
     function Add(const AName: String; const ARoutine: TFuncCoroutine; const AValue: TValue;
-      const AProc: TProc = nil): IScheduler; overload;
+      const AProc: TProc = nil; const AInterval: UInt32 = 0): IScheduler; overload;
     function Value: TValue;
     function Yield(const AName: String): TValue;
     function Count: UInt32;
@@ -260,10 +268,10 @@ begin
 end;
 
 function TScheduler.Add(const AName: String; const ARoutine: TFuncCoroutine;
-  const AValue: TValue; const AProc: TProc = nil): IScheduler;
+  const AValue: TValue; const AProc: TProc; const AInterval: UInt32): IScheduler;
 begin
   Result := Self;
-  FCoroutines.Enqueue(TCoroutine.Create(AName, ARoutine, AValue, 1, AProc));
+  FCoroutines.Enqueue(TCoroutine.Create(AName, ARoutine, AValue, 1, AProc, AInterval));
   FCurrentRoutine := FCoroutines.Peek;
 end;
 
@@ -290,12 +298,19 @@ begin
 
     if FCurrentRoutine.State in [TCoroutineState.csActive] then
     begin
+      // Simulating the TTimer Interval
+      if (FCurrentRoutine._GetExecutionInterval > 0) and (not FCurrentRoutine._IsReadyToExecute) then
+      begin
+        FCoroutines.Enqueue(FCurrentRoutine);
+        Exit;
+      end;
       if Assigned(FCurrentRoutine.Proc) then
       begin
         TThread.Queue(TThread.CurrentThread, procedure
                                              begin
                                                FCurrentRoutine.Proc();
                                              end);
+        FCurrentRoutine._MarkExecution;
       end;
       Sleep(FSleepTime);
       LResultValue := FCurrentRoutine.Func(FCurrentRoutine.SendValue, FCurrentRoutine.Value);
@@ -402,7 +417,8 @@ begin
 end;
 
 constructor TCoroutine.Create(const AName: String; const AFunc: TFuncCoroutine;
-  const AValue: TValue; const ACountSend: UInt32; const AProc: TProc = nil);
+  const AValue: TValue; const ACountSend: UInt32; const AProc: TProc;
+  const AInterval: UInt32);
 begin
   FName := AName;
   FFunc := AFunc;
@@ -414,6 +430,8 @@ begin
   FObserverList := TList<TCoroutine>.Create;
   FParamNotify := Default(TParamNotify);
   FLock := TCriticalSection.Create;
+  FInterval := AInterval;
+  FLastExecutionTime := Now;
 end;
 
 destructor TCoroutine.Destroy;
@@ -449,6 +467,21 @@ begin
   finally
     FLock.Release;
   end;
+end;
+
+function TCoroutine._GetExecutionInterval: UInt32;
+begin
+  Result := FInterval;
+end;
+
+function TCoroutine._IsReadyToExecute: Boolean;
+begin
+  Result := MilliSecondsBetween(Now, FLastExecutionTime) >= FInterval;
+end;
+
+procedure TCoroutine._MarkExecution;
+begin
+  FLastExecutionTime := Now;
 end;
 
 { TScheduler.TGather<T> }

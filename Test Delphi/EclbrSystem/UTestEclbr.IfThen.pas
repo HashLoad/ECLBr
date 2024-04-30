@@ -159,9 +159,9 @@ end;
 
 procedure TestTIfThen.TestWhenTrueThenString;
 var
-  LValue: string;
+  LValue: String;
 begin
-  LValue := TIfThen<string>.When(True)
+  LValue := TIfThen<String>.When(True)
     .ThenOf('True value')
     .ElseOf('False value')
     .Return;

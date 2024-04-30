@@ -88,7 +88,7 @@ type
     /// <param name="ASuccess">
     ///   The success value of type S to set.
     /// </param>
-    procedure _SetSuccessValue(const ASuccess: S); inline;
+    procedure _SetSuccessValue(const ASuccess: S); //inline;
 
     /// <summary>
     ///   Sets the failure value for the TResultPair.
@@ -168,7 +168,7 @@ type
     /// <returns>
     ///   A TResultPair instance with the given success value.
     /// </returns>
-    function Success(const ASuccess: S): TResultPair<S, F>; inline;
+    function Success(const ASuccess: S): TResultPair<S, F>; //inline;
 
     /// <summary>
     ///   Creates a new instance of TResultPair representing a failure result.
@@ -179,7 +179,7 @@ type
     /// <returns>
     ///   A TResultPair instance with the given failure value.
     /// </returns>
-    function Failure(const AFailure: F): TResultPair<S, F>; inline;
+    function Failure(const AFailure: F): TResultPair<S, F>; //inline;
 
     /// <summary>
     ///   Executes a success procedure if the current instance represents a success result,
@@ -614,7 +614,7 @@ function TResultPair<S, F>.Fail(const AFailureProc: TProc<F>): TResultPair<S, F>
 begin
   Result := Self;
   if not Assigned(AFailureProc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtFailure: AFailureProc(FFailure.GetValue);
   end;
@@ -622,8 +622,8 @@ end;
 
 function TResultPair<S, F>.Failure(const AFailure: F): TResultPair<S, F>;
 begin
+  _SetFailureValue(AFailure);
   Result := Self;
-  Result._SetFailureValue(AFailure);
 end;
 
 function TResultPair<S, F>.Return: TResultPair<S, F>;
@@ -646,10 +646,10 @@ begin
     LResult := FFailureFuncs[LFor](FFailure.GetValue);
     try
       if LResult.isSuccess then
-        Result._SetSuccessValue(LResult.ValueSuccess)
+        _SetSuccessValue(LResult.ValueSuccess)
       else
       if LResult.isFailure then
-        Result._SetFailureValue(LResult.ValueFailure);
+        _SetFailureValue(LResult.ValueFailure);
     finally
       LResult.Dispose;
     end;
@@ -667,10 +667,10 @@ begin
     LResult := FSuccessFuncs[LFor](Result.FSuccess.GetValue);
     try
       if LResult.isSuccess then
-        Result._SetSuccessValue(LResult.ValueSuccess)
+        _SetSuccessValue(LResult.ValueSuccess)
       else
       if LResult.isFailure then
-        Result._SetFailureValue(LResult.ValueFailure);
+        _SetFailureValue(LResult.ValueFailure);
     finally
       LResult.Dispose;
     end;
@@ -679,8 +679,8 @@ end;
 
 function TResultPair<S, F>.Success(const ASuccess: S): TResultPair<S, F>;
 begin
+  _SetSuccessValue(ASuccess);
   Result := Self;
-  Result._SetSuccessValue(ASuccess);
 end;
 
 function TResultPair<S, F>.isFailure: Boolean;
@@ -699,12 +699,12 @@ var
 begin
   Result := Self;
   if not Assigned(ASuccessFunc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtSuccess:
     begin
       LCast := TValue.From<R>(ASuccessFunc(FSuccess.GetValue));
-      Result._SetSuccessValue(LCast.AsType<S>);
+      _SetSuccessValue(LCast.AsType<S>);
     end;
   end;
 end;
@@ -747,7 +747,7 @@ function TResultPair<S, F>.TryException(const ASuccessProc: TProc<S>;
 begin
   Result := Self;
   if (not Assigned(ASuccessProc)) and (not Assigned(AFailureProc)) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtSuccess: ASuccessProc(FSuccess.GetValue);
     TResultType.rtFailure: AFailureProc(FFailure.GetValue);
@@ -802,12 +802,12 @@ var
 begin
   Result := Self;
   if not Assigned(AFailureFunc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtFailure:
     begin
       LCast := TValue.From<R>(AFailureFunc(FFailure.GetValue));
-      Result._SetFailureValue(LCast.AsType<F>);
+      _SetFailureValue(LCast.AsType<F>);
     end;
   end;
 end;
@@ -827,7 +827,7 @@ function TResultPair<S, F>.Ok(const ASuccessProc: TProc<S>): TResultPair<S, F>;
 begin
   Result := Self;
   if not Assigned(ASuccessProc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtSuccess: ASuccessProc(FSuccess.GetValue);
   end;
@@ -840,14 +840,14 @@ var
 begin
   Result := Self;
   if not Assigned(ASuccessFunc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtSuccess:
     begin
       LCast := TValue.From<R>(ASuccessFunc(FSuccess.GetValue));
-      Result._SetSuccessValue(LCast.AsType<S>);
+      _SetSuccessValue(LCast.AsType<S>);
     end;
-    TResultType.rtFailure: Result._SetFailureValue(FFailure.GetValue);
+    TResultType.rtFailure: _SetFailureValue(FFailure.GetValue);
   end;
 end;
 
@@ -863,21 +863,21 @@ begin
     TResultType.rtFailure:
     begin
       LCast := TValue.From<R>(AFailureFunc(FFailure.GetValue));
-      Result._SetFailureValue(LCast.AsType<F>);
+      _SetFailureValue(LCast.AsType<F>);
     end;
   end;
 end;
 
 function TResultPair<S, F>.Pure(const ASuccess: S): TResultPair<S, F>;
 begin
+  _SetSuccessValue(ASuccess);
   Result := Self;
-  Result._SetSuccessValue(ASuccess);
 end;
 
 function TResultPair<S, F>.Pure(const AFailure: F): TResultPair<S, F>;
 begin
+  _SetFailureValue(AFailure);
   Result := Self;
-  Result._SetFailureValue(AFailure);
 end;
 
 function TResultPair<S, F>.SuccessOrElse(const ASuccessFunc: TFunc<S, S>): S;
@@ -931,7 +931,7 @@ var
   LResult: TResultPair<S, F>;
 begin
   if not Assigned(AFunc) then
-    exit;
+    Exit;
   LResult := AFunc();
   if LResult.isSuccess then
     Result.Success(LResult.FSuccess.GetValue)
@@ -1009,7 +1009,7 @@ var
 begin
   LResult := TResultPair<R, S>.New;
   if not Assigned(AFailureFunc) then
-    exit;
+    Exit;
   case FResultType of
     TResultType.rtFailure:
     begin
@@ -1068,3 +1068,8 @@ begin
 end;
 
 end.
+
+
+
+
+

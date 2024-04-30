@@ -34,9 +34,6 @@ uses
   eclbr.vector;
 
 type
-//  TShortStringHelper = record helper ShortString
-//  end;
-
   TCharHelperEx = record helper for Char
   public
     function ToUpper: Char;
