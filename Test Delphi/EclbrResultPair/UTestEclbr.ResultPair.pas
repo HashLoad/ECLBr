@@ -3,7 +3,7 @@ unit UTestEclbr.ResultPair;
 interface
 
 uses
-  DUnitX.TestFramework, System.SysUtils, eclbr.result.pair;
+  DUnitX.TestFramework, System.SysUtils, eclbr.result.pair, Rtti;
 
 type
   TTestTResultPair = class
@@ -102,17 +102,17 @@ begin
     LResultPair := TResultPair<Double, String>.New
       .Success(0.0)
       .ThenOf(
-        function (const ASubtotal: Double): TResultPair<Double, String>
+        function (const ASubtotal: Double): TValue
         begin
           // Adicione um item ao carrinho
-          Result := TResultPair<Double, String>.New.Success(ASubtotal + 29.99);
+          Result := ASubtotal + 29.99;
         end
       )
       .ThenOf(
-        function (const ASubtotal: Double): TResultPair<Double, String>
+        function (const ASubtotal: Double): TValue
         begin
           // Adicione outro item ao carrinho
-          Result := TResultPair<Double, String>.New.Success(ASubtotal + 19.99);
+          Result := ASubtotal + 19.99;
         end
       ).Return;
 
@@ -122,7 +122,7 @@ begin
     else
       LTotalPrice := 0.0;
 
-    Assert.AreEqual(49.98, LTotalPrice, 0.001); // Verifica se o preço total está correto
+    Assert.AreEqual(49.98, LTotalPrice); // Verifica se o preço total está correto
   finally
     LResultPair.Dispose;
   end;
@@ -137,22 +137,22 @@ begin
     LResultPair := TResultPair<Boolean, String>.New
       .Success(True)
       .ThenOf(
-        function (const CartNotEmpty: Boolean): TResultPair<Boolean, String>
+        function (const CartNotEmpty: Boolean): TValue
         begin
           // Verifique se o item do carrinho está em estoque (simulação de falha)
           if not CartNotEmpty then
-            Result := TResultPair<Boolean, String>.New.Failure('Carrinho vazio!')
+            Result := 'Carrinho vazio!'
           else
-            Result := TResultPair<Boolean, String>.New.Success(True);
+            Result := True;
         end)
       .ThenOf(
-        function (const ItemInStock: Boolean): TResultPair<Boolean, String>
+        function (const ItemInStock: Boolean): TValue
         begin
           // Tente prosseguir com o pagamento se o item estiver em estoque
           if ItemInStock then
-            Result := TResultPair<Boolean, String>.New.Success(True)
+            Result := True
           else
-            Result := TResultPair<Boolean, String>.New.Failure('Item fora de estoque!');
+            Result := 'Item fora de estoque!';
         end
       ).Return;
     // Verifique se o resultado é sucesso ou falha

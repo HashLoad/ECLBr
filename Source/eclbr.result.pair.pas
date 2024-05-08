@@ -65,8 +65,8 @@ type
   strict private
     type
       TMapFunc<Return> = reference to function(const ASelf: TResultPair<S, F>): Return;
-      TFuncOk = reference to function(const ASuccess: S): TResultPair<S, F>;
-      TFuncFail = reference to function(const AFailure: F): TResultPair<S, F>;
+      TFuncOk = reference to function(const ASuccess: S): TValue;
+      TFuncFail = reference to function(const AFailure: F): TValue;
       TFuncExec = reference to function: TResultPair<S, F>;
   strict private
     FSuccess: TResultPairValue<S>;
@@ -639,21 +639,17 @@ end;
 function TResultPair<S, F>._ReturnFailure: TResultPair<S, F>;
 var
   LFor: Integer;
-  LResult: TResultPair<S, F>;
+  LResult: TValue;
 begin
   Result := Default(TResultPair<S, F>);
   for LFor := Low(FFailureFuncs) to High(FFailureFuncs) do
   begin
     LResult := FFailureFuncs[LFor](FFailure.GetValue);
-    try
-      if LResult.isSuccess then
-        _SetSuccessValue(LResult.ValueSuccess)
-      else
-      if LResult.isFailure then
-        _SetFailureValue(LResult.ValueFailure);
-    finally
-      LResult.Dispose;
-    end;
+    if LResult.TypeInfo = TypeInfo(S) then
+      _SetSuccessValue(LResult.AsType<S>)
+    else
+    if LResult.TypeInfo = TypeInfo(F) then
+      _SetFailureValue(LResult.AsType<F>);
   end;
   Result := TResultPair<S, F>(Self);
 end;
@@ -661,21 +657,17 @@ end;
 function TResultPair<S, F>._ReturnSuccess: TResultPair<S, F>;
 var
   LFor: Integer;
-  LResult: TResultPair<S, F>;
+  LResult: TValue;
 begin
   Result := Default(TResultPair<S, F>);
   for LFor := Low(FSuccessFuncs) to High(FSuccessFuncs) do
   begin
     LResult := FSuccessFuncs[LFor](FSuccess.GetValue);
-    try
-      if LResult.isSuccess then
-        _SetSuccessValue(LResult.ValueSuccess)
-      else
-      if LResult.isFailure then
-        _SetFailureValue(LResult.ValueFailure);
-    finally
-      LResult.Dispose;
-    end;
+    if LResult.IsType<S> then
+      _SetSuccessValue(LResult.AsType<S>)
+    else
+    if LResult.IsType<F> then
+      _SetFailureValue(LResult.AsType<F>);
   end;
   Result := TResultPair<S, F>(Self);
 end;
