@@ -1057,7 +1057,7 @@ begin
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
+    .CaseEq(['Cidade', '_*'], TArrow.Fn('Fria'))
     .Default(                 function:               TValue begin Result := 'Default'; end)
     .Execute<String>;
   try

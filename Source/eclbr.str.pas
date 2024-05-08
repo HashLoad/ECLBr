@@ -62,7 +62,7 @@ implementation
 uses
   eclbr.std;
 
-{ TStringEx }
+{ TStringHelperEx }
 
 function TStringHelperEx.Filter(const APredicate: TFunc<Char, Boolean>): String;
 var

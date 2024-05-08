@@ -79,7 +79,7 @@ begin
   LTuplaIntDouble := LTuplaIntDouble.SetTuple([1, 2, 3], [1.1, 2.2, True]);
 
   Assert.IsTrue(LTuplaIntDouble.Get<Double>(2) > 0);
-  Assert.AreEqual(2.2, LTuplaIntDouble[2].AsExtended, 0.01);
+  Assert.AreEqual(2.2, LTuplaIntDouble[2].AsExtended);
 end;
 
 procedure TestTuple.TestMatchTupla;
@@ -113,7 +113,7 @@ begin
     .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
     .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
-    .Default(                function:                TValue begin Result := 'Default'; end)
+    .Default(                 function:               TValue begin Result := 'Default'; end)
     .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);

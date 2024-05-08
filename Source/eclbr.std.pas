@@ -178,7 +178,7 @@ type
     function Write(const Buffer; Count: Longint): Longint; override;
   end;
 
-{ TSysLib }
+{ TStd }
 
 class function TStd.ArrayCopy(const ASource: TArrayString; const AIndex,
   ACount: Integer): TArrayString;
@@ -467,7 +467,7 @@ var
   LBufferPtr: PAnsiChar;
   LI: Integer;
   LJ: Integer;
-  BytesRead: Integer;
+  LBytesRead: Integer;
   LPacket: TPacket;
 
   procedure WriteLineBreak;
@@ -480,11 +480,11 @@ var
 begin
   LBufferPtr := @LOutBuffer[0];
   repeat
-    BytesRead := AInput.Read(LInBuffer, SizeOf(LInBuffer));
+    LBytesRead := AInput.Read(LInBuffer, SizeOf(LInBuffer));
     LI := 0;
-    while LI < BytesRead do
+    while LI < LBytesRead do
     begin
-      LJ := Min(3, BytesRead - LI);
+      LJ := Min(3, LBytesRead - LI);
       FillChar(LPacket, SizeOf(LPacket), 0);
       Move(LInBuffer[LI], LPacket, LJ);
       TStd.Get._EncodePacket(LPacket, LJ, LBufferPtr);
@@ -497,7 +497,7 @@ begin
         LBufferPtr := @LOutBuffer[0];
       end;
     end;
-  until BytesRead = 0;
+  until LBytesRead = 0;
   if LBufferPtr <> @LOutBuffer[0] then
     AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
 end;
@@ -510,7 +510,7 @@ var
   LI: Integer;
   LJ: Integer;
   LK: Integer;
-  BytesRead: Integer;
+  LBytesRead: Integer;
   LPacket: TPacket;
 
   procedure SkipWhite;
@@ -568,11 +568,11 @@ var
 begin
   repeat
     SkipWhite;
-    BytesRead := ReadInput;
+    LBytesRead := ReadInput;
     LInBufPtr := LInBuf;
     LOutBufPtr := @LOutBuf;
     LI := 0;
-    while LI < BytesRead do
+    while LI < LBytesRead do
     begin
       LPacket := TStd.Get._DecodePacket(LInBufPtr, LJ);
       LK := 0;
@@ -587,7 +587,7 @@ begin
       Inc(LI, 4);
     end;
     AOutput.Write(LOutBuf, LOutBufPtr - PAnsiChar(@LOutBuf));
-  until BytesRead = 0;
+  until LBytesRead = 0;
 end;
 
 class function TStd.EncodeString(const AInput: String): String;
