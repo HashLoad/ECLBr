@@ -831,7 +831,7 @@ begin
     if IndexOf(LItem) = -1 then
       Add(LItem);
   end;
-  Result := Self;
+  Result := TVector<T>(Self);
 end;
 
 class operator TVector<T>.NotEqual(const Left, Right: TVector<T>): Boolean;

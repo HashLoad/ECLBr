@@ -284,7 +284,7 @@ function AutoRef<T>._GetAsRef: T;
 begin
   if FSmartPtr = nil then
     Self := AutoRef<T>.Create(FObjectEx.Factory(T));
-  Result := Self.FValue;
+  Result := FValue;
 end;
 
 class operator AutoRef<T>.Implicit(const AAutoRef: AutoRef<T>): T;

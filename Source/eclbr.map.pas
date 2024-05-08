@@ -702,7 +702,7 @@ begin
     if not Contains(LItem.Key) then
       Add(LItem.Key, LItem.Value);
   end;
-  Result := Self;
+  Result := TMap<K, V>(Self);
 end;
 
 function TMap<K, V>.Filter(const APredicate: TFunc<K, V, Boolean>): TMap<K, V>;
