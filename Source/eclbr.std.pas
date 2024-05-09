@@ -31,12 +31,14 @@ interface
 uses
   Rtti,
   Math,
+  Types,
   Classes,
   Windows,
   TypInfo,
   SysUtils,
   DateUtils,
-  Generics.Collections;
+  Generics.Collections,
+  Generics.Defaults;
 
 type
   TArrayString = array of String;
@@ -142,6 +144,9 @@ procedure DebugPrint(const AMessage: String);
 {$ENDIF}
 
 implementation
+
+uses
+  RTLConsts;
 
 {$IFDEF DEBUG}
 procedure DebugPrint(const AMessage: String);

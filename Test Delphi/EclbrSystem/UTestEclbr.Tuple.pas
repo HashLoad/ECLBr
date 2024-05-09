@@ -30,6 +30,14 @@ type
     procedure TestMatchTupla;
     [Test]
     procedure TestMatchTuplaAsterisco;
+    [Test]
+    procedure TestNewTuple;
+    [Test]
+    procedure TestTupleGet;
+    [Test]
+    procedure TestTupleEquality;
+    [Test]
+    procedure TestTupleEquality_2;
   end;
 
 implementation
@@ -122,6 +130,20 @@ begin
   end;
 end;
 
+procedure TestTuple.TestNewTuple;
+var
+  LTuple: TTuple;
+begin
+  // Act
+  LTuple := TTuple.New([10, 'Hello', 3.14]);
+
+  // Assert
+  Assert.AreEqual(3, LTuple.Count);
+  Assert.AreEqual(10, LTuple[0].AsInteger);
+  Assert.AreEqual('Hello', LTuple[1].AsString);
+  Assert.AreEqual(3.14, LTuple[2].AsExtended);
+end;
+
 procedure TestTuple.TestStrIntTuplaNew;
 var
   LTuplaStrInt: TTuple<String>;
@@ -130,6 +152,44 @@ begin
 
   Assert.IsTrue(LTuplaStrInt['B'].AsExtended > 0);
   Assert.AreEqual(3, LTuplaStrInt['C'].AsInteger);
+end;
+
+procedure TestTuple.TestTupleEquality;
+var
+  LTuple1: TTuple;
+  LTuple2: TTuple;
+begin
+  // Arrange
+  LTuple1 := TTuple.New([15, 'Hello Word']);
+  LTuple2 := TTuple.New([15, 'Hello Word']);
+  // Act & Assert
+  Assert.IsTrue(LTuple1 = LTuple2);
+  Assert.IsFalse(LTuple1 <> LTuple2);
+end;
+
+procedure TestTuple.TestTupleEquality_2;
+var
+  LTuple1: TTuple;
+  LTuple2: TTuple;
+begin
+  LTuple1 := [10, 'Hello'];
+  LTuple2 := [10, 'Hello'];
+  // Act & Assert
+  Assert.IsTrue(LTuple1 = LTuple2);
+  Assert.IsFalse(LTuple1 <> LTuple2);
+end;
+
+procedure TestTuple.TestTupleGet;
+var
+  LTuple: TTuple;
+  LValue: Integer;
+begin
+  // Arrange
+  LTuple := TTuple.New([10, 'Hello', 3.14]);
+  // Act
+  LValue := LTuple.Get<Integer>(0);
+  // Assert
+  Assert.AreEqual(10, LValue);
 end;
 
 initialization

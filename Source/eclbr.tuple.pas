@@ -104,10 +104,12 @@ type
     property Items[const Key: K]: TValue read GetItem; default;
   end;
 
+  TValueArray = array of TValue;
+
   PTuple = ^TTuple;
   TTuple = record
-  private
-    FTuples: TArray<TValue>;
+  strict private
+    FTuples: TValueArray;
   private
     function GetItem(const AIndex: Integer): TValue;
     /// <summary>
@@ -116,10 +118,11 @@ type
     /// <param name="ATuples">
     ///   An array of TValue containing the values to be stored in the tuple.
     /// </param>
-    constructor Create(const ATuples: TArray<TValue>);
+    constructor Create(const Args: TValueArray);
   public
-    class operator Implicit(const P: TTuple): TArray<TValue>; inline;
-    class operator Implicit(const P: TArray<TValue>): TTuple; inline;
+    class operator Implicit(const Args: array of Variant): TTuple;
+    class operator Implicit(const Args: TTuple): TValueArray;
+    class operator Implicit(const Args: TValueArray): TTuple;
     class operator Equal(const Left, Right: TTuple): Boolean; inline;
     class operator NotEqual(const Left, Right: TTuple): Boolean; inline;
 
@@ -129,7 +132,7 @@ type
     /// <param name="AValues">
     ///   An array of TValue containing the values to be stored in the new tuple.
     /// </param>
-    class function New(const AValues: TArray<TValue>): TTuple; static; inline;
+    class function New(const AValues: TValueArray): TTuple; static; inline;
 
     /// <summary>
     ///   Retrieves the value at the specified index as a generic type T.
@@ -175,7 +178,7 @@ var
 begin
   Result := False;
   if Length(Left.FTuplesPair) <> Length(Right.FTuplesPair) then
-    exit;
+    Exit;
   LComp1 := TEqualityComparer<K>.Default;
   LComp2 := TEqualityComparer<TValue>.Default;
   for LFor := 0 to High(Left.FTuplesPair) do
@@ -183,7 +186,7 @@ begin
     if not LComp1.Equals(Left.FTuplesPair[LFor].Key, Right.FTuplesPair[LFor].Key) or
        not LComp2.Equals(Left.FTuplesPair[LFor].Value, Right.FTuplesPair[LFor].Value) then
     begin
-      exit;
+      Exit;
     end;
   end;
   Result := True;
@@ -204,9 +207,9 @@ begin
   for LPair in FTuplesPair do
   begin
     if not LComp.Equals(LPair.Key, AKey) then
-      continue;
+      Continue;
     Result := LPair.Value.AsType<T>;
-    exit;
+    Exit;
   end;
   raise Exception.Create('Key not found');
 end;
@@ -264,22 +267,32 @@ begin
   Result := Length(FTuples);
 end;
 
-constructor TTuple.Create(const ATuples: TArray<TValue>);
+constructor TTuple.Create(const Args: TValueArray);
+var
+  LFor: Integer;
 begin
-  FTuples := ATuples;
+  SetLength(FTuples, Length(Args));
+  for LFor := Low(Args) to High(Args) do
+    FTuples[LFor] := Args[LFor];
 end;
 
 class operator TTuple.Equal(const Left, Right: TTuple): Boolean;
 var
-  LComp: IEqualityComparer<TValue>;
+//  LComp: IEqualityComparer<TValue>;
   LFor: Integer;
 begin
   Result := False;
-  LComp := TEqualityComparer<TValue>.Default;
+  if Length(Left.FTuples) <> Length(Right.FTuples) then
+    Exit;
+//  LComp := TEqualityComparer<TValue>.Default;
   for LFor := 0 to High(Left.FTuples) do
   begin
-    if not LComp.Equals(Left.FTuples[LFor], Right.FTuples[LFor]) then
-      exit;
+    if Left.FTuples[LFor].Kind <> Right.FTuples[LFor].Kind then
+      Exit;
+    if Left.FTuples[LFor].ToString <> Right.FTuples[LFor].ToString then
+      Exit;
+//    if not LComp.Equals(Left.FTuples[LFor], Right.FTuples[LFor]) then
+//      Exit;
   end;
   Result := True;
 end;
@@ -294,17 +307,26 @@ begin
   Result := FTuples[AIndex];
 end;
 
-class operator TTuple.Implicit(const P: TTuple): TArray<TValue>;
+class operator TTuple.Implicit(const Args: TTuple): TValueArray;
 begin
-  Result := P.FTuples;
+  Result := Args.FTuples;
 end;
 
-class operator TTuple.Implicit(const P: TArray<TValue>): TTuple;
+class operator TTuple.Implicit(const Args: array of Variant): TTuple;
+var
+  LFor: Integer;
 begin
-  Result.FTuples := P;
+  SetLength(Result.FTuples, Length(Args));
+  for LFor := Low(Args) to High(Args) do
+    Result.FTuples[LFor] := TValue.FromVariant(Args[LFor]);
 end;
 
-class function TTuple.New(const AValues: TArray<TValue>): TTuple;
+class operator TTuple.Implicit(const Args: TValueArray): TTuple;
+begin
+  Result := TTuple.Create(Args);
+end;
+
+class function TTuple.New(const AValues: TValueArray): TTuple;
 begin
   Result := TTuple.Create(AValues);
 end;
