@@ -278,21 +278,17 @@ end;
 
 class operator TTuple.Equal(const Left, Right: TTuple): Boolean;
 var
-//  LComp: IEqualityComparer<TValue>;
   LFor: Integer;
 begin
   Result := False;
   if Length(Left.FTuples) <> Length(Right.FTuples) then
     Exit;
-//  LComp := TEqualityComparer<TValue>.Default;
   for LFor := 0 to High(Left.FTuples) do
   begin
     if Left.FTuples[LFor].Kind <> Right.FTuples[LFor].Kind then
       Exit;
     if Left.FTuples[LFor].ToString <> Right.FTuples[LFor].ToString then
       Exit;
-//    if not LComp.Equals(Left.FTuples[LFor], Right.FTuples[LFor]) then
-//      Exit;
   end;
   Result := True;
 end;

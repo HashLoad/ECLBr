@@ -250,10 +250,9 @@ end;
 
 class function TStd.IfThen<T>(AValue: Boolean; const ATrue, AFalse: T): T;
 begin
+  Result := AFalse;
   if AValue then
-    Result := ATrue
-  else
-    Result := AFalse;
+    Result := ATrue;
 end;
 
 class function TStd.Iso8601ToDateTime(const AValue: String;
@@ -450,8 +449,7 @@ end;
 
 function TStd._DecodePacket(AInBuf: PAnsiChar; var nChars: Integer): TPacket;
 begin
-  Result.a[0] := (C_DECODETABLE[AInBuf[0]] shl 2) or
-    (C_DECODETABLE[AInBuf[1]] shr 4);
+  Result.a[0] := (C_DECODETABLE[AInBuf[0]] shl 2) or (C_DECODETABLE[AInBuf[1]] shr 4);
   NChars := 1;
   if AInBuf[2] <> '=' then
   begin
@@ -475,7 +473,7 @@ var
   LBytesRead: Integer;
   LPacket: TPacket;
 
-  procedure WriteLineBreak;
+  procedure L_WriteLineBreak;
   begin
     LOutBuffer[0] := #$0D;
     LOutBuffer[1] := #$0A;
@@ -497,7 +495,7 @@ begin
       Inc(LBufferPtr, 4);
       if LBufferPtr - @LOutBuffer[0] > SizeOf(LOutBuffer) - C_LINEBREAKINTERVAL then
       begin
-        WriteLineBreak;
+        L_WriteLineBreak;
         AOutput.Write(LOutBuffer, LBufferPtr - @LOutBuffer[0]);
         LBufferPtr := @LOutBuffer[0];
       end;
@@ -518,7 +516,7 @@ var
   LBytesRead: Integer;
   LPacket: TPacket;
 
-  procedure SkipWhite;
+  procedure L_SkipWhite;
   var
     LC: AnsiChar;
     LNumRead: Integer;
@@ -539,7 +537,7 @@ var
     end;
   end;
 
-  function ReadInput: Integer;
+  function L_ReadInput: Integer;
   var
     LWhiteFound: Boolean;
     LEndReached: Boolean;
@@ -572,8 +570,8 @@ var
 
 begin
   repeat
-    SkipWhite;
-    LBytesRead := ReadInput;
+    L_SkipWhite;
+    LBytesRead := L_ReadInput;
     LInBufPtr := LInBuf;
     LOutBufPtr := @LOutBuf;
     LI := 0;
@@ -872,7 +870,6 @@ begin
 end;
 
 initialization
-  TStd.Get;
   TStd.Get.FormatSettings := TFormatSettings.Create('en_US');
 
 finalization

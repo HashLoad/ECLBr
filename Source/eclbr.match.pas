@@ -1821,7 +1821,7 @@ end;
 //function TMatch<T>.CaseIn(const ARange: TRangeChar;
 //  const AProc: TProc): TMatch<T>;
 //begin
-//  Result := Self;
+//  Result := TMatch<T>(Self);
 //  if not (FSession in [sMatch, sGuard, sCase]) then
 //    Exit;
 //  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TRangeChar>(ARange),
@@ -1832,7 +1832,7 @@ end;
 //function TMatch<T>.CaseIn(const ARange: TRangeInteger;
 //  const AProc: TProc): TMatch<T>;
 //begin
-//  Result := Self;
+//  Result := TMatch<T>(Self);
 //  if not (FSession in [sMatch, sGuard, sCase]) then
 //    Exit;
 //  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TRangeInteger>(ARange),

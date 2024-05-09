@@ -23,6 +23,8 @@ type
     Label2: TLabel;
     Button4: TButton;
     Button5: TButton;
+    Memo3: TMemo;
+    Label3: TLabel;
     procedure BtnCoRoutineClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure BtnAsyncAwaitClick(Sender: TObject);
@@ -36,10 +38,10 @@ type
     FValueYeild: TValue;
     FCoroutine_0: String;
     FCoroutine_1: String;
-    function Contador(const SendValue, Value: TValue): TValue;
-    function Contador_Regressivo(const SendValue, Value: TValue): TValue;
-    function Contador_Async(const SendValue, Value: TValue): TValue;
-    function Contador_Regressivo_Async(const SendValue, Value: TValue): TValue;
+    function Contador(const SendValue, Value: TValue): TFuture;
+    function Contador_Regressivo(const SendValue, Value: TValue): TFuture;
+    function Contador_Async(const SendValue, Value: TValue): TFuture;
+    function Contador_Regressivo_Async(const SendValue, Value: TValue): TFuture;
   end;
 
 var
@@ -103,26 +105,48 @@ begin
                               end)
             .Run(procedure(AError: String)
                  begin
-                   Memo1.Lines.Add(AError);
+                   Memo3.Lines.Add(AError);
                  end);
 end;
 
-function TForm2.Contador(const SendValue, Value: TValue): TValue;
+function TForm2.Contador(const SendValue, Value: TValue): TFuture;
 begin
-  if Value.AsInteger < 10 then
-    Result := Value.AsInteger + 1
-  else
-    Result := TValue.Empty;
-//   Simulação de error
-//  Abort;
+  try
+    if Value.AsInteger < 10 then
+    begin
+      Result.SetOk(Value.AsInteger + 1);
+//    simulação de error
+//    raise Exception.Create('Error Message');
+    end
+    else
+      Result.SetOk(TCompletion);
+  except
+    on E: Exception do
+    begin
+      Result.SetErr(E.Message);
+      raise;
+    end;
+  end;
 end;
 
-function TForm2.Contador_Regressivo(const SendValue, Value: TValue): TValue;
+function TForm2.Contador_Regressivo(const SendValue, Value: TValue): TFuture;
 begin
-  if (Value.AsInteger > 1) and (Value.AsInteger <= 15) then
-    Result := Value.AsInteger - 1
-  else
-    Result := TValue.Empty;
+  try
+    if (Value.AsInteger > 1) and (Value.AsInteger <= 15) then
+    begin
+      Result.SetOk(Value.AsInteger - 1);
+//    simulação de error
+//    raise Exception.Create('Error Message');
+    end
+    else
+      Result.SetOk(TCompletion);
+  except
+    on E: Exception do
+    begin
+      Result.SetErr(E.Message);
+      raise;
+    end;
+  end;
 end;
 
 procedure TForm2.BtnAsyncAwaitClick(Sender: TObject);
@@ -143,11 +167,11 @@ begin
                               end, 2000)
             .Run(procedure(AError: String)
                  begin
-                   Memo2.Lines.Add(AError);
+                   Memo3.Lines.Add(AError);
                  end);
 end;
 
-function TForm2.Contador_Async(const SendValue, Value: TValue): TValue;
+function TForm2.Contador_Async(const SendValue, Value: TValue): TFuture;
 var
   LFuture: TFuture;
 begin
@@ -157,16 +181,13 @@ begin
                        Result := Value.AsInteger + 1
                      else
                        Result := TValue.Empty;
+//                     simulação de error
+//                     raise Exception.Create('Error Message');
                    end).Await;
-  if LFuture.IsOk then
-    Result := LFuture.Ok<TValue>
-  else
-    Result := LFuture.Err;
-// Simulação de error
-  raise Exception.Create('Error Message');
+  Result := LFuture;
 end;
 
-function TForm2.Contador_Regressivo_Async(const SendValue, Value: TValue): TValue;
+function TForm2.Contador_Regressivo_Async(const SendValue, Value: TValue): TFuture;
 var
   LFuture: TFuture;
 begin
@@ -177,11 +198,10 @@ begin
                        Result := Value.AsInteger - 1
                      else
                        Result := TValue.Empty;
+//                     simulação de error
+//                     raise Exception.Create('Error Message');
                    end).Await;
-  if LFuture.IsOk then
-    Result := LFuture.Ok<TValue>
-  else
-    Result := LFuture.Err;
+  Result := LFuture;
 end;
 
 procedure TForm2.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

@@ -41,7 +41,7 @@ uses
 type
   TFuture = eclbr.std.TFuture;
   IScheduler = interface;
-  TFuncCoroutine = reference to function(const ASendValue: TValue; const AValue: TValue): TValue;
+  TFuncCoroutine = reference to function(const ASendValue: TValue; const AValue: TValue): TFuture;
 
   {$SCOPEDENUMS ON}
   TCoroutineState = (csActive, csPaused, csFinished);
@@ -174,7 +174,14 @@ type
     property Coroutine[Name: String]: TCoroutine read _GetCoroutine;
   end;
 
+  function TCompletion: TValue;
+
 implementation
+
+function TCompletion: TValue;
+begin
+  Result := TValue.Empty;
+end;
 
 { TScheduler }
 
@@ -244,6 +251,9 @@ end;
 
 procedure TScheduler.Send(const AName: String; const AValue: TValue);
 begin
+  if FCoroutines.Count = 0 then
+    raise Exception.Create(C_COROUTINE_NOT_FOUND);
+
   FCurrentRoutine.SendValue := TValue.Empty;
   FSend.IsSend := True;
   FSend.Name := AName;
@@ -258,6 +268,9 @@ end;
 
 procedure TScheduler.Suspend(const AName: String);
 begin
+  if FCoroutines.Count = 0 then
+    raise Exception.Create(C_COROUTINE_NOT_FOUND);
+
   FPause.IsPaused := True;
   FPause.Name := AName;
 end;
@@ -282,7 +295,7 @@ end;
 
 procedure TScheduler.Next;
 var
-  LResultValue: TValue;
+  LResultValue: TFuture;
 begin
   if FCoroutines.Count = 0 then
     Exit;
@@ -314,14 +327,17 @@ begin
       end;
       Sleep(FSleepTime);
       LResultValue := FCurrentRoutine.Func(FCurrentRoutine.SendValue, FCurrentRoutine.Value);
-      if not LResultValue.IsEmpty then
+      if LResultValue.IsErr then
+        raise Exception.Create(LResultValue.Err);
+
+      if not LResultValue.Ok<TValue>.IsEmpty then
       begin
-        FCurrentRoutine.Value := LResultValue;
+        FCurrentRoutine.Value := LResultValue.Ok<TValue>;
         FCurrentRoutine.ObserverNotify;
         FCoroutines.Enqueue(FCurrentRoutine);
       end
       else
-      if (LResultValue.IsEmpty) or (FCoroutines.Count = 0) then
+      if (LResultValue.Ok<TValue>.IsEmpty) or (FCoroutines.Count = 0) then
       begin
         FCurrentRoutine.Free;
         FCurrentRoutine := nil;
@@ -347,10 +363,10 @@ begin
   except
     on E: Exception do
     begin
+      FException.IsException := True;
+      FException.Message := FCurrentRoutine.Name + ': ' + E.Message + ' - Last value: ' + FCurrentRoutine.Value.ToString;
       FCurrentRoutine.Free;
       FCurrentRoutine := nil;
-      FException.IsException := True;
-      FException.Message := E.Message;
     end;
   end;
 end;
