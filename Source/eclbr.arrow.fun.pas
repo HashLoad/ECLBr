@@ -43,29 +43,38 @@ type
     class var FValue: TValue;
   public
     class destructor Destroy;
-    class function Fn(const AValue: TValue): TFunc<TValue>; overload; static;
+    class function Fn(const AValue: TValue): TProc; overload; static;
     class function Fn(var AVarRefs: TArray<Pointer>; const AValues: Tuple): TProc<TValue>; overload; static;
-    class function Fn<W>(var AVar: W; const AValue: W): TProc<TValue>; overload; inline; static;
-    class function Value<W>: W; static;
+    class function Fn<T>(var AVar: T; const AValue: T): TProc<TValue>; overload; inline; static;
+    class function Result(const AValue: TValue): TFunc<TValue>; static;
+    class function Value<T>: T; static;
   end;
 
 implementation
 
 { TArrowFn }
 
-class function TArrow.Fn(const AValue: TVAlue): TFunc<TValue>;
+class function TArrow.Fn(const AValue: TValue): TProc;
 begin
-  FValue := AValue;
+  Result := procedure
+            begin
+              FValue := AVAlue;
+            end;
+end;
+
+class function TArrow.Result(const AValue: TValue): TFunc<TValue>;
+begin
   Result := function: TValue
             begin
+              FValue := AValue;
               Result := AVAlue;
             end;
 end;
 
-class function TArrow.Fn<W>(var AVar: W; const AValue: W): TProc<TValue>;
+class function TArrow.Fn<T>(var AVar: T; const AValue: T): TProc<TValue>;
 var
-  LVar: ^W;
-  LValue: W;
+  LVar: ^T;
+  LValue: T;
 begin
   LVar := @AVar;
   LValue := AValue;
@@ -82,10 +91,10 @@ begin
             end;
 end;
 
-class function TArrow.Value<W>: W;
+class function TArrow.Value<T>: T;
 begin
   try
-    Result := FValue.AsType<W>;
+    Result := FValue.AsType<T>;
   except
     on E: Exception do
       raise EArrowException.Create('Error in TArrow.Value: ' + E.Message);

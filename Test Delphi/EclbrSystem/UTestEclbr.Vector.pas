@@ -82,7 +82,6 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.AreEqual(3, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(20, LVector[1]);
@@ -97,7 +96,6 @@ begin
   LVector.Add(20);
   LVector.Insert(1, 15);
   LVector.Insert(3, 25);
-
   Assert.AreEqual(4, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(15, LVector[1]);
@@ -113,7 +111,6 @@ begin
   LVector.Add(20);
   LVector.Add(30);
   LVector.Delete(1);
-
   Assert.AreEqual(2, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(30, LVector[1]);
@@ -127,7 +124,6 @@ begin
   LVector.Add(20);
   LVector.Add(30);
   LVector.Remove(20);
-
   Assert.AreEqual(2, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(30, LVector[1]);
@@ -138,15 +134,11 @@ var
   LVector: TVector<Integer>;
 begin
   Assert.AreEqual(0, LVector.Length);
-
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.AreEqual(3, LVector.Length);
-
   LVector.Delete(1);
-
   Assert.AreEqual(2, LVector.Length);
 end;
 
@@ -155,13 +147,9 @@ var
   LVector: TVector<Integer>;
 begin
   Assert.IsTrue(LVector.IsEmpty);
-
   LVector.Add(10);
-
   Assert.IsFalse(LVector.IsEmpty);
-
   LVector.Delete(0);
-
   Assert.IsTrue(LVector.IsEmpty);
 end;
 
@@ -170,7 +158,6 @@ var
   LVector: TVector<Integer>;
 begin
   LVector.JoinStrings('10,20,30', ',');
-
   Assert.AreEqual(3, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(20, LVector[1]);
@@ -185,7 +172,6 @@ begin
   LVector.Add(20);
   LVector.Add(30);
   LVector.Clear;
-
   Assert.AreEqual(0, LVector.Length);
 end;
 
@@ -198,7 +184,6 @@ begin
   LVector.Add(10);
   LVector.Add(30);
   LVector.Unique;
-
   Assert.AreEqual(3, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(20, LVector[1]);
@@ -212,7 +197,6 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.IsTrue(LVector.Contains(10));
   Assert.IsTrue(LVector.Contains(20));
   Assert.IsTrue(LVector.Contains(30));
@@ -226,7 +210,6 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.AreEqual(0, LVector.IndexOf(10));
   Assert.AreEqual(1, LVector.IndexOf(20));
   Assert.AreEqual(2, LVector.IndexOf(30));
@@ -240,11 +223,8 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.AreEqual(3, LVector.Length);
-
   LVector.Merge([20, 30, 40, 50]);
-
   Assert.AreEqual(5, LVector.Length);
   Assert.AreEqual(10, LVector[0]);
   Assert.AreEqual(20, LVector[1]);
@@ -260,7 +240,6 @@ var
 begin
   // Arrange
   LVector := TVector<Integer>.Create([1, 2, 3, 4, 5, 6, 7]);
-
   // Act
   LFactorial := LVector.Reduce(function(Acc: Integer; Item: Integer): Integer
                                begin
@@ -280,14 +259,12 @@ begin
   LVector.Add(33);
   LVector.Add(40);
   LVector.Add(53);
-
   LArrayFiltered := LVector.Filter(
     function(AValue: Integer): Boolean
     begin
       Result := AValue mod 2 = 0;
     end
   );
-
   Assert.AreEqual(3, LArrayFiltered.Length);
   Assert.AreEqual(10, LArrayFiltered[0]);
   Assert.AreEqual(20, LArrayFiltered[1]);
@@ -301,7 +278,6 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.AreEqual(10, LVector.First);
 end;
 
@@ -342,7 +318,6 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   Assert.AreEqual(30, LVector.Last);
 end;
 
@@ -352,7 +327,6 @@ var
   LVector: TVector<Integer>;
 begin
   PTypeInfo := LVector.AsType;
-
   Assert.IsNotNull(PTypeInfo);
 end;
 
@@ -364,7 +338,6 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   LList := LVector.AsList;
   try
     Assert.IsNotNull(LList);
@@ -385,9 +358,7 @@ begin
   LVector.Add(10);
   LVector.Add(20);
   LVector.Add(30);
-
   LStr := LVector.ToString;
-
   Assert.AreEqual('10, 20, 30', LStr);
 end;
 
@@ -400,12 +371,10 @@ begin
   LVector.Add('One');
   LVector.Add('Two');
   LVector.Add('Three');
-
   for Item in LVector do
   begin
     Last := Item;
   end;
-
   Assert.AreEqual('Three', Last);
 end;
 

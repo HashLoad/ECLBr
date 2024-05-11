@@ -16,30 +16,39 @@ uses
 
 type
   TAnimal = class end;
-  TDog = class(TAnimal) end;
+
+  TDog = class(TAnimal)
+  end;
+
   TProduct = class
     Name: String;
     Price: Double;
   end;
+
   TDiscount = class
     function CalculateDiscount(OriginalPrice: Double): Double; virtual; abstract;
   end;
+
   TPercentageDiscount = class(TDiscount)
     Percentage: Double;
     function CalculateDiscount(OriginalPrice: Double): Double; override;
   end;
+
   TFixedAmountDiscount = class(TDiscount)
     Amount: Double;
     function CalculateDiscount(OriginalPrice: Double): Double; override;
   end;
+
   TEnumType = (One, Two, Three);
 
   TMatchTypeA = class
     // Campos e métodos específicos para o padrão A
   end;
+
   TMatchTypeA1 = class
     // Campos e métodos específicos para o padrão A1
   end;
+
   TMatchTypeA2 = class
     // Campos e métodos específicos para o padrão A2
   end;
@@ -90,7 +99,7 @@ type
     procedure TestCaseTryExcept;
     [Test]
     procedure TestCaseChar;
-//    [Test]
+////    [Test]
     procedure TestCaseRangeSet;
     [Test]
     procedure TestCaseRegex;
@@ -582,18 +591,17 @@ end;
 procedure TestTMatch.TestCaseRegex;
 var
   LMatchResult: TResultPair<Boolean, String>;
-  LIsMatch: Boolean;
 begin
-  LIsMatch := False;
   try
     LMatchResult := TMatch<Integer>.Value(2)
-                                   .CaseIn([1, 2, 3], procedure begin LIsMatch := True; end)
-                                   .CaseIn([1, 4, 8], procedure begin LIsMatch := False; end)
-                                   .CaseIn([1, 9, 6], procedure begin LIsMatch := False; end)
+                                   .CaseIn([1, 2, 3], TArrow.Fn(True))
+                                   .CaseIn([1, 4, 8], TArrow.Fn(False))
+                                   .CaseIn([1, 9, 6], TArrow.Fn(False))
                                    .CaseRegex('email@gmail.com', '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$')
                                    .Execute;
 
-    Assert.IsTrue(LIsMatch, 'Expected match to be successful');
+    Assert.IsTrue(TArrow.Value<Boolean>, 'Expected match to be successful');
+    Assert.IsTrue(LMatchResult.ValueSuccess, 'Expected match to be successful');
   finally
     LMatchResult.Dispose;
   end;
@@ -893,9 +901,9 @@ begin
   // Padrão de combinação 2
   LStrPattern2 := TMatch<String>.Value(LValueString)
                                 .CaseEq('Hello', procedure
-                                          begin
-                                            LResultString := 'Value is "Hello"';
-                                          end);
+                                         begin
+                                           LResultString := 'Value is "Hello"';
+                                         end);
 
   // Padrão combinado
   try
@@ -1014,16 +1022,17 @@ begin
 
   // Com TArrow.Fn
   LMatchResult := TMatch<Integer>.Value(LStatus)
-                       .CaseEq(200, TArrow.Fn('Ok'))
-                       .CaseEq(400, TArrow.Fn('Bad request'))
-                       .CaseEq(404, TArrow.Fn('Not found'))
-                       .CaseEq(418, TArrow.Fn('I´m a teapot'))
-                       .Default(    TArrow.Fn('Something´s wrong with the Internet'))
+                       .CaseEq(200, TArrow.Result('Ok'))
+                       .CaseEq(400, TArrow.Result('Bad request'))
+                       .CaseEq(404, TArrow.Result('Not found'))
+                       .CaseEq(418, TArrow.Result('I´m a teapot'))
+                       .Default(    TArrow.Result('Something´s wrong with the Internet'))
                        .Execute<String>;
 
   try
     Assert.IsTrue(LMatchResult.isSuccess, 'Expected match to be successful');
     Assert.AreEqual(LMatchResult.ValueSuccess, 'Bad request');
+    Assert.AreEqual(TArrow.Value<String>, 'Bad request');
   finally
     LMatchResult.Dispose;
   end;
@@ -1036,8 +1045,8 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['_', 'Alice'], TArrow.Fn('Personagem'))
-    .CaseEq(['_', 25],      TArrow.Fn('Jovem'))
+    .CaseEq(['_', 'Alice'], TArrow.Result('Personagem'))
+    .CaseEq(['_', 25],      TArrow.Result('Jovem'))
     .CaseEq(['_', False],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(               function:               TValue begin Result := 'Default'; end)
     .Execute<String>;
@@ -1057,7 +1066,7 @@ begin
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
     .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['Cidade', '_*'], TArrow.Fn('Fria'))
+    .CaseEq(['Cidade', '_*'], TArrow.Result('Fria'))
     .Default(                 function:               TValue begin Result := 'Default'; end)
     .Execute<String>;
   try
@@ -1075,7 +1084,7 @@ begin
   LTuple := ['Idade', 25, True];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_*', False], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_*', True],  TArrow.Fn('Jovem'))
+    .CaseEq(['_*', True],  TArrow.Result('Jovem'))
     .CaseEq(['_*', False], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<String>;
@@ -1094,7 +1103,7 @@ begin
   LTuple := ['Idade', 25, True];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq(['_', '_', False], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', '_', True],  TArrow.Fn('Jovem'))
+    .CaseEq(['_', '_', True],  TArrow.Result('Jovem'))
     .CaseEq(['_', '_', False], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(                  function:               TValue begin Result := 'Default'; end)
     .Execute<String>;
@@ -1113,7 +1122,7 @@ begin
   LTuple := [1, 2, 3];
   LResult := TMatch<Tuple>.Value(LTuple)
     .CaseEq([0, '_', '_'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', 2, '_'], TArrow.Fn('Jovem'))
+    .CaseEq(['_', 2, '_'], TArrow.Result('Jovem'))
     .CaseEq([2, '_', '_'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
     .Default(              function:               TValue begin Result := 'Default'; end)
     .Execute<String>;

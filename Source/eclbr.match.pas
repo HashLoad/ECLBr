@@ -65,7 +65,9 @@ type
   TRangeInteger = set of 0..255;
 
   // Enumeration to represent different states of the match session
+  {$SCOPEDENUMS ON}
   TMatchSession = (sMatch, sGuard, sCase, sDefault, sTryExcept);
+  {$SCOPEDENUMS OFF}
 
   {$REGION 'Doc - TCaseGroup'}
   ///  <summary>
@@ -491,6 +493,7 @@ begin
   FCases.Add(DEFAULT_PROC, TCaseGroup.Create);
   FCases.Add(DEFAULT_FUNC, TCaseGroup.Create);
   FCases.Add(TRY_EXCEPT, TCaseGroup.Create);
+  //
   FValue := TValue.From<T>(AValue);
   // Private method for resetting variables.
   _StartVariables;
@@ -499,7 +502,7 @@ end;
 function TMatch<T>.TryExcept(AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sCase, sDefault]) then
+  if not (FSession in [TMatchSession.sCase, TMatchSession.sDefault]) then
     Exit;
   FCases[TRY_EXCEPT].AddOrSetValue(TValue.From<Boolean>(True),
                                    TValue.From<TProc>(AProc));
@@ -511,7 +514,7 @@ var
   LRange: TPair<T, T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCases[CASE_RANGE_PROC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
@@ -524,7 +527,7 @@ var
   LRange: TPair<T, T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCases[CASE_RANGE_FUNC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
@@ -537,7 +540,7 @@ var
   LRange: TPair<T, T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCases[CASE_RANGE_FUNC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
@@ -548,7 +551,7 @@ end;
 function TMatch<T>.CaseRegex(const AInput: String; const APattern: String): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   if TRegExLib.IsMatch(AInput, APattern) then
     Result.FRegexCount := Result.FRegexCount + 1
@@ -561,7 +564,7 @@ end;
 function TMatch<T>.CaseIs<Typ>(const AFunc: TFunc<Typ, TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_FUNC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
@@ -575,7 +578,7 @@ end;
 function TMatch<T>.CaseIs<Typ>(const AFunc: TFunc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_FUNC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
@@ -589,7 +592,7 @@ end;
 function TMatch<T>.CaseIs<Typ>(const AProc: TProc<Typ>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
@@ -603,7 +606,7 @@ end;
 function TMatch<T>.CaseLt(const AValue: T; const AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_LT_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc>(AProc));
@@ -613,7 +616,7 @@ end;
 function TMatch<T>.CaseLt(const AValue: T; const AProc: TProc<T>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_LT_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc<T>>(AProc));
@@ -623,7 +626,7 @@ end;
 function TMatch<T>.CaseLt(const AValue: T; const AFunc: TFunc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_LT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TFunc<TValue>>(AFunc));
@@ -633,7 +636,7 @@ end;
 function TMatch<T>.CaseLt(const AValue: T; const AFunc: TFunc<T, TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_LT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TFunc<T, TValue>>(AFunc));
@@ -645,7 +648,7 @@ var
   LRange: TPair<T, T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   LRange := TPair<T, T>.Create(AStart, AEnd);
   FCases[CASE_RANGE_PROC].AddOrSetValue(TValue.From<TPair<T, T>>(LRange),
@@ -656,7 +659,7 @@ end;
 function TMatch<T>.CaseEq(const AValue: T; const AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_EQ_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc>(AProc));
@@ -666,7 +669,7 @@ end;
 function TMatch<T>.CaseEq(const AValue: T; const AProc: TProc<T>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_EQ_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc<T>>(AProc));
@@ -676,7 +679,7 @@ end;
 function TMatch<T>.CaseEq(const AValue: T; const AFunc: TFunc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_EQ_FUNC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TFunc<TValue>>(AFunc));
@@ -686,7 +689,7 @@ end;
 function TMatch<T>.CaseEq(const AValue: T; const AFunc: TFunc<T, TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_EQ_FUNC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TFunc<T, TValue>>(AFunc));
@@ -696,7 +699,7 @@ end;
 function TMatch<T>.CaseGt(const AValue: T; const AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_GT_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc>(AProc));
@@ -706,7 +709,7 @@ end;
 function TMatch<T>.CaseGt(const AValue: T; const AProc: TProc<T>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_GT_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc<T>>(AProc));
@@ -716,7 +719,7 @@ end;
 function TMatch<T>.CaseGt(const AValue: T; const AFunc: TFunc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_GT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TFunc<TValue>>(AFunc));
@@ -726,7 +729,7 @@ end;
 function TMatch<T>.CaseGt(const AValue: T; const AFunc: TFunc<T, TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_GT_FUNC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TFunc<T, TValue>>(AFunc));
@@ -736,7 +739,7 @@ end;
 function TMatch<T>.CaseIf(const ACondition: Boolean; const AProc: TProc<T>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard]) then
     Exit;
   if ACondition then
   begin
@@ -749,7 +752,7 @@ end;
 function TMatch<T>.CaseIf(const ACondition: Boolean; const AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard]) then
     Exit;
   if ACondition then
   begin
@@ -762,7 +765,7 @@ end;
 function TMatch<T>.CaseIf(const ACondition: Boolean; const AFunc: TFunc<T, Boolean>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard]) then
     Exit;
   if ACondition then
   begin
@@ -776,7 +779,7 @@ function TMatch<T>.CaseIf(const ACondition: Boolean;
   const AFunc: TFunc<Boolean>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard]) then
     Exit;
   if ACondition then
   begin
@@ -791,7 +794,7 @@ var
   LFor: Integer;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
@@ -804,7 +807,7 @@ var
   LFor: Integer;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_FUNC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
@@ -817,7 +820,7 @@ var
   LFor: Integer;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_FUNC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
@@ -830,7 +833,7 @@ var
   LFor: Integer;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
@@ -841,7 +844,7 @@ end;
 function TMatch<T>.CaseIs<Typ>(const AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   if TypeInfo(Typ) = TypeInfo(TDateTime) then
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
@@ -855,7 +858,7 @@ end;
 function TMatch<T>.Default(const AValue: T; const AProc: TProc<T>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sCase]) then
+  if not (FSession in [TMatchSession.sCase]) then
     Exit;
   FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc<T>>(AProc));
@@ -865,7 +868,7 @@ end;
 function TMatch<T>.Default(const AFunc: TFunc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sCase]) then
+  if not (FSession in [TMatchSession.sCase]) then
     Exit;
   FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<Boolean>(True),
                                      TValue.From<TFunc<TValue>>(AFunc));
@@ -875,7 +878,7 @@ end;
 function TMatch<T>.Default(const AFunc: TFunc<T, TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sCase]) then
+  if not (FSession in [TMatchSession.sCase]) then
     Exit;
   FCases[DEFAULT_FUNC].AddOrSetValue(TValue.From<Boolean>(True),
                                      TValue.From<TFunc<T, TValue>>(AFunc));
@@ -885,7 +888,7 @@ end;
 function TMatch<T>.Default(const AProc: TProc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sCase]) then
+  if not (FSession in [TMatchSession.sCase]) then
     Exit;
   FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<Boolean>(True),
                                      TValue.From<TProc<TValue>>(AProc));
@@ -895,7 +898,7 @@ end;
 function TMatch<T>.Default(const AProc: TProc): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sCase]) then
+  if not (FSession in [TMatchSession.sCase]) then
     Exit;
   FCases[DEFAULT_PROC].AddOrSetValue(TValue.From<Boolean>(True),
                                      TValue.From<TProc>(AProc));
@@ -907,7 +910,7 @@ var
   LFor: Integer;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   for LFor := Low(ARange) to High(ARange) do
     FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<T>(ARange[LFor]),
@@ -1004,7 +1007,7 @@ end;
 function TMatch<T>._ExecuteProcSession: Boolean;
 begin
   Result := True;
-  if not (FSession in [sCase, sDefault, sTryExcept]) then
+  if not (FSession in [TMatchSession.sCase, TMatchSession.sDefault, TMatchSession.sTryExcept]) then
     Result := False;
 end;
 
@@ -1253,9 +1256,9 @@ begin
   for LFor := Low(LTuple1) to High(LTuple1) do
   begin
     if LTuple2[LFor].ToString = '_' then
-      continue;
+      Continue;
     if LTuple2[LFor].ToString = '_*' then
-      continue;
+      Continue;
     if LTuple1[LFor].ToString <> LTuple2[LFor].ToString then
       Exit;
   end;
@@ -1328,12 +1331,12 @@ begin
     if LProcPair.Key.IsArray then
     begin
       if not _ArraysAreEqual(FValue, LProcPair.Key) then
-        continue;
+        Continue;
     end
     else
     begin
       if not _IsEquals<T>(FValue.AsType<T>, LProcPair.Key.AsType<T>) then
-        continue;
+        Continue;
     end;
     _ExecuteProcMatchingEq(LProcPair);
     Result := True;
@@ -1360,7 +1363,7 @@ begin
   for LProcPair in FCases[CASE_GT_PROC] do
   begin
     if TComparer<T>.Default.Compare(FValue.AsType<T>, LProcPair.Key.AsType<T>) <= 0 then
-      continue;
+      Continue;
 
     _ExecuteProcMatchingGt(LProcPair.Value);
     Result := True;
@@ -1418,7 +1421,7 @@ begin
   begin
     if (LComparer.Compare(FValue.AsType<T>, LProcPair.Key.AsType<TPair<T, T>>.Key) < 0) or
        (LComparer.Compare(FValue.AsType<T>, LProcPair.Key.AsType<TPair<T, T>>.Value) > 0) then
-      continue;
+      Continue;
     _ExecuteProcMatchingRange(LProcPair);
     Result := True;
   end;
@@ -1446,11 +1449,11 @@ begin
     if LProcPair.Key.IsArray then
     begin
       if not _ArraysAreEqual(FValue, LProcPair.Key) then
-        continue;
+        Continue;
     end
     else
     if FValue.AsType<T> <> LProcPair.Key.AsType<T> then
-      continue;
+      Continue;
     _ExecuteProcMatchingIn(LProcPair);
     Result := True;
   end;
@@ -1502,8 +1505,7 @@ begin
   for LProcPair in FCases[CASE_LT_PROC] do
   begin
     if TComparer<T>.Default.Compare(FValue.AsType<T>, LProcPair.Key.AsType<T>) >= 0 then
-      continue;
-
+      Continue;
     _ExecuteProcMatchingLt(LProcPair.Value);
     Result := True;
   end;
@@ -1528,12 +1530,12 @@ begin
     if LFuncPair.Key.IsArray then
     begin
       if not _ArraysAreEqual(FValue, LFuncPair.Key) then
-        continue;
+        Continue;
     end
     else
     begin
       if not _IsEquals<T>(FValue.AsType<T>, LFuncPair.Key.AsType<T>) then
-        continue;
+        Continue;
     end;
     _ExecuteFuncMatchingEq(LFuncPair.Value);
     Result := True;
@@ -1548,8 +1550,7 @@ begin
   for LFuncPair in FCases[CASE_GT_PROC] do
   begin
     if TComparer<T>.Default.Compare(FValue.AsType<T>, LFuncPair.Key.AsType<T>) <= 0 then
-      continue;
-
+      Continue;
     _ExecuteFuncMatchingGt(LFuncPair.Value);
     Result := True;
   end;
@@ -1563,10 +1564,9 @@ begin
   for LProcPair in FCases[CASE_IF_FUNC] do
   begin
     if _ArraysAreNotEqualCaseIf(LProcPair) then
-      continue;
+      Continue;
     if FValue.AsType<T> <> LProcPair.Key.AsType<T> then
-      continue;
-
+      Continue;
     Result := _ExecuteFuncMatchingCaseIf(LProcPair.Value);
   end;
 end;
@@ -1581,11 +1581,11 @@ begin
     if LFuncPair.Key.IsArray then
     begin
       if not _ArraysAreEqual(FValue, LFuncPair.Key) then
-        continue;
+        Continue;
     end
     else
     if FValue.AsType<T> <> LFuncPair.Key.AsType<T> then
-      continue;
+      Continue;
     _ExecuteFuncMatchingIn(LFuncPair.Value);
     Result := True;
   end;
@@ -1616,8 +1616,7 @@ begin
   for LFuncPair in FCases[CASE_LT_FUNC] do
   begin
     if TComparer<T>.Default.Compare(FValue.AsType<T>, LFuncPair.Key.AsType<T>) >= 0 then
-      continue;
-
+      Continue;
     _ExecuteFuncMatchingLt(LFuncPair.Value);
     Result := True;
   end;
@@ -1634,7 +1633,7 @@ begin
   begin
     if (LComparer.Compare(FValue.AsType<T>, LFuncPair.Key.AsType<TPair<T, T>>.Key) < 0) or
        (LComparer.Compare(FValue.AsType<T>, LFuncPair.Key.AsType<TPair<T, T>>.Value) > 0) then
-      continue;
+      Continue;
     _ExecuteFuncMatchingRange(LFuncPair.Value);
     Result := True;
   end;
@@ -1652,7 +1651,6 @@ begin
     else
     if LFuncPair.Value.IsType<TFunc<T, TValue>> then
       FResult := LFuncPair.Value.AsType<TFunc<T, TValue>>()(LFuncPair.Key.AsType<T>);
-
     Result := True;
   end;
 end;
@@ -1729,10 +1727,9 @@ begin
   for LProcPair in FCases[CASE_IF_PROC] do
   begin
     if _ArraysAreNotEqualCaseIf(LProcPair) then
-      continue;
+      Continue;
     if FValue.AsType<T> <> LProcPair.Key.AsType<T> then
-      continue;
-
+      Continue;
     _ExecuteProcMatchingCaseIf(LProcPair.Value);
     Result := True;
   end;
@@ -1759,9 +1756,8 @@ end;
 
 function TMatch<T>.CaseIf(const ACondition: Boolean): TMatch<T>;
 begin
-  if not (FSession in [sMatch, sGuard]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard]) then
     raise Exception.Create('Use Guard after session [sMatch, sGuard]');
-
   Result := TMatch<T>(Self);
   if ACondition then
     Result.FGuardCount := Result.FGuardCount + 1
@@ -1777,7 +1773,7 @@ var
   LPair: TPair<TValue, TValue>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   for LGroup in AMatch.FCases do
   begin
@@ -1794,7 +1790,7 @@ function TMatch<T>.CaseEq(const AValue: Tuple;
   const AFunc: TFunc<Tuple, TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_EQ_FUNC].AddOrSetValue(TValue.From<Tuple>(AValue),
                                      TValue.From<TFunc<Tuple, TValue>>(AFunc));
@@ -1804,7 +1800,7 @@ end;
 function TMatch<T>.CaseEq(const AValue: T; const AProc: TProc<TValue>): TMatch<T>;
 begin
   Result := TMatch<T>(Self);
-  if not (FSession in [sMatch, sGuard, sCase]) then
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
   FCases[CASE_EQ_PROC].AddOrSetValue(TValue.From<T>(AValue),
                                      TValue.From<TProc<TValue>>(AProc));

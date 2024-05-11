@@ -714,6 +714,7 @@ var
 begin
   TMonitor.Enter(FInstance);
   try
+    Sleep(1);
     LSequencia := Trunc((Now - EncodeDate(2022, 1, 1)) * 86400);
     Result := StrToInt(Format('%010d', [LSequencia]));
   finally
@@ -736,19 +737,17 @@ var
   LMem: Pointer;
 begin
   LPos := Self.Position;
-  if (LPos >= 0) and (Count > 0) then
-  begin
-    LEndPos := LPos + Count;
-    LSize := Self.Size;
-    if LEndPos > LSize then
-      raise EStreamError.Create('Out of memory while expanding memory stream');
-    LMem := Self.Memory;
-    System.Move(Buffer, Pointer(Longint(LMem) + LPos)^, Count);
-    Self.Position := LPos;
-    Result := Count;
-    exit;
-  end;
   Result := 0;
+  if (LPos < 0) and (Count = 0) then
+    Exit;
+  LEndPos := LPos + Count;
+  LSize := Self.Size;
+  if LEndPos > LSize then
+    raise EStreamError.Create('Out of memory while expanding memory stream');
+  LMem := Self.Memory;
+  System.Move(Buffer, Pointer(Longint(LMem) + LPos)^, Count);
+  Self.Position := LPos;
+  Result := Count;
 end;
 
 { TArrayHelper }

@@ -54,9 +54,8 @@ type
     type
       PArrayType = ^TArrayType;
       TArrayType = TArray<T>;
-
       TArrayManager = record
-      private
+      strict private
         class var FCapacity: Integer;
       private
         class function _IsEquals<I>(const ALeft: I; ARight: I): Boolean; static; inline;
@@ -73,9 +72,9 @@ type
         class function Contains(const AArray: TArrayType; const AItem: T): Boolean; static; inline;
         class function IndexOf(const AArray: TArrayType; const AItem: T): Integer; static; inline;
       end;
-    type
+
       TVectorEnumerator = class(TInterfacedObject, IVectorEnumerator<T>)
-      private
+      strict private
         FItems: PArrayType;
         FIndex: Integer;
       protected

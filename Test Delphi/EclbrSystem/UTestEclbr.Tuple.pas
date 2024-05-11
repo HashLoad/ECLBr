@@ -42,6 +42,9 @@ type
 
 implementation
 
+uses
+  eclbr.arrow.fun;
+
 { TestTuple }
 
 procedure TestTuple.Setup;
@@ -97,10 +100,10 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['_', 'Alice'], function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['_', 25],      function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['_', False],   function(Value: Tuple): TValue begin Result := 'Fria'; end)
-    .Default(               function:               TValue begin Result := 'Default'; end)
+    .CaseEq(['_', 'Alice'], TArrow.Result('Personagem'))
+    .CaseEq(['_', 25],      TArrow.Result('Jovem'))
+    .CaseEq(['_', False],   TArrow.Result('Fria'))
+    .Default(               TArrow.Result('Default'))
     .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
@@ -118,13 +121,14 @@ var
 begin
   LTuple := ['Idade', 25];
   LResult := TMatch<Tuple>.Value(LTuple)
-    .CaseEq(['Nome', '_*'],   function(Value: Tuple): TValue begin Result := 'Personagem'; end)
-    .CaseEq(['Idade', '_*'],  function(Value: Tuple): TValue begin Result := 'Jovem'; end)
-    .CaseEq(['Cidade', '_*'], function(Value: Tuple): TValue begin Result := 'Fria'; end)
-    .Default(                 function:               TValue begin Result := 'Default'; end)
+    .CaseEq(['Nome', '_*'],   TArrow.Result('Personagem'))
+    .CaseEq(['Idade', '_*'],  TArrow.Result('Jovem'))
+    .CaseEq(['Cidade', '_*'], TArrow.Result('Fria'))
+    .Default(                 TArrow.Result('Default'))
     .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
+    Assert.AreEqual('Jovem', TArrow.Value<String>);
   finally
     LResult.Dispose;
   end;
