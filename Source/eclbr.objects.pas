@@ -256,7 +256,8 @@ end;
 
 destructor AutoRef<T>.TSmartPtr.Destroy;
 begin
-  FObject.Free;
+  if Assigned(FObject) then
+    FObject.Free;
   inherited;
 end;
 
@@ -284,7 +285,7 @@ begin
   if FSmartPtr = nil then
   begin
     FObjectEx := TObjectEx.New;
-    FValue := T(FObjectEx.Factory(T));
+    FValue := FObjectEx.Factory(T) as T;
     FSmartPtr := TSmartPtr.Create(FValue);
   end;
   Result := FValue;

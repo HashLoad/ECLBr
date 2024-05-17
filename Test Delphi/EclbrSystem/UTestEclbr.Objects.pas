@@ -81,12 +81,14 @@ var
   LObject1: AutoRef<TMyClass>;
   LObject2: AutoRef<TStringBuilder>;
 begin
+  // LObject1 LazyLoad
 //  LObject1 := TMyClass.Create;
   LObject2 := TStringBuilder.Create(10);
 
   Assert.IsTrue(LObject1.IsNull);
   Assert.IsFalse(LObject2.IsNull);
 
+  // LObject1 LObject1.AsRef -> Create
   Assert.IsNotNull(LObject1.AsRef);
   Assert.IsNotNull(LObject2.AsRef);
 
