@@ -74,7 +74,6 @@ type
     FSuccessFuncs: TArray<TFuncOk>;
     FFailureFuncs: TArray<TFuncFail>;
     FResultType: TResultType;
-  strict private
     procedure _DestroySuccess;
     procedure _DestroyFailure;
 

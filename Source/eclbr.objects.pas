@@ -147,7 +147,6 @@ begin
   // LazyLoad
   if FObject = nil then
     FObject := T.Create;
-
   Result := FObject;
 end;
 
@@ -270,9 +269,9 @@ end;
 
 constructor AutoRef<T>.Create(const AObjectRef: T);
 begin
-  FValue := AObjectRef;
-  FSmartPtr := TSmartPtr.Create(AObjectRef);
   FObjectEx := TObjectEx.New;
+  FValue := AObjectRef;
+  FSmartPtr := TSmartPtr.Create(FValue);
 end;
 
 procedure AutoRef<T>.Free;
@@ -283,7 +282,11 @@ end;
 function AutoRef<T>._GetAsRef: T;
 begin
   if FSmartPtr = nil then
-    Self := AutoRef<T>.Create(FObjectEx.Factory(T));
+  begin
+    FObjectEx := TObjectEx.New;
+    FValue := T(FObjectEx.Factory(T));
+    FSmartPtr := TSmartPtr.Create(FValue);
+  end;
   Result := FValue;
 end;
 

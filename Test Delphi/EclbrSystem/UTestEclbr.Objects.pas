@@ -81,15 +81,19 @@ var
   LObject1: AutoRef<TMyClass>;
   LObject2: AutoRef<TStringBuilder>;
 begin
-  LObject1 := TMyClass.Create;
-  LObject2 := TStringBuilder.Create;
+//  LObject1 := TMyClass.Create;
+  LObject2 := TStringBuilder.Create(10);
 
-  Assert.IsFalse(LObject1.IsNull);
+  Assert.IsTrue(LObject1.IsNull);
   Assert.IsFalse(LObject2.IsNull);
 
   Assert.IsNotNull(LObject1.AsRef);
   Assert.IsNotNull(LObject2.AsRef);
 
+  Assert.IsFalse(LObject1.IsNull);
+  Assert.IsFalse(LObject2.IsNull);
+
+  // Free fake
   LObject2.Free;
 end;
 

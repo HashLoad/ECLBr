@@ -53,7 +53,7 @@ type
     property Current: TMapPair<K, V> read _GetCurrent;
   end;
 
-  TDefaultCapacity = class
+  TDefaultCapacity = record
   public
     class var DefaultCapacity: Integer;
   end;
