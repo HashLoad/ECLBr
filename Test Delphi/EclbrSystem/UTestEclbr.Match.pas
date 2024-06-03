@@ -142,6 +142,10 @@ type
     [Test]
     procedure TestMatchTupla_4;
     [Test]
+    procedure TestMatchTupla_5;
+    [Test]
+    procedure TestMatchTuplaArrowFun;
+    [Test]
     procedure TestMatchHttpStatus;
 end;
 
@@ -860,6 +864,7 @@ var
   LStrPattern: TMatch<String>;
 begin
   LValueString := 'Hello';
+  LResultString := '';
 
   LStrPattern := TMatch<String>.Value(LValueString)
                                  .CaseIs<String>(
@@ -886,26 +891,25 @@ procedure TestTMatch.TestMultipleCombines;
 var
   LValueString: String;
   LResultString: String;
-  LStrPattern1, LStrPattern2: TMatch<String>;
+  LStrPattern1: TMatch<String>;
+  LStrPattern2: TMatch<String>;
   LResult: TResultPair<Boolean, String>;
 begin
   LValueString := 'Hello';
+  LResultString := '';
 
-  // Padrão de combinação 1
   LStrPattern1 := TMatch<String>.Value(LValueString)
                                 .CaseIf(Length(LValueString) > 3)
-                                .CaseIs<Integer>(procedure
+                                .CaseIs<String>(procedure
                                         begin
-                                          LResultString := 'Type is a String';
+                                          LResultString := LResultString + 'Type is a String ';
                                         end);
-  // Padrão de combinação 2
   LStrPattern2 := TMatch<String>.Value(LValueString)
                                 .CaseEq('Hello', procedure
                                          begin
-                                           LResultString := 'Value is "Hello"';
+                                           LResultString := LResultString + 'Value is "Hello"';
                                          end);
 
-  // Padrão combinado
   try
     LResult := TMatch<String>.Value(LValueString)
       .Combine(LStrPattern1)
@@ -916,7 +920,7 @@ begin
                end)
       .Execute;
 
-    Assert.AreEqual('Value is "Hello"', LResultString);
+    Assert.AreEqual('Type is a String Value is "Hello"', LResultString);
   finally
     LResult.Dispose;
   end;
@@ -931,21 +935,18 @@ var
 begin
   LValueString := 'Hello';
 
-  // Padrão de combinação 1
   LStrPattern1 := TMatch<String>.Value(LValueString)
     .CaseIs<Integer>(procedure
                      begin
                        LResultString := 'Type is a String';
                      end);
 
-  // Padrão de combinação 2
   LStrPattern2 := TMatch<String>.Value(LValueString)
     .CaseEq('World', procedure
                      begin
                        LResultString := 'Value is "World"';
                      end);
 
-  // Padrão combinado
   try
     LCombinedPattern := TMatch<String>.Value(LValueString)
       .Combine(LStrPattern1)
@@ -1057,6 +1058,39 @@ begin
   end;
 end;
 
+procedure TestTMatch.TestMatchTuplaArrowFun;
+var
+  LResult: TResultPair<String, String>;
+  function get_flag: String;
+  begin
+    Result := 'new';
+  end;
+  function get_init: String;
+  begin
+    Result := 'Result Init';
+  end;
+  function get_new: String;
+  begin
+    Result := 'Result New';
+  end;
+  function get_gen: String;
+  begin
+    Result := 'Result Gen';
+  end;
+begin
+  LResult := TMatch<String>.Value(get_flag())
+    .CaseEq('init', TArrow.Result(get_init()))
+    .CaseEq('new',  TArrow.Result(get_new()))
+    .CaseEq('gen',  TArrow.Result(get_gen()))
+    .Default(TArrow.Result('Comando não encontrado!'))
+    .Execute<String>;
+  try
+    Assert.AreEqual('Result New', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
 procedure TestTMatch.TestMatchTupla_1;
 var
   LTuple: Tuple;
@@ -1128,6 +1162,42 @@ begin
     .Execute<String>;
   try
     Assert.AreEqual('Jovem', LResult.ValueSuccess);
+  finally
+    LResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestMatchTupla_5;
+var
+  LResult: TResultPair<Boolean, String>;
+
+  function get_flag(const AFlag: String): Boolean;
+  begin
+    Result := AFlag = 'templates';
+  end;
+begin
+  LResult := TMatch<Tuple>.Value([get_flag('information'),
+                                  get_flag('templates'),
+                                  get_flag('pattern')])
+    .CaseEq([True, '_', '_'], function(Value: Tuple): TValue
+                              begin
+                                // execute();
+                                Result := True;
+                              end)
+    .CaseEq(['_', True, '_'], function(Value: Tuple): TValue
+                              begin
+                                // execute();
+                                Result := True;
+                              end)
+    .CaseEq(['_', '_', True], function(Value: Tuple): TValue
+                              begin
+                                // execute();
+                                Result := True;
+                              end)
+   .Default(TArrow.Result(False))
+   .Execute<Boolean>;
+  try
+    Assert.IsTrue(LResult.ValueSuccess);
   finally
     LResult.Dispose;
   end;

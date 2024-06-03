@@ -33,6 +33,7 @@ uses
   SysUtils,
   TypInfo,
   Variants,
+  Classes,
   Generics.Collections,
   Generics.Defaults,
   eclbr.std,
@@ -102,6 +103,7 @@ type
     FGuardCount: Integer;     // Counter for guard
     FRegexCount: Integer;     // Counter for regex
     FCases: TDictionary<String, TCaseGroup>;  // Dictionary of simple cases
+    FCombines: TList<TValue>;
   strict private
     // Private Guards
     function _MatchingProcCaseIf: Boolean; inline;
@@ -170,7 +172,8 @@ type
     function _ExecuteFuncCaseRange: Boolean; inline;
     function _ExecuteProcCaseDefault: Boolean; inline;
     function _ExecuteFuncCaseDefault: Boolean; inline;
-    function _ExecuteProcCasesValidation: TResultPair<Boolean, String>; inline;
+    function _ExecuteProcCombine: Boolean; inline;
+    function _ExecuteProcCasesValidation: TResultPair<Boolean, String>; //inline;
     function _ExecuteFuncCasesValidation<R>: TResultPair<R, String>; inline;
     //
     function _IsEquals<I>(const ALeft: I; ARight: I): Boolean; inline;
@@ -426,7 +429,7 @@ type
     ///   An instance of the resulting matching pattern obtained by combining the provided patterns.
     /// </returns>
     {$ENDREGION}
-    function Combine(var AMatch: TMatch<T>): TMatch<T>; inline;
+    function Combine(const AMatch: TMatch<T>): TMatch<T>; inline;
 
     {$REGION 'Doc - TryExcept'}
     /// <summary>
@@ -454,7 +457,7 @@ type
     ///   indicating whether the match was successful.
     /// </returns>
     {$ENDREGION}
-    function Execute: TResultPair<Boolean, String>; overload; inline;
+    function Execute: TResultPair<Boolean, String>; overload; //inline;
     function Execute<R>: TResultPair<R, String>; overload; inline;
   end;
 
@@ -475,6 +478,7 @@ end;
 
 constructor TMatch<T>.Create(const AValue: T);
 begin
+  FCombines := TList<TValue>.Create;
   FCases := TDictionary<String, TCaseGroup>.Create;
   FCases.Add(CASE_IF_PROC, TCaseGroup.Create);
   FCases.Add(CASE_IF_FUNC, TCaseGroup.Create);
@@ -842,6 +846,8 @@ begin
 end;
 
 function TMatch<T>.CaseIs<Typ>(const AProc: TProc): TMatch<T>;
+var
+  LTypeKind: TTypeKind;
 begin
   Result := TMatch<T>(Self);
   if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
@@ -850,8 +856,11 @@ begin
     FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(tkFloat),
                                        TValue.From<TProc>(AProc))
   else
-    FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(PTypeInfo(TypeInfo(Typ)).Kind),
+  begin
+    LTypeKind := PTypeInfo(TypeInfo(Typ)).Kind;
+    FCases[CASE_IS_PROC].AddOrSetValue(TValue.From<TTypeKind>(LTypeKind),
                                        TValue.From<TProc>(AProc));
+  end;
   Result.FSession := TMatchSession.sCase;
 end;
 
@@ -990,18 +999,37 @@ function TMatch<T>._ExecuteProcCasesValidation: TResultPair<Boolean, String>;
 begin
   if (not _ExecuteProcCaseIf) or (not _ExecuteFuncCaseIf) then
   begin
-    Result := TResultPair<Boolean, String>.New.Failure('No matching Guard.');
     Exit;
-  end
-  else
-  if (_ExecuteProcCaseEq) or (_ExecuteProcCaseGt) or (_ExecuteProcCaseLt) or
-     (_ExecuteProcCaseIn) or (_ExecuteProcCaseIs) or (_ExecuteProcCaseRange) or
-     (_ExecuteProcCaseDefault) then
+  end;
+  if (_ExecuteProcCombine) or (_ExecuteProcCaseEq) or (_ExecuteProcCaseGt) or
+     (_ExecuteProcCaseLt) or (_ExecuteProcCaseIn) or (_ExecuteProcCaseIs) or
+     (_ExecuteProcCaseRange) or (_ExecuteProcCaseDefault) then
   begin
     Result := TResultPair<Boolean, String>.New.Success(True);
     Exit;
   end;
   Result := TResultPair<Boolean, String>.New.Failure('No matching case found.');
+end;
+
+function TMatch<T>._ExecuteProcCombine: Boolean;
+var
+  LMatch: TValue;
+  LResult: TResultPair<Boolean, String>;
+begin
+  Result := False;
+  if FCombines.Count = 0 then
+    Exit;
+  try
+    for LMatch in FCombines do
+    begin
+      LResult := LMatch.AsType<TMatch<T>>.Execute;
+      if LResult.isSuccess then
+        Result := True;
+    end;
+  except
+    on E: Exception do
+      Result := False;
+  end;
 end;
 
 function TMatch<T>._ExecuteProcSession: Boolean;
@@ -1142,13 +1170,19 @@ begin
 end;
 
 function TMatch<T>._ExecuteFuncCasesValidation<R>: TResultPair<R, String>;
+var
+  LMatch: TValue;
 begin
   if (not _ExecuteProcCaseIf) or (not _ExecuteFuncCaseIf) then
   begin
     Result := TResultPair<R, String>.New.Failure('No matching Guard.');
     Exit;
-  end
-  else
+  end;
+  if FCombines.Count > 0 then
+  begin
+    Result := TResultPair<R, String>.New.Failure('The Combine method should be called with Execute() instead of Execute<T>.');
+    Exit;
+  end;
   if (_ExecuteFuncCaseEq) or (_ExecuteFuncCaseGt) or (_ExecuteFuncCaseLt) or
      (_ExecuteFuncCaseIn) or (_ExecuteFuncCaseIs) or (_ExecuteFuncCaseRange) or
      (_ExecuteFuncCaseDefault) then
@@ -1283,7 +1317,13 @@ end;
 procedure TMatch<T>._Dispose;
 var
   LCaseGroup: TCaseGroup;
+  LMatch: TValue;
 begin
+  if Assigned(FCombines) then
+  begin
+    FCombines.Clear;
+    FCombines.Free;
+  end;
   if Assigned(FCases) then
   begin
     for LCaseGroup in FCases.Values do
@@ -1767,7 +1807,7 @@ begin
   Result.FUseGuard := True;
 end;
 
-function TMatch<T>.Combine(var AMatch: TMatch<T>): TMatch<T>;
+function TMatch<T>.Combine(const AMatch: TMatch<T>): TMatch<T>;
 var
   LGroup: TPair<String, TCaseGroup>;
   LPair: TPair<TValue, TValue>;
@@ -1775,14 +1815,7 @@ begin
   Result := TMatch<T>(Self);
   if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
     Exit;
-  for LGroup in AMatch.FCases do
-  begin
-    for LPair in LGroup.Value do
-      FCases[LGroup.Key].AddOrSetValue(LPair.Key, LPair.Value);
-  end;
-  // After transferring, clear all received TMatch instances
-  AMatch._Dispose;
-  // Set the type after clearing everything
+  Result.FCombines.Add(TValue.From<TMatch<T>>(AMatch));
   Result.FSession := TMatchSession.sCase;
 end;
 
