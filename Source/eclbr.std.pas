@@ -41,7 +41,6 @@ uses
   Generics.Defaults;
 
 type
-  TArrayString = array of String;
   TListString = TList<String>;
   Tuple = array of TValue;
 
@@ -59,15 +58,26 @@ type
     procedure Update(const Progress: Integer);
   end;
 
-  TArrayHelper = class helper for TArray
+  TArrayEx = class(TArray)
   public
+    class function Merge<T>(const AArray1: array of T;
+      const AArray2: array of T): TArray<T>; static;
+    class function AsList<T>(const AArray: array of T): TList<T>; static;
     class procedure ForEach<T>(const AValues: array of T; AAction: TProc<T>); static;
-    class function Copy<T>(const AValues: array of T): TArray<T>; static;
+    class function Copy<T>(const AValues: array of T; const ASourceIndex: Integer;
+      const ADestIndex: Integer; const ACount: Integer): TArray<T>; static;
     class function Reduce<T>(const AValues: array of T; AReducer: TFunc<T, T, T>): T; static;
     class function Map<T, TResult>(const AValues: array of T; AFunc: TFunc<T, TResult>): TArray<TResult>; static;
     class function Filter<T>(const AValues: array of T; APredicate: TFunc<T, Boolean>): TArray<T>; static;
     class function Any<T>(const AValues: array of T; APredicate: TFunc<T, Boolean>): Boolean; static;
     class function All<T>(const AValues: array of T; APredicate: TFunc<T, Boolean>): Boolean; static;
+    class function Total(const AData: array of Single): Single; overload;
+    class function Total(const AData: array of Double): Double; overload;
+    class function Total(const AData: array of Extended): Extended; overload;
+    class function Sum(const AData: array of Integer): Integer; overload;
+    class function Sum(const AData: array of Single): Single; overload;
+    class function Sum(const AData: array of Double): Double; overload;
+    class function Sum(const AData: array of Extended): Extended; overload;
   end;
 
   TFuture = record
@@ -95,14 +105,9 @@ type
     class var FInstance: TStd;
   public
     class function Get: TStd;
-    class function ArrayMerge<T>(const AArray1: TArray<T>;
-      const AArray2: TArray<T>): TArray<T>; inline;
-    class function ArrayCopy(const ASource: TArrayString; const AIndex: Integer;
-      const ACount: Integer): TArrayString; inline;
     class function IfThen<T>(AValue: Boolean; const ATrue: T; const AFalse: T): T; inline;
-    class function AsList<T>(const AArray: TArray<T>): TList<T>; inline;
-    class function JoinStrings(const AStrings: TArrayString;
-      const ASeparator: String): String; overload; inline;
+    class function JoinStrings(const AStrings: array of String;
+      const ASeparator: String): String; overload;
     class function JoinStrings(const AStrings: TListString;
       const ASeparator: String): String; overload; inline;
     class function RemoveTrailingChars(const AStr: String; const AChars: TSysCharSet): String; inline;
@@ -121,12 +126,6 @@ type
     class function Max(const A, B: Integer): Integer; overload; inline;
     class function Max(const A, B: Double): Double; overload; inline;
     class function Max(const A, B: Currency): Currency; overload; inline;
-    class function Sum(const Data: array of Single): Single; overload;
-    class function Sum(const Data: array of Double): Double; overload;
-    class function Sum(const Data: array of Extended): Extended; overload;
-    class function Total(const Data: array of Single): Single; overload;
-    class function Total(const Data: array of Double): Double; overload;
-    class function Total(const Data: array of Extended): Extended; overload;
     class function Split(const S: String): TArray<String>; inline;
     class function Clone<T>(const AFirst: Pointer; ASize: Cardinal; var Return): Pointer; inline;
     class function Hash(const AValue: MarshaledAString): Cardinal;
@@ -185,45 +184,6 @@ type
 
 { TStd }
 
-class function TStd.ArrayCopy(const ASource: TArrayString; const AIndex,
-  ACount: Integer): TArrayString;
-var
-  LFor: Integer;
-begin
-  SetLength(Result, ACount);
-  for LFor := 0 to ACount - 1 do
-    Result[LFor] := ASource[AIndex + LFor];
-end;
-
-class function TStd.ArrayMerge<T>(const AArray1,
-  AArray2: TArray<T>): TArray<T>;
-var
-  LLength1: Integer;
-  LLength2: Integer;
-begin
-  LLength1 := Length(AArray1);
-  LLength2 := Length(AArray2);
-  if (LLength1 = 0) and (LLength2 = 0) then
-  begin
-    Result := [];
-    exit;
-  end;
-  SetLength(Result, LLength1 + LLength2);
-  if LLength1 > 0 then
-    Move(AArray1[0], Result[0], LLength1 * SizeOf(T));
-  if LLength2 > 0 then
-    Move(AArray2[0], Result[LLength1], LLength2 * SizeOf(T));
-end;
-
-class function TStd.AsList<T>(const AArray: TArray<T>): TList<T>;
-var
-  LFor: Integer;
-begin
-  Result := TList<T>.Create;
-  for LFor := 0 to High(AArray) do
-    Result.Add(AArray[LFor]);
-end;
-
 class function TStd.DateTimeToIso8601(const AValue: TDateTime;
   const AUseISO8601DateFormat: Boolean): String;
 var
@@ -232,7 +192,7 @@ var
 begin
   Result := '';
   if AValue = 0 then
-    exit;
+    Exit;
 
   if AUseISO8601DateFormat then
     LDatePart := FormatDateTime('yyyy-mm-dd', AValue)
@@ -240,11 +200,11 @@ begin
     LDatePart := DateToStr(AValue, TStd.Get.FormatSettings);
 
   if Frac(AValue) = 0 then
-    Result := ifThen<String>(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, TStd.Get.FormatSettings))
+    Result := IfThen<String>(AUseISO8601DateFormat, LDatePart, TimeToStr(AValue, TStd.Get.FormatSettings))
   else
   begin
     LTimePart := FormatDateTime('hh:nn:ss', AValue);
-    Result := ifThen<String>(AUseISO8601DateFormat, LDatePart + 'T' + LTimePart, LDatePart + ' ' + LTimePart);
+    Result := IfThen<String>(AUseISO8601DateFormat, LDatePart + 'T' + LTimePart, LDatePart + ' ' + LTimePart);
   end;
 end;
 
@@ -269,7 +229,7 @@ begin
   if not AUseISO8601DateFormat then
   begin
     Result := StrToDateTimeDef(AValue, 0);
-    exit;
+    Exit;
   end;
   LYYYY := 0; LMM := 0; LDD := 0; LHH := 0; LMI := 0; LSS := 0; LMS := 0;
   if TryStrToInt(Copy(AValue, 1, 4), LYYYY) and
@@ -363,37 +323,7 @@ begin
     Result[LFor - 1] := S[LFor];
 end;
 
-class function TStd.Sum(const Data: array of Single): Single;
-begin
-  Result := Math.Sum(Data);
-end;
-
-class function TStd.Sum(const Data: array of Double): Double;
-begin
-  Result := Math.Sum(Data);
-end;
-
-class function TStd.Sum(const Data: array of Extended): Extended;
-begin
-  Result := Math.Sum(Data);
-end;
-
-class function TStd.Total(const Data: array of Single): Single;
-begin
-  Result := Math.TotalVariance(Data);
-end;
-
-class function TStd.Total(const Data: array of Double): Double;
-begin
-  Result := Math.TotalVariance(Data);
-end;
-
-class function TStd.Total(const Data: array of Extended): Extended;
-begin
-  Result := Math.TotalVariance(Data);
-end;
-
-class function TStd.JoinStrings(const AStrings: TArrayString;
+class function TStd.JoinStrings(const AStrings: array of String;
   const ASeparator: String): String;
 var
   LFor: Integer;
@@ -529,11 +459,11 @@ var
         if LC in ['0'..'9','A'..'Z','a'..'z','+','/','='] then
         begin
           AInput.Position := AInput.Position - 1;
-          break;
+          Break;
         end;
       end
       else
-        break;
+        Break;
     end;
   end;
 
@@ -750,18 +680,18 @@ begin
   Result := Count;
 end;
 
-{ TArrayHelper }
+{ TArrayEx }
 
-class function TArrayHelper.Copy<T>(const AValues: array of T): TArray<T>;
+class function TArrayEx.Copy<T>(const AValues: array of T; const ASourceIndex: Integer;
+  const ADestIndex: Integer; const ACount: Integer): TArray<T>;
 var
-  LFor: Integer;
+  LResult: array of T;
 begin
-  SetLength(Result, Length(AValues));
-  for LFor := Low(AValues) to High(AValues) do
-    Result[LFor] := AValues[LFor];
+  TArray.Copy<T>(AValues, LResult, ASourceIndex, ADestIndex, ACount);
+  Result := LResult;
 end;
 
-class function TArrayHelper.Filter<T>(const AValues: array of T;
+class function TArrayEx.Filter<T>(const AValues: array of T;
   APredicate: TFunc<T, Boolean>): TArray<T>;
 var
   LItem: T;
@@ -773,7 +703,7 @@ begin
   end;
 end;
 
-class procedure TArrayHelper.ForEach<T>(const AValues: array of T;
+class procedure TArrayEx.ForEach<T>(const AValues: array of T;
   AAction: TProc<T>);
 var
   LItem: T;
@@ -782,7 +712,7 @@ begin
     AAction(LItem);
 end;
 
-class function TArrayHelper.Any<T>(const AValues: array of T;
+class function TArrayEx.Any<T>(const AValues: array of T;
   APredicate: TFunc<T, Boolean>): Boolean;
 var
   LItem: T;
@@ -790,11 +720,39 @@ begin
   for LItem in AValues do
     if APredicate(LItem) then
       Exit(True);
-
   Result := False;
 end;
 
-class function TArrayHelper.All<T>(const AValues: array of T;
+class function TArrayEx.Merge<T>(const AArray1,
+  AArray2: array of T): TArray<T>;
+var
+  LLength1: Integer;
+  LLength2: Integer;
+begin
+  LLength1 := Length(AArray1);
+  LLength2 := Length(AArray2);
+  if (LLength1 = 0) and (LLength2 = 0) then
+  begin
+    Result := [];
+    Exit;
+  end;
+  SetLength(Result, LLength1 + LLength2);
+  if LLength1 > 0 then
+    Move(AArray1[0], Result[0], LLength1 * SizeOf(T));
+  if LLength2 > 0 then
+    Move(AArray2[0], Result[LLength1], LLength2 * SizeOf(T));
+end;
+
+class function TArrayEx.AsList<T>(const AArray: array of T): TList<T>;
+var
+  LFor: Integer;
+begin
+  Result := TList<T>.Create;
+  for LFor := 0 to High(AArray) do
+    Result.Add(AArray[LFor]);
+end;
+
+class function TArrayEx.All<T>(const AValues: array of T;
   APredicate: TFunc<T, Boolean>): Boolean;
 var
   LItem: T;
@@ -802,11 +760,10 @@ begin
   for LItem in AValues do
     if not APredicate(LItem) then
       Exit(False);
-
   Result := True;
 end;
 
-class function TArrayHelper.Map<T, TResult>(const AValues: array of T;
+class function TArrayEx.Map<T, TResult>(const AValues: array of T;
   AFunc: TFunc<T, TResult>): TArray<TResult>;
 var
   LIndex: Integer;
@@ -816,7 +773,7 @@ begin
     Result[LIndex] := AFunc(AValues[LIndex]);
 end;
 
-class function TArrayHelper.Reduce<T>(const AValues: array of T;
+class function TArrayEx.Reduce<T>(const AValues: array of T;
   AReducer: TFunc<T, T, T>): T;
 var
   LValue: T;
@@ -824,12 +781,45 @@ var
 begin
   if Length(AValues) = 0 then
     raise EArgumentException.Create('Cannot reduce an empty array');
-
   LValue := Default(T);
   for LItem in AValues do
     LValue := AReducer(LValue, LItem);
-
   Result := LValue;
+end;
+
+class function TArrayEx.Sum(const AData: array of Single): Single;
+begin
+  Result := Math.Sum(AData);
+end;
+
+class function TArrayEx.Sum(const AData: array of Double): Double;
+begin
+  Result := Math.Sum(AData);
+end;
+
+class function TArrayEx.Sum(const AData: array of Extended): Extended;
+begin
+  Result := Math.Sum(AData);
+end;
+
+class function TArrayEx.Sum(const AData: array of Integer): Integer;
+begin
+  Result := Math.SumInt(AData);
+end;
+
+class function TArrayEx.Total(const AData: array of Single): Single;
+begin
+  Result := Math.TotalVariance(AData);
+end;
+
+class function TArrayEx.Total(const AData: array of Double): Double;
+begin
+  Result := Math.TotalVariance(AData);
+end;
+
+class function TArrayEx.Total(const AData: array of Extended): Extended;
+begin
+  Result := Math.TotalVariance(AData);
 end;
 
 { TFuture }

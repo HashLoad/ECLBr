@@ -304,7 +304,7 @@ type
     ///   the list, if any, are replaced by the elements from the array. After
     ///   the assignment, the list contains the same elements as the array.
     /// </remarks>
-    procedure Assign(const Items: TArray<T>);
+    procedure Assign(const Items: array of T);
 
     /// <summary>
     ///   Sorts the elements in the list in ascending order.
@@ -843,9 +843,9 @@ begin
   Pointer(Result) := FItems;
 end;
 
-procedure TVector<T>.Assign(const Items: TArray<T>);
+procedure TVector<T>.Assign(const Items: array of T);
 begin
-  FItems := TArray.Copy<T>(Items);
+  FItems := TArrayEx.Copy<T>(Items, 0, 0, System.Length(Items));
 end;
 
 procedure TVector<T>.Delete(const AIndex: Integer);

@@ -5,9 +5,13 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Rtti,
+
   eclbr.std,
   eclbr.coroutine,
-  eclbr.threading;
+  eclbr.threading, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error,
+  FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool,
+  FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait, Data.DB,
+  FireDAC.Comp.Client;
 
 type
   TForm2 = class(TForm)
@@ -25,6 +29,7 @@ type
     Button5: TButton;
     Memo3: TMemo;
     Label3: TLabel;
+    FDConnection1: TFDConnection;
     procedure BtnCoRoutineClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure BtnAsyncAwaitClick(Sender: TObject);

@@ -112,6 +112,7 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 2
     OnClick = BtnCoRoutineClick
+    ExplicitWidth = 131
   end
   object Button1: TButton
     Left = 365
@@ -146,6 +147,7 @@ object Form2: TForm2
     TabOrder = 4
     WordWrap = True
     OnClick = BtnAsyncAwaitClick
+    ExplicitWidth = 131
   end
   object Button2: TButton
     Left = 365
@@ -221,5 +223,9 @@ object Form2: TForm2
     Width = 847
     Height = 89
     TabOrder = 9
+  end
+  object FDConnection1: TFDConnection
+    Left = 462
+    Top = 507
   end
 end

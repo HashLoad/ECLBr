@@ -62,8 +62,6 @@ const
 type
   PTuple = ^Tuple;
   Tuple = eclbr.std.Tuple;
-//  TRangeChar = set of Char;
-  TRangeInteger = set of 0..255;
 
   // Enumeration to represent different states of the match session
   {$SCOPEDENUMS ON}
@@ -173,7 +171,7 @@ type
     function _ExecuteProcCaseDefault: Boolean; inline;
     function _ExecuteFuncCaseDefault: Boolean; inline;
     function _ExecuteProcCombine: Boolean; inline;
-    function _ExecuteProcCasesValidation: TResultPair<Boolean, String>; //inline;
+    function _ExecuteProcCasesValidation: TResultPair<Boolean, String>; inline;
     function _ExecuteFuncCasesValidation<R>: TResultPair<R, String>; inline;
     //
     function _IsEquals<I>(const ALeft: I; ARight: I): Boolean; inline;
@@ -322,8 +320,16 @@ type
     function CaseIn(const ARange: TArray<T>; const AFunc: TFunc<TValue>): TMatch<T>; overload; inline;
     function CaseIn(const ARange: TArray<T>; const AProc: TProc<T>): TMatch<T>; overload; inline;
     function CaseIn(const ARange: TArray<T>; const AFunc: TFunc<T, TValue>): TMatch<T>; overload; inline;
-//    function CaseIn(const ARange: TRangeChar; const AProc: TProc): TMatch<T>; overload; inline;
-//    function CaseIn(const ARange: TRangeInteger; const AProc: TProc): TMatch<T>; overload;
+    function CaseIn(const ASet: TSysCharSet; const AProc: TProc): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TSysCharSet; const AProc: TProc<TValue>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TSysCharSet; const AFunc: TFunc<TValue>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TSysCharSet; const AProc: TProc<T>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TSysCharSet; const AFunc: TFunc<T, TValue>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TIntegerSet; const AProc: TProc): TMatch<T>; overload;
+    function CaseIn(const ASet: TIntegerSet; const AProc: TProc<TValue>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TIntegerSet; const AFunc: TFunc<TValue>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TIntegerSet; const AProc: TProc<T>): TMatch<T>; overload; inline;
+    function CaseIn(const ASet: TIntegerSet; const AFunc: TFunc<T, TValue>): TMatch<T>; overload; inline;
 
     {$REGION 'Doc - CaseIs'}
     /// <summary>
@@ -457,7 +463,7 @@ type
     ///   indicating whether the match was successful.
     /// </returns>
     {$ENDREGION}
-    function Execute: TResultPair<Boolean, String>; overload; //inline;
+    function Execute: TResultPair<Boolean, String>; overload; inline;
     function Execute<R>: TResultPair<R, String>; overload; inline;
   end;
 
@@ -1170,8 +1176,6 @@ begin
 end;
 
 function TMatch<T>._ExecuteFuncCasesValidation<R>: TResultPair<R, String>;
-var
-  LMatch: TValue;
 begin
   if (not _ExecuteProcCaseIf) or (not _ExecuteFuncCaseIf) then
   begin
@@ -1317,7 +1321,6 @@ end;
 procedure TMatch<T>._Dispose;
 var
   LCaseGroup: TCaseGroup;
-  LMatch: TValue;
 begin
   if Assigned(FCombines) then
   begin
@@ -1482,16 +1485,38 @@ end;
 function TMatch<T>._MatchingProcCaseIn: Boolean;
 var
   LProcPair: TPair<TValue, TValue>;
+  LValueType, LKeyType: PTypeInfo;
+  LValueChar: AnsiChar;
+  LCharSet: TSysCharSet;
 begin
   Result := False;
+  LValueType := FValue.TypeInfo;
   for LProcPair in FCases[CASE_IN_PROC] do
   begin
-    if LProcPair.Key.IsArray then
+    if (LProcPair.Key.IsType<TArray>) and
+       (FValue.Kind in [tkArray, tkDynArray]) then
     begin
       if not _ArraysAreEqual(FValue, LProcPair.Key) then
         Continue;
     end
     else
+    if (LProcPair.Key.IsType<TSysCharSet>) and
+       (FValue.Kind in [tkWChar, tkChar, tkSet]) and
+       (Length(FValue.AsString) = 1) then
+    begin
+      if not LProcPair.Key.TryAsType<TSysCharSet>(LCharSet) then
+        Continue;
+      LValueChar := AnsiChar(FValue.AsType<Char>);
+      if not (LValueChar in LCharSet) then
+        Continue;
+      _ExecuteProcMatchingIn(LProcPair);
+      Result := True;
+      Break;
+    end;
+    // Check types FValue and Key
+    LKeyType := LProcPair.Key.TypeInfo;
+    if LValueType <> LKeyType then
+      Continue;
     if FValue.AsType<T> <> LProcPair.Key.AsType<T> then
       Continue;
     _ExecuteProcMatchingIn(LProcPair);
@@ -1614,8 +1639,12 @@ end;
 function TMatch<T>._MatchingFuncCaseIn: Boolean;
 var
   LFuncPair: TPair<TValue, TValue>;
+  LValueType, LKeyType: PTypeInfo;
+  LValueChar: AnsiChar;
+  LCharSet: TSysCharSet;
 begin
   Result := False;
+  LValueType := FValue.TypeInfo;
   for LFuncPair in FCases[CASE_IN_FUNC] do
   begin
     if LFuncPair.Key.IsArray then
@@ -1624,6 +1653,24 @@ begin
         Continue;
     end
     else
+    if LFuncPair.Key.IsType<TSysCharSet> and (FValue.Kind in [tkWChar, tkChar, tkSet]) then
+    begin
+      if Length(FValue.AsString) > 1 then
+        Continue;
+      if not LFuncPair.Key.TryAsType<TSysCharSet>(LCharSet) then
+        Continue;
+      LValueChar := AnsiChar(FValue.AsString[1]);
+      if LValueChar in LCharSet then
+      begin
+        _ExecuteFuncMatchingIn(LFuncPair.Value);
+        Result := True;
+        Break;
+      end;
+    end;
+    // Check types FValue and Key
+    LKeyType := LFuncPair.Key.TypeInfo;
+    if LValueType <> LKeyType then
+      Continue;
     if FValue.AsType<T> <> LFuncPair.Key.AsType<T> then
       Continue;
     _ExecuteFuncMatchingIn(LFuncPair.Value);
@@ -1808,9 +1855,6 @@ begin
 end;
 
 function TMatch<T>.Combine(const AMatch: TMatch<T>): TMatch<T>;
-var
-  LGroup: TPair<String, TCaseGroup>;
-  LPair: TPair<TValue, TValue>;
 begin
   Result := TMatch<T>(Self);
   if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
@@ -1847,26 +1891,130 @@ begin
   Result := FMatch.AsType<TMatch<T>>.FValue.AsType<T>;
 end;
 
-//function TMatch<T>.CaseIn(const ARange: TRangeChar;
-//  const AProc: TProc): TMatch<T>;
-//begin
-//  Result := TMatch<T>(Self);
-//  if not (FSession in [sMatch, sGuard, sCase]) then
-//    Exit;
-//  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TRangeChar>(ARange),
-//                                     TValue.From<TProc>(AProc));
-//  Result.FSession := TMatchSession.sCase;
-//end;
+function TMatch<T>.CaseIn(const ASet: TSysCharSet;
+  const AProc: TProc): TMatch<T>;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TSysCharSet>(ASet),
+                                     TValue.From<TProc>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
 
-//function TMatch<T>.CaseIn(const ARange: TRangeInteger;
-//  const AProc: TProc): TMatch<T>;
-//begin
-//  Result := TMatch<T>(Self);
-//  if not (FSession in [sMatch, sGuard, sCase]) then
-//    Exit;
-//  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TRangeInteger>(ARange),
-//                                     TValue.From<TProc>(AProc));
-//  Result.FSession := TMatchSession.sCase;
-//end;
+function TMatch<T>.CaseIn(const ASet: TIntegerSet;
+  const AProc: TProc): TMatch<T>;
+var
+  LItem: Integer;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+
+  for LItem in ASet do
+    FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<Integer>(LItem),
+                                       TValue.From<TProc>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TSysCharSet;
+  const AProc: TProc<TValue>): TMatch<T>;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TSysCharSet>(ASet),
+                                     TValue.From<TProc<TValue>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TSysCharSet;
+  const AFunc: TFunc<TValue>): TMatch<T>;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TSysCharSet>(ASet),
+                                     TValue.From<TFunc<TValue>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TSysCharSet;
+  const AProc: TProc<T>): TMatch<T>;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TSysCharSet>(ASet),
+                                     TValue.From<TProc<T>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TSysCharSet;
+  const AFunc: TFunc<T, TValue>): TMatch<T>;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<TSysCharSet>(ASet),
+                                     TValue.From<TFunc<T, TValue>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TIntegerSet;
+  const AProc: TProc<TValue>): TMatch<T>;
+var
+  LItem: Integer;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  for LItem in ASet do
+    FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<Integer>(LItem),
+                                       TValue.From<TProc<TValue>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TIntegerSet;
+  const AFunc: TFunc<TValue>): TMatch<T>;
+var
+  LItem: Integer;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  for LItem in ASet do
+    FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<Integer>(LItem),
+                                       TValue.From<TFunc<TValue>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TIntegerSet;
+  const AProc: TProc<T>): TMatch<T>;
+var
+  LItem: Integer;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  for LItem in ASet do
+    FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<Integer>(LItem),
+                                       TValue.From<TProc<T>>(AProc));
+  Result.FSession := TMatchSession.sCase;
+end;
+
+function TMatch<T>.CaseIn(const ASet: TIntegerSet;
+  const AFunc: TFunc<T, TValue>): TMatch<T>;
+var
+  LItem: Integer;
+begin
+  Result := TMatch<T>(Self);
+  if not (FSession in [TMatchSession.sMatch, TMatchSession.sGuard, TMatchSession.sCase]) then
+    Exit;
+  for LItem in ASet do
+    FCases[CASE_IN_PROC].AddOrSetValue(TValue.From<Integer>(LItem),
+                                       TValue.From<TFunc<T, TValue>>(AFunc));
+  Result.FSession := TMatchSession.sCase;
+end;
 
 end.

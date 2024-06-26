@@ -267,6 +267,8 @@ begin
 end;
 
 procedure TScheduler.Suspend(const AName: String);
+var
+  LItem: TCoroutine;
 begin
   if FCoroutines.Count = 0 then
     raise Exception.Create(C_COROUTINE_NOT_FOUND);

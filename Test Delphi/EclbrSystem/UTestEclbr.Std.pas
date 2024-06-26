@@ -82,13 +82,13 @@ end;
 procedure TTesTStd.TestAll;
 begin
   // Act & Assert
-  Assert.IsTrue(TArray.All<Integer>([1, 2, 3, 4, 5],
+  Assert.IsTrue(TArrayEx.All<Integer>([1, 2, 3, 4, 5],
     function(AValue: Integer): Boolean
     begin
       Result := AValue < 6;
     end));
 
-  Assert.IsFalse(TArray.All<Integer>([1, 2, 3, 4, 5],
+  Assert.IsFalse(TArrayEx.All<Integer>([1, 2, 3, 4, 5],
     function(AValue: Integer): Boolean
     begin
       Result := AValue < 4;
@@ -98,13 +98,13 @@ end;
 procedure TTesTStd.TestAny;
 begin
   // Act & Assert
-  Assert.IsTrue(TArray.Any<Integer>([1, 2, 3, 4, 5],
+  Assert.IsTrue(TArrayEx.Any<Integer>([1, 2, 3, 4, 5],
     function(AValue: Integer): Boolean
     begin
       Result := AValue > 3;
     end));
 
-  Assert.IsFalse(TArray.Any<Integer>([1, 2, 3, 4, 5],
+  Assert.IsFalse(TArrayEx.Any<Integer>([1, 2, 3, 4, 5],
     function(AValue: Integer): Boolean
     begin
       Result := AValue > 5;
@@ -113,18 +113,19 @@ end;
 
 procedure TTesTStd.TestArrayCopy_StringArrays;
 var
-  LSourceArray, LCopiedArray: TArrayString;
+  LSourceArray: TArray<String>;
+  LCopiedArray: TArray<String>;
   LIndex, LCount: Integer;
 const
-  LExpectedArray: TArrayString = ['Item1', 'Item2', 'Item3'];
+  LExpectedArray: TArray<String> = ['Item1', 'Item2', 'Item3'];
 begin
   // Arrange
-  LSourceArray := TArrayString.Create('Item0', 'Item1', 'Item2', 'Item3', 'Item4');
+  LSourceArray := TArray<String>.Create('Item0', 'Item1', 'Item2', 'Item3', 'Item4');
   LIndex := 1;  // Index to start copying
   LCount := 3;  // Number of elements to copy
 
   // Act
-  LCopiedArray := TStd.ArrayCopy(LSourceArray, LIndex, LCount);
+  LCopiedArray := TArrayEx.Copy<String>(LSourceArray, LIndex, LIndex, LCount);
 
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LCopiedArray));
@@ -136,7 +137,7 @@ procedure TTesTStd.TestArrayFilter;
 var
   LEvenNumbers: TArray<Integer>;
 begin
-  LEvenNumbers := TArray.Filter<Integer>([1, 2, 3, 4, 5],
+  LEvenNumbers := TArrayEx.Filter<Integer>([1, 2, 3, 4, 5],
     function(AValue: Integer): Boolean
     begin
       Result := AValue mod 2 = 0;
@@ -152,7 +153,7 @@ procedure TTesTStd.TestArrayMap;
 var
   LDoubledArray: TArray<Integer>;
 begin
-  LDoubledArray := TArray.Map<Integer, Integer>([1, 2, 3, 4, 5],
+  LDoubledArray := TArrayEx.Map<Integer, Integer>([1, 2, 3, 4, 5],
     function(AValue: Integer): Integer
     begin
       Result := AValue * 2;
@@ -182,7 +183,7 @@ begin
   LArray2[1] := 5;
   LArray2[2] := 6;
   // Act
-  LMergedArray := TStd.ArrayMerge<Integer>(LArray1, LArray2);
+  LMergedArray := TArrayEx.Merge<Integer>(LArray1, LArray2);
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LMergedArray));
   for LFor := Low(LExpectedArray) to High(LExpectedArray) do
@@ -204,7 +205,7 @@ begin
   LArray2[0] := 'DUnitX';
   LArray2[1] := 'Testing';
   // Act
-  LMergedArray := TStd.ArrayMerge<String>(LArray1, LArray2);
+  LMergedArray := TArrayEx.Merge<String>(LArray1, LArray2);
   // Assert
   // Assert
   Assert.AreEqual(Length(LExpectedArray), Length(LMergedArray));
@@ -216,7 +217,7 @@ procedure TTesTStd.TestArrayReduce;
 var
   LSum: Integer;
 begin
-  LSum := TArray.Reduce<Integer>([1, 2, 3, 4, 5],
+  LSum := TArrayEx.Reduce<Integer>([1, 2, 3, 4, 5],
     function(accumulated, current: Integer): Integer
     begin
       Result := accumulated + current;
@@ -233,7 +234,7 @@ begin
   // Arrange
   LInputArray := TArray<Integer>.Create(1, 2, 3, 4, 5);
   // Act
-  LList := TStd.AsList<Integer>(LInputArray);
+  LList := TArrayEx.AsList<Integer>(LInputArray);
   try
     // Assert
     LLength := Length(LInputArray);
@@ -356,7 +357,7 @@ begin
   LSum := 0;
 
   // Act
-  TArray.ForEach<Integer>([1, 2, 3, 4, 5],
+  TArrayEx.ForEach<Integer>([1, 2, 3, 4, 5],
     procedure(AValue: Integer)
     begin
       LSum := LSum + AValue;
@@ -392,11 +393,11 @@ end;
 
 procedure TTesTStd.TestJoinStrings_StringArray;
 var
-  LStrings: TArrayString;
+  LStrings: TArray<String>;
   LSeparator, LResultString: String;
 begin
   // Arrange
-  LStrings := TArrayString.Create('Hello', 'World', 'DUnitX', 'Testing');
+  LStrings := TArray<String>.Create('Hello', 'World', 'DUnitX', 'Testing');
   LSeparator := ', ';
   // Act
   LResultString := TStd.JoinStrings(LStrings, LSeparator);

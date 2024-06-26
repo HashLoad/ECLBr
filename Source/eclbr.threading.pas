@@ -187,7 +187,7 @@ begin
       raise EAsyncAwait.Create(LMessage);
 
     if not Assigned(AContinue) then
-      exit;
+      Exit;
     TThread.Queue(TThread.CurrentThread,
                   procedure
                   begin
@@ -267,7 +267,7 @@ begin
       raise EAsyncAwait.Create(LMessage);
 
     if not Assigned(AContinue) then
-      exit;
+      Exit;
     TThread.Queue(TThread.CurrentThread,
                   procedure
                   begin

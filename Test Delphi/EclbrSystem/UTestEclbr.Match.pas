@@ -53,6 +53,9 @@ type
     // Campos e métodos específicos para o padrão A2
   end;
 
+  TDiaSemana = (Domingo, Segunda, Terca, Quarta, Quinta, Sexta, Sabado);
+  TDiasSemanaSet = set of TDiaSemana;
+
   [TestFixture]
   TestTMatch = class
   private
@@ -99,7 +102,7 @@ type
     procedure TestCaseTryExcept;
     [Test]
     procedure TestCaseChar;
-////    [Test]
+    [Test]
     procedure TestCaseRangeSet;
     [Test]
     procedure TestCaseRegex;
@@ -147,6 +150,10 @@ type
     procedure TestMatchTuplaArrowFun;
     [Test]
     procedure TestMatchHttpStatus;
+    [Test]
+    procedure TestCaseWeekdaySet;
+    [Test]
+    procedure TestCaseRangeSetInteger;
 end;
 
 implementation
@@ -612,21 +619,76 @@ begin
 end;
 
 procedure TestTMatch.TestCaseRangeSet;
-//var
-//  LMatchResult: TResultPair<Boolean, String>;
-//  isMatch: Boolean;
+var
+  LMatchResult: TResultPair<Boolean, String>;
+  isMatch: Boolean;
 begin
-//  isMatch := False;
-//  try
-//    LMatchResult := TMatch<Char>.Value('A')
-//                                .CaseIn(['A'..'Z'], procedure begin isMatch := True; end)
-//                                .CaseIn([1..100], procedure begin isMatch := False; end)
-//                                .Execute;
-//
-//    Assert.IsTrue(isMatch, 'Expected match to be successful');
-//  finally
-//    LMatchResult.Dispose;
-//  end;
+  isMatch := False;
+  try
+    LMatchResult := TMatch<Char>.Value('A')
+                                .CaseIn(['A'..'Z'], procedure
+                                                    begin
+                                                      isMatch := True;
+                                                    end)
+                                .CaseIn([1..10], procedure
+                                                  begin
+                                                    isMatch := False;
+                                                  end)
+                                .Execute;
+
+    Assert.IsTrue(isMatch, 'Expected match to be successful');
+  finally
+    LMatchResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestCaseRangeSetInteger;
+var
+  LMatchResult: TResultPair<Boolean, String>;
+  isMatch: Boolean;
+begin
+  isMatch := False;
+  try
+    LMatchResult := TMatch<Integer>.Value(1)
+                                .CaseIn(['A'..'Z'], procedure
+                                                    begin
+                                                      isMatch := False;
+                                                    end)
+                                .CaseIn([1..10], procedure
+                                                  begin
+                                                    isMatch := True;
+                                                  end)
+                                .Execute;
+
+    Assert.IsTrue(isMatch, 'Expected match to be successful');
+  finally
+    LMatchResult.Dispose;
+  end;
+end;
+
+procedure TestTMatch.TestCaseWeekdaySet;
+var
+  LMatchResult: TResultPair<Boolean, String>;
+  isMatch: Boolean;
+begin
+  isMatch := False;
+  try
+    LMatchResult := TMatch<TDiaSemana>.Value(Sabado)
+                                      .CaseIn([Segunda, Terca, Quarta, Quinta, Sexta], procedure
+                                                        begin
+                                                          isMatch := True;
+                                                        end)
+                                      .CaseIn([Domingo, Sabado], procedure
+                                                        begin
+                                                          isMatch := False;
+                                                        end)
+                                      .Execute;
+
+    Assert.IsFalse(isMatch, 'Expected match to be successful');
+    Assert.IsTrue(LMatchResult.isSuccess, 'Expected match to be successful');
+  finally
+    LMatchResult.Dispose;
+  end;
 end;
 
 procedure TestTMatch.TestSingleCaseOf;
@@ -1065,14 +1127,17 @@ var
   begin
     Result := 'new';
   end;
+
   function get_init: String;
   begin
     Result := 'Result Init';
   end;
+
   function get_new: String;
   begin
     Result := 'Result New';
   end;
+
   function get_gen: String;
   begin
     Result := 'Result Gen';
